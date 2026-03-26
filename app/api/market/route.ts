@@ -11,6 +11,12 @@ const MARKET_SYMBOLS = {
   'GOLD': 'GC=F',
   'OIL': 'CL=F',
   'VIX': '^VIX',
+  'EUR/USD': 'EURUSD=X',
+  'GBP/USD': 'GBPUSD=X',
+  'USD/JPY': 'USDJPY=X',
+  'USD/CAD': 'USDCAD=X',
+  'AUD/USD': 'AUDUSD=X',
+  'USD/CHF': 'USDCHF=X',
 }
 
 async function fetchMarketData(name: string, symbol: string) {

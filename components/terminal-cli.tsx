@@ -246,7 +246,7 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
     switch (command) {
       case 'help':
         addLog('info', '━━━ Available Commands ━━━')
-        addLog('info', 'add <SYMBOL>          - Add stock to watchlist')
+        addLog('info', 'add <SYMBOL>          - Add stock/FX pair to watchlist')
         addLog('info', 'remove <SYMBOL>       - Remove stock from watchlist')
         addLog('info', 'search <QUERY>        - Search stocks by name or ticker')
         addLog('info', 'info <SYMBOL>         - Show real-time stock info')
@@ -259,8 +259,13 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
         addLog('info', 'system                - Show system info')
         addLog('info', 'clear                 - Clear terminal output')
         addLog('info', 'clearall              - Remove all stocks')
+        addLog('info', '━━━ FX / Currency Commands ━━━')
+        addLog('info', 'fx                    - Show major exchange rates')
+        addLog('info', 'fx <AMOUNT> <FROM> <TO>  - Convert currency (e.g. fx 100 USD EUR)')
+        addLog('info', 'fx add <PAIR>         - Add FX pair to watchlist (e.g. fx add EURUSD)')
         addLog('info', '━━━ Tips ━━━')
         addLog('info', '• Any valid stock/ETF ticker works (e.g., SPY, QQQ, BRK.B)')
+        addLog('info', '• FX pairs: add EURUSD=X, GBPUSD=X, USDJPY=X etc.')
         addLog('info', '• Use arrow keys for command history')
         addLog('info', '• Tab to autocomplete commands')
         addLog('info', '• Click stock cards to see detailed analysis')
@@ -423,6 +428,88 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
       case '':
         break
 
+      case 'fx':
+      case 'currency':
+      case 'convert': {
+        // fx                   → show major rates
+        // fx 100 USD EUR       → convert
+        // fx add EURUSD        → add pair to watchlist
+        const FX_MAJOR_PAIRS = [
+          ['EUR', 'USD', 'Euro'],
+          ['GBP', 'USD', 'British Pound'],
+          ['USD', 'JPY', 'Japanese Yen'],
+          ['USD', 'CAD', 'Canadian Dollar'],
+          ['AUD', 'USD', 'Australian Dollar'],
+          ['USD', 'CHF', 'Swiss Franc'],
+          ['USD', 'CNY', 'Chinese Yuan'],
+          ['USD', 'INR', 'Indian Rupee'],
+        ]
+
+        // fx add <PAIR>
+        if (args[0]?.toLowerCase() === 'add') {
+          const rawPair = args[1]
+          if (!rawPair) {
+            addLog('error', 'Usage: fx add <PAIR>  (e.g. fx add EURUSD)')
+            addLog('info',  'This adds the Yahoo Finance FX symbol <PAIR>=X to your watchlist.')
+            break
+          }
+          const fxSym = rawPair.toUpperCase().replace(/=X$/i, '') + '=X'
+          await validateAndAddSymbol(fxSym)
+          break
+        }
+
+        // fx <AMOUNT> <FROM> <TO>
+        const maybeAmount = parseFloat(args[0])
+        if (!isNaN(maybeAmount) && args[1] && args[2]) {
+          const from = args[1].toUpperCase()
+          const to   = args[2].toUpperCase()
+          const sym  = `${from}${to}=X`
+          addLog('system', `Converting ${maybeAmount} ${from} → ${to}…`)
+          try {
+            const res = await fetch(`/api/stock/${sym}`)
+            if (!res.ok) {
+              addLog('error', `Rate not available for ${from}/${to}. Check the currency codes.`)
+              break
+            }
+            const data = await res.json()
+            const rate = data.price as number
+            const dp   = to === 'JPY' || to === 'KRW' ? 2 : 4
+            const result = (maybeAmount * rate).toFixed(dp)
+            addLog('success', `${maybeAmount} ${from} = ${result} ${to}`)
+            addLog('info',    `Rate: 1 ${from} = ${rate.toFixed(dp)} ${to}`)
+            addLog('info',    `Tip: "add ${sym}" to track this pair in your watchlist`)
+          } catch {
+            addLog('error', 'Failed to fetch exchange rate. Try again.')
+          }
+          break
+        }
+
+        // fx  (no args) → show rates table
+        addLog('info', '━━━ Major Exchange Rates (vs USD) ━━━')
+        addLog('system', 'Fetching live rates…')
+        const rateResults = await Promise.allSettled(
+          FX_MAJOR_PAIRS.map(async ([from, to, label]) => {
+            const sym = `${from}${to}=X`
+            const res = await fetch(`/api/stock/${sym}`)
+            if (!res.ok) return null
+            const data = await res.json()
+            return { from, to, label, rate: data.price as number, sym }
+          })
+        )
+        rateResults.forEach(r => {
+          if (r.status === 'fulfilled' && r.value) {
+            const { from, to, label, rate, sym } = r.value
+            const dp = to === 'JPY' || to === 'KRW' ? 3 : 4
+            const pair = `${from}/${to}`.padEnd(8)
+            addLog('info', `${pair}  ${rate.toFixed(dp).padStart(10)}   ${label.padEnd(22)} [${sym}]`)
+          }
+        })
+        addLog('info', '─────────────────────────────────────────────────')
+        addLog('info', 'Usage: fx <AMOUNT> <FROM> <TO>   e.g. fx 500 GBP JPY')
+        addLog('info', 'Usage: fx add <PAIR>             e.g. fx add GBPUSD')
+        break
+      }
+
       default:
         // Try to interpret as a symbol if it looks like one
         if (/^[A-Za-z.-]{1,6}$/.test(command) && !args.length) {
@@ -466,7 +553,7 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
     } else if (e.key === 'Tab') {
       e.preventDefault()
       // Simple tab completion for commands
-      const commands = ['help', 'add', 'remove', 'search', 'browse', 'list', 'clear', 'clearall', 'popular', 'info', 'compare', 'system', 'portfolio']
+      const commands = ['help', 'add', 'remove', 'search', 'browse', 'list', 'clear', 'clearall', 'popular', 'info', 'compare', 'system', 'portfolio', 'fx', 'currency', 'convert']
       const match = commands.find(c => c.startsWith(input.toLowerCase()))
       if (match) setInput(match + ' ')
     }
