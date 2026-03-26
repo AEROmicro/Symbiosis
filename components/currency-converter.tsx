@@ -17,18 +17,30 @@ import {
 import { cn } from '@/lib/utils'
 
 const CURRENCIES = [
-  { code: 'USD', name: 'US Dollar',    symbol: '$' },
-  { code: 'EUR', name: 'Euro',         symbol: '€' },
-  { code: 'GBP', name: 'British Pound Sterling', symbol: '£' },
-  { code: 'JPY', name: 'Japanese Yen', symbol: '¥' },
-]
-
-const MARKET_RATES = [
-  { symbol: '^RUT',  label: 'Russell 2000',              unit: 'pts'  },
-  { symbol: '^TNX',  label: 'CBOE 10-Year Treasury Yield',   unit: '%'   },
-  { symbol: '^IRX',  label: 'CBOE 13-Week T-Bill Rate',   unit: '%'   },
-  { symbol: '^TYX',  label: 'CBOE 30-Year Interest Rate', unit: '%'   },
-  { symbol: '^VIX',  label: 'CBOE Volatility Index (VIX)', unit: 'pts' },
+  { code: 'USD', name: 'US Dollar',           symbol: '$'   },
+  { code: 'EUR', name: 'Euro',                symbol: '€'   },
+  { code: 'GBP', name: 'British Pound',       symbol: '£'   },
+  { code: 'JPY', name: 'Japanese Yen',        symbol: '¥'   },
+  { code: 'CAD', name: 'Canadian Dollar',     symbol: 'C$'  },
+  { code: 'AUD', name: 'Australian Dollar',   symbol: 'A$'  },
+  { code: 'CHF', name: 'Swiss Franc',         symbol: 'Fr'  },
+  { code: 'CNY', name: 'Chinese Yuan',        symbol: '¥'   },
+  { code: 'HKD', name: 'Hong Kong Dollar',    symbol: 'HK$' },
+  { code: 'SGD', name: 'Singapore Dollar',    symbol: 'S$'  },
+  { code: 'INR', name: 'Indian Rupee',        symbol: '₹'   },
+  { code: 'MXN', name: 'Mexican Peso',        symbol: '$'   },
+  { code: 'BRL', name: 'Brazilian Real',      symbol: 'R$'  },
+  { code: 'KRW', name: 'South Korean Won',    symbol: '₩'   },
+  { code: 'NOK', name: 'Norwegian Krone',     symbol: 'kr'  },
+  { code: 'SEK', name: 'Swedish Krona',       symbol: 'kr'  },
+  { code: 'NZD', name: 'New Zealand Dollar',  symbol: 'NZ$' },
+  { code: 'DKK', name: 'Danish Krone',        symbol: 'kr'  },
+  { code: 'PLN', name: 'Polish Zloty',        symbol: 'zł'  },
+  { code: 'THB', name: 'Thai Baht',           symbol: '฿'   },
+  { code: 'ZAR', name: 'South African Rand',  symbol: 'R'   },
+  { code: 'TRY', name: 'Turkish Lira',        symbol: '₺'   },
+  { code: 'SAR', name: 'Saudi Riyal',         symbol: '﷼'   },
+  { code: 'AED', name: 'UAE Dirham',          symbol: 'د.إ' },
 ]
 
 const CHART_RANGES = [
@@ -54,13 +66,6 @@ interface ChartPoint {
   close: number
 }
 
-interface MarketRateData {
-  symbol: string
-  price: number | null
-  change: number | null
-  loading: boolean
-}
-
 interface CurrencyConverterProps {
   onAddToWatchlist?: (symbol: string) => void
   watchedStocks?: string[]
@@ -80,10 +85,6 @@ export function CurrencyConverter({ onAddToWatchlist, watchedStocks = [] }: Curr
   const [chartData, setChartData]       = useState<ChartPoint[]>([])
   const [chartRange, setChartRange]     = useState('1mo')
   const [chartLoading, setChartLoading] = useState(false)
-
-  const [marketRates, setMarketRates] = useState<MarketRateData[]>(
-    MARKET_RATES.map(r => ({ symbol: r.symbol, price: null, change: null, loading: true }))
-  )
 
   const symbol = fxSymbol(from, to)
   const dp      = priceDp(to)
@@ -132,30 +133,13 @@ export function CurrencyConverter({ onAddToWatchlist, watchedStocks = [] }: Curr
     setChartLoading(false)
   }, [from, to, chartRange])
 
-  const fetchMarketRates = useCallback(async () => {
-    setMarketRates(prev => prev.map(r => ({ ...r, loading: true })))
-    const results = await Promise.allSettled(
-      MARKET_RATES.map(r => fetch(`/api/stock/${encodeURIComponent(r.symbol)}`).then(res => res.ok ? res.json() : null))
-    )
-    setMarketRates(
-      MARKET_RATES.map((r, i) => {
-        const result = results[i]
-        if (result.status === 'fulfilled' && result.value) {
-          return { symbol: r.symbol, price: result.value.price ?? null, change: result.value.changePercent ?? null, loading: false }
-        }
-        return { symbol: r.symbol, price: null, change: null, loading: false }
-      })
-    )
-  }, [])
-
   // Refresh rate + chart whenever dialog opens or pair changes;
   // also re-runs when chartRange changes because fetchChart is memoised on it.
   useEffect(() => {
     if (!open) return
     fetchRate()
     fetchChart()
-    fetchMarketRates()
-  }, [open, from, to, fetchRate, fetchChart, fetchMarketRates])
+  }, [open, from, to, fetchRate, fetchChart])
 
   const swap = () => {
     setFrom(to)
@@ -425,57 +409,6 @@ export function CurrencyConverter({ onAddToWatchlist, watchedStocks = [] }: Curr
             )}
           </div>
         )}
-
-        {/* ── Market Rates & Indices ────────────────────────────── */}
-        <div className="border-t border-border pt-4">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground uppercase tracking-wider">
-              <TrendingUp className="w-3 h-3 text-primary" />
-              Market Rates &amp; Indices
-            </div>
-            <button
-              onClick={fetchMarketRates}
-              title="Refresh market rates"
-              className="p-1 rounded hover:bg-primary/5 transition-all"
-            >
-              <RefreshCw className="w-3 h-3 text-muted-foreground hover:text-primary" />
-            </button>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {MARKET_RATES.map((r, i) => {
-              const data = marketRates[i]
-              return (
-                <div
-                  key={r.symbol}
-                  className="flex items-center justify-between border border-border rounded-md px-3 py-2 bg-background/50"
-                >
-                  <div className="min-w-0">
-                    <div className="text-xs font-bold text-foreground font-mono truncate">{r.label}</div>
-                    <div className="text-[10px] text-muted-foreground font-mono">{r.symbol}</div>
-                  </div>
-                  <div className="text-right ml-2 shrink-0">
-                    {data.loading ? (
-                      <RefreshCw className="w-3 h-3 animate-spin text-muted-foreground ml-auto" />
-                    ) : data.price !== null ? (
-                      <>
-                        <div className="text-sm font-bold tabular-nums text-primary font-mono">
-                          {data.price.toFixed(2)} <span className="text-xs font-normal text-muted-foreground">{r.unit}</span>
-                        </div>
-                        {data.change !== null && (
-                          <div className={cn('text-[10px] tabular-nums font-mono', data.change >= 0 ? 'text-primary' : 'text-destructive')}>
-                            {data.change >= 0 ? '+' : ''}{data.change.toFixed(2)}%
-                          </div>
-                        )}
-                      </>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">—</span>
-                    )}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
       </DialogContent>
     </Dialog>
   )
