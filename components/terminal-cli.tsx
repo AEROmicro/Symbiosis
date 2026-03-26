@@ -148,6 +148,36 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
     }
   }
 
+  const fetchNews = async (symbol?: string) => {
+    const label = symbol ? symbol.toUpperCase() : 'market'
+    addLog('system', `Fetching news for ${label}...`)
+    try {
+      const url = symbol
+        ? `/api/news?symbol=${encodeURIComponent(symbol.toUpperCase())}`
+        : '/api/news'
+      const response = await fetch(url)
+      if (!response.ok) {
+        addLog('error', 'Failed to fetch news. Please try again.')
+        return
+      }
+      const data = await response.json()
+      const articles: Array<{ title: string; publisher: string; publishedAt: string }> = data.articles ?? []
+      if (articles.length === 0) {
+        addLog('warning', `No news found for ${label}`)
+        return
+      }
+      addLog('info', `━━━ Latest News: ${label.toUpperCase()} ━━━`)
+      articles.forEach((a) => {
+        const date = new Date(a.publishedAt)
+        const timeStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false })
+        addLog('info', `[${timeStr}] ${a.publisher}`)
+        addLog('info', `  ${a.title}`)
+      })
+    } catch {
+      addLog('error', 'Failed to fetch news. Please try again.')
+    }
+  }
+
   const searchStocks = async (query: string) => {
     addLog('system', `Searching for "${query}"...`)
     try {
@@ -253,6 +283,8 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
         addLog('info', 'compare A B           - Compare two stocks')
         addLog('info', 'list                  - Show watched stocks')
         addLog('info', 'popular               - Show popular stocks')
+        addLog('info', 'news                  - Show latest market news')
+        addLog('info', 'news <SYMBOL>         - Show news for a specific stock')
         addLog('info', 'portfolio             - Show portfolio with P&L')
         addLog('info', 'portfolio add <SYMBOL> <SHARES> <PRICE>    - Add position to portfolio')
         addLog('info', 'portfolio remove <SYMBOL>                  - Remove position from portfolio')
@@ -357,6 +389,10 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
         addLog('info', '○ QQQ   (NASDAQ 100 ETF)')
         addLog('info', '○ VTI   (Total Market ETF)')
         addLog('info', 'Use "add <SYMBOL>" to add to watchlist')
+        break
+
+      case 'news':
+        await fetchNews(args[0])
         break
 
       case 'search':
@@ -553,7 +589,7 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
     } else if (e.key === 'Tab') {
       e.preventDefault()
       // Simple tab completion for commands
-      const commands = ['help', 'add', 'remove', 'search', 'browse', 'list', 'clear', 'clearall', 'popular', 'info', 'compare', 'system', 'portfolio', 'fx', 'currency', 'convert']
+      const commands = ['help', 'add', 'remove', 'search', 'browse', 'list', 'clear', 'clearall', 'popular', 'news', 'info', 'compare', 'system', 'portfolio', 'fx', 'currency', 'convert']
       const match = commands.find(c => c.startsWith(input.toLowerCase()))
       if (match) setInput(match + ' ')
     }

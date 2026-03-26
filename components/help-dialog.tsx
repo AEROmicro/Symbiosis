@@ -64,6 +64,12 @@ export function HelpDialog() {
                 <code className="text-primary">popular</code>
                 <span className="text-muted-foreground">Show popular stocks to track</span>
 
+                <code className="text-primary">news</code>
+                <span className="text-muted-foreground">Show latest market news headlines</span>
+
+                <code className="text-primary">news &lt;SYMBOL&gt;</code>
+                <span className="text-muted-foreground">Show news for a specific stock</span>
+
                 <code className="text-primary">portfolio</code>
                 <span className="text-muted-foreground">View portfolio with P&L analysis</span>
 
