@@ -13,6 +13,7 @@ import { KeyboardShortcuts } from '@/components/keyboard-shortcuts'
 import { MarketHoursDialog } from '@/components/market-hours-dialog'
 import { MarketStatsDialog } from '@/components/market-stats-dialog'
 import { SettingsDialog, type AppTheme } from '@/components/settings-dialog'
+import { CurrencyConverter } from '@/components/currency-converter'
 
 const STORAGE_KEY = 'symbiosis-watchlist'
 const THEME_KEY = 'symbiosis-theme'
@@ -179,6 +180,10 @@ export default function SymbiosisApp() {
                 <KeyboardShortcuts />
                 <MarketStatsDialog />
                 <MarketHoursDialog />
+                <CurrencyConverter
+                  onAddToWatchlist={handleAddStock}
+                  watchedStocks={watchedStocks}
+                />
               </div>
             </div>
           </div>
@@ -238,7 +243,11 @@ export default function SymbiosisApp() {
                   <div><span className="text-foreground">list</span> - Show watchlist</div>
                   <div><span className="text-foreground">portfolio</span> - View portfolio P&L</div>
                   <div><span className="text-foreground">portfolio add AAPL 10 150</span> - Add position</div>
+                  <div><span className="text-foreground">fx</span> - Major exchange rates</div>
+                  <div><span className="text-foreground">fx 100 USD EUR</span> - Convert currency</div>
+                  <div><span className="text-foreground">fx add EURUSD</span> - Track FX pair</div>
                   <div><span className="text-foreground">popular</span> - Popular stocks</div>
+                  <div><span className="text-foreground">compare AAPL MSFT</span> - Compare two</div>
                   <div><span className="text-foreground">help</span> - All commands</div>
                 </div>
               </div>
