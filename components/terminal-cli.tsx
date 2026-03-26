@@ -41,9 +41,12 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
   })
   const inputRef = useRef<HTMLInputElement>(null)
   const logsEndRef = useRef<HTMLDivElement>(null)
+  const logsContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    logsEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    if (logsContainerRef.current) {
+      logsContainerRef.current.scrollTop = logsContainerRef.current.scrollHeight
+    }
   }, [logs])
 
   useEffect(() => {
@@ -495,7 +498,7 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
       </div>
 
       {/* Logs Output */}
-      <div className="flex-1 overflow-y-auto p-4 font-mono text-sm min-h-[280px] max-h-[400px]">
+      <div ref={logsContainerRef} className="flex-1 overflow-y-auto p-4 font-mono text-sm min-h-[280px] max-h-[400px]">
         {logs.map((log) => (
           <div key={log.id} className={cn("mb-0.5", getLogColor(log.type))}>
             {log.showTimestamp && (
