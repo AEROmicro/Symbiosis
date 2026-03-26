@@ -1,3 +1,4 @@
+export const runtime = 'edge';
 import { NextResponse } from 'next/server'
 
 // Fetch comprehensive stock data from Yahoo Finance
