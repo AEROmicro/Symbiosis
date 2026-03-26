@@ -24,8 +24,7 @@ export function HelpDialog() {
           Help
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto font-mono">
-        <DialogHeader>
+      <DialogContent className="max-w-6xl max-h-[80vh] overflow-y-auto font-mono">        <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <span className="text-primary">{'>'}_</span>
             Symbiosis Help Center
