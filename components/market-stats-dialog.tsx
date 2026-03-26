@@ -63,7 +63,7 @@ export function MarketStatsDialog() {
           Market Stats
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-xl font-mono">
+      <DialogContent className="max-w-2xl font-mono">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Activity className="w-4 h-4 text-primary" />
@@ -76,9 +76,9 @@ export function MarketStatsDialog() {
 
         <div className="space-y-4">
           {loading ? (
-            <div className="space-y-2">
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="h-16 bg-muted rounded animate-pulse" />
+            <div className="grid grid-cols-3 gap-2">
+              {[...Array(9)].map((_, i) => (
+                <div key={i} className="h-20 bg-muted rounded animate-pulse" />
               ))}
             </div>
           ) : stats ? (
@@ -104,31 +104,27 @@ export function MarketStatsDialog() {
                 </p>
               </div>
 
-              <div className="space-y-2">
+              <div className="grid grid-cols-3 gap-2">
                 {stats.indices.map((index) => {
                   const isPositive = index.change >= 0
                   return (
                     <div
                       key={index.symbol}
                       className={cn(
-                        "flex items-center justify-between p-3 rounded-md border",
+                        "flex flex-col gap-1 p-3 rounded-md border",
                         isPositive ? "border-primary/20 bg-primary/5" : "border-destructive/20 bg-destructive/5"
                       )}
                     >
-                      <div>
-                        <div className="font-semibold text-sm">{index.symbol}</div>
-                        <div className="text-2xl font-bold tabular-nums">
-                          {index.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </div>
+                      <div className="font-semibold text-xs text-muted-foreground">{index.symbol}</div>
+                      <div className="text-lg font-bold tabular-nums">
+                        {index.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </div>
-                      <div className="text-right">
-                        <div className={cn(
-                          "flex items-center gap-1 text-sm font-semibold",
-                          isPositive ? "text-primary" : "text-destructive"
-                        )}>
-                          {isPositive ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-                          {isPositive ? '+' : ''}{index.change.toFixed(2)}%
-                        </div>
+                      <div className={cn(
+                        "flex items-center gap-1 text-xs font-semibold",
+                        isPositive ? "text-primary" : "text-destructive"
+                      )}>
+                        {isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                        {isPositive ? '+' : ''}{index.change.toFixed(2)}%
                       </div>
                     </div>
                   )
