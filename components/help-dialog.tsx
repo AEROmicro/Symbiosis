@@ -24,7 +24,7 @@ export function HelpDialog() {
           Help
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto font-mono">
+      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto font-mono">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <span className="text-primary">{'>'}_</span>
@@ -43,7 +43,7 @@ export function HelpDialog() {
               Terminal Commands
             </div>
             <div className="space-y-2 pl-2">
-              <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5">
+              <div className="grid grid-cols-[auto_1fr] gap-x-8 gap-y-1.5">
                 <code className="text-primary">add &lt;SYMBOL&gt;</code>
                 <span className="text-muted-foreground">Add stock to watchlist</span>
 
@@ -93,7 +93,7 @@ export function HelpDialog() {
               Keyboard Shortcuts
             </div>
             <div className="space-y-2 pl-2">
-              <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5">
+              <div className="grid grid-cols-[auto_1fr] gap-x-8 gap-y-1.5">
                 <kbd className="px-2 py-1 bg-muted rounded text-xs border border-border">↑</kbd>
                 <span className="text-muted-foreground">Navigate command history (previous)</span>
 
@@ -131,7 +131,7 @@ export function HelpDialog() {
               Market Status
             </div>
             <div className="space-y-2 pl-2">
-              <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-xs">
+              <div className="grid grid-cols-[auto_1fr] gap-x-8 gap-y-1.5 text-xs">
                 <span className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                   <span className="text-primary font-semibold">OPEN</span>
