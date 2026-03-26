@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Symbiosis</title>
+  <meta name="description" content="Real-time global stock tracking with a terminal interface">
+  <meta name="theme-color" content="#00ff41">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Synapse">
+  <link rel="icon" href="./icon.png" type="image/png">
+  <link rel="apple-touch-icon" href="./icon.png">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+
+<body>
+  <header class="header">
+    <div class="logo">
+      <div class="logo-icon">>_</div>
+      <div>
+        <div class="logo-text">SYMBIOSIS</div>
+        <div class="logo-sub">TERMINAL STOCK TRACKER</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="market-status">
+        <div class="status-dot" id="marketDot"></div>
+        <span id="marketStatus">CHECKING...</span>
+      </div>
+      <div class="clock" id="clock">--:--:--</div>
+    </div>
+  </header>
+
+  <div class="ticker-container">
+    <div class="ticker-track" id="tickerTrack">
+      <div class="ticker-item"><span class="ticker-symbol">Loading market data...</span></div>
+    </div>
+  </div>
+
+  <main class="main">
+    <aside class="sidebar">
+      <div class="sidebar-header">WATCHLIST</div>
+      <div id="stockCards">
+        <div class="loading"><div class="spinner"></div>Loading...</div>
+      </div>
+      <div class="quick-actions">
+        <button class="quick-btn" onclick="addStock('AAPL')">+ AAPL</button>
+        <button class="quick-btn" onclick="addStock('GOOGL')">+ GOOGL</button>
+        <button class="quick-btn" onclick="addStock('MSFT')">+ MSFT</button>
+        <button class="quick-btn" onclick="addStock('AMZN')">+ AMZN</button>
+        <button class="quick-btn" onclick="addStock('TSLA')">+ TSLA</button>
+        <button class="quick-btn" onclick="addStock('NVDA')">+ NVDA</button>
+      </div>
+    </aside>
+
+    <section class="terminal">
+      <div class="terminal-header">
+        <div class="terminal-dots">
+          <div class="terminal-dot"></div>
+          <div class="terminal-dot"></div>
+          <div class="terminal-dot"></div>
+        </div>
+        <div class="terminal-title">symbiosis@terminal:~</div>
+      </div>
+      <div class="terminal-logs" id="terminalLogs"></div>
+      <div class="terminal-input-container">
+        <span class="terminal-prompt">$</span>
+        <input type="text" class="terminal-input" id="terminalInput" placeholder="Type 'help' for commands..." autocomplete="off">
+      </div>
+    </section>
+
+    <aside class="detail-panel" id="detailPanel">
+      <div class="empty-state">
+        <div class="empty-icon">>_</div>
+        <div>Select a stock or use<br><code>add &lt;SYMBOL&gt;</code> to get started</div>
+      </div>
+    </aside>
+  </main>
+
+  <script src="./script.js"></script>
+</body>
+
+</html>
