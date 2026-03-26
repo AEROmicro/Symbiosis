@@ -235,7 +235,7 @@ export function CurrencyConverter({ onAddToWatchlist, watchedStocks = [] }: Curr
               <SelectTrigger className="font-mono bg-background border-border">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="font-mono" position="popper">
+              <SelectContent className="font-mono min-w-[280px] max-h-52" position="popper">
                 {CURRENCIES.map(c => (
                   <SelectItem key={c.code} value={c.code}>
                     <span className="font-bold mr-1">{c.code}</span>
@@ -262,7 +262,7 @@ export function CurrencyConverter({ onAddToWatchlist, watchedStocks = [] }: Curr
               <SelectTrigger className="font-mono bg-background border-border">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="font-mono" position="popper">
+              <SelectContent className="font-mono min-w-[280px] max-h-52" position="popper">
                 {CURRENCIES.map(c => (
                   <SelectItem key={c.code} value={c.code}>
                     <span className="font-bold mr-1">{c.code}</span>
