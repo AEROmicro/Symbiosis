@@ -283,7 +283,7 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
         addLog('info', `  Uptime       : ${uptimeStr}`)
         addLog('info', `  Session ID   : ${sessionId}`)
         addLog('info', `  Watchlist    : ${watchedStocks.length} symbol${watchedStocks.length !== 1 ? 's' : ''} tracked`)
-        addLog('info', `  Heap Memory  : ${(performance?.memory as { usedJSHeapSize?: number })?.usedJSHeapSize ? `${Math.round(((performance?.memory as { usedJSHeapSize: number }).usedJSHeapSize) / 1024 / 1024)}MB used` : 'N/A'}`)
+        addLog('info', `  Heap Memory  : ${(performance as any)?.memory?.usedJSHeapSize ? `${Math.round(((performance as any).memory.usedJSHeapSize) / 1024 / 1024)}MB used` : 'N/A'}`)        
         addLog('info', `  Platform     : ${navigator.platform}`)
         addLog('info', `  Locale       : ${navigator.language} | ${Intl.DateTimeFormat().resolvedOptions().timeZone}`)
         addLog('info', `  Display      : ${window.screen.width}x${window.screen.height} @ ${window.screen.colorDepth}-bit`)
