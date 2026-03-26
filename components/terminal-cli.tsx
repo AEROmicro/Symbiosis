@@ -148,6 +148,111 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
     }
   }
 
+  const analyzeStock = async (symbol: string) => {
+    const upperSymbol = symbol.toUpperCase()
+    addLog('system', `Analyzing ${upperSymbol}...`)
+
+    try {
+      const response = await fetch(`/api/stock/${upperSymbol}`)
+      if (!response.ok) {
+        addLog('error', `Symbol '${upperSymbol}' not found`)
+        return
+      }
+      const d = await response.json()
+
+      // Trend signals
+      const aboveFiftyDay = d.fiftyDayAvg > 0 && d.price > d.fiftyDayAvg
+      const aboveTwoHundredDay = d.twoHundredDayAvg > 0 && d.price > d.twoHundredDayAvg
+      const weekRange = d.fiftyTwoWeekHigh - d.fiftyTwoWeekLow
+      const posInRange = weekRange > 0 ? ((d.price - d.fiftyTwoWeekLow) / weekRange) * 100 : null
+      const targetUpside = d.targetPrice ? ((d.targetPrice - d.price) / d.price) * 100 : null
+      const volVsAvg = d.avgVolume > 0 ? ((d.volume / d.avgVolume) * 100).toFixed(0) : null
+
+      addLog('info', `━━━ Analysis: ${d.symbol} — ${d.name} ━━━`)
+      addLog('info', ``)
+      addLog('info', `── Price ──────────────────────────────────`)
+      addLog('info', `  Current     $${d.price.toFixed(2)}   ${d.changePercent >= 0 ? '▲' : '▼'} ${Math.abs(d.changePercent).toFixed(2)}% today`)
+      addLog('info', `  Day Range   $${d.low.toFixed(2)} – $${d.high.toFixed(2)}`)
+      if (d.fiftyTwoWeekLow > 0) {
+        addLog('info', `  52-Wk Range $${d.fiftyTwoWeekLow.toFixed(2)} – $${d.fiftyTwoWeekHigh.toFixed(2)}`)
+        if (posInRange !== null) addLog('info', `  52-Wk Pos.  ${posInRange.toFixed(1)}% (0%=yearly low, 100%=yearly high)`)
+      }
+      addLog('info', ``)
+      addLog('info', `── Moving Averages ─────────────────────────`)
+      if (d.fiftyDayAvg > 0) {
+        const diff50 = (((d.price - d.fiftyDayAvg) / d.fiftyDayAvg) * 100).toFixed(2)
+        addLog('info', `  50-Day MA   $${d.fiftyDayAvg.toFixed(2)}  (${aboveFiftyDay ? '+' : ''}${diff50}%) ${aboveFiftyDay ? '↑ Bullish' : '↓ Bearish'}`)
+      } else {
+        addLog('info', `  50-Day MA   N/A`)
+      }
+      if (d.twoHundredDayAvg > 0) {
+        const diff200 = (((d.price - d.twoHundredDayAvg) / d.twoHundredDayAvg) * 100).toFixed(2)
+        addLog('info', `  200-Day MA  $${d.twoHundredDayAvg.toFixed(2)}  (${aboveTwoHundredDay ? '+' : ''}${diff200}%) ${aboveTwoHundredDay ? '↑ Bullish' : '↓ Bearish'}`)
+      } else {
+        addLog('info', `  200-Day MA  N/A`)
+      }
+      addLog('info', ``)
+      addLog('info', `── Fundamentals ────────────────────────────`)
+      addLog('info', `  Market Cap  ${d.marketCap}`)
+      addLog('info', `  P/E Ratio   ${d.peRatio !== null ? d.peRatio : 'N/A'}${d.forwardPE !== null ? `  (Fwd: ${d.forwardPE})` : ''}`)
+      addLog('info', `  EPS         ${d.eps !== null ? '$' + d.eps : 'N/A'}`)
+      addLog('info', `  Beta        ${d.beta !== null ? d.beta : 'N/A'}${d.beta !== null ? (d.beta > 1.5 ? '  (High volatility)' : d.beta < 0.8 ? '  (Low volatility)' : '  (Market-like)') : ''}`)
+      if (d.dividendYield !== null) {
+        addLog('info', `  Dividend    ${d.dividendYield}% yield  ($${d.dividendRate ?? 'N/A'}/sh)`)
+      } else {
+        addLog('info', `  Dividend    None`)
+      }
+      addLog('info', ``)
+      addLog('info', `── Volume ──────────────────────────────────`)
+      addLog('info', `  Today       ${d.volume > 0 ? d.volume.toLocaleString() : 'N/A'}${volVsAvg ? ` (${volVsAvg}% of avg)` : ''}`)
+      addLog('info', `  Avg Volume  ${d.avgVolume > 0 ? d.avgVolume.toLocaleString() : 'N/A'}`)
+      addLog('info', ``)
+      if (d.targetPrice !== null && targetUpside !== null) {
+        addLog('info', `── Analyst Target ──────────────────────────`)
+        addLog('info', `  Price Tgt   $${d.targetPrice.toFixed(2)}  (${targetUpside >= 0 ? '+' : ''}${targetUpside.toFixed(1)}% upside)`)
+        addLog('info', ``)
+      }
+      // Summary signal
+      const bullCount = [aboveFiftyDay, aboveTwoHundredDay, (d.changePercent >= 0)].filter(Boolean).length
+      const signal = bullCount === 3 ? 'BULLISH' : bullCount === 0 ? 'BEARISH' : 'NEUTRAL'
+      addLog(signal === 'BULLISH' ? 'success' : signal === 'BEARISH' ? 'error' : 'warning',
+        `  Signal: ${signal}  (based on MA position & today's momentum)`)
+      addLog('info', `  Tip: Use "news ${upperSymbol}" for latest headlines`)
+    } catch {
+      addLog('error', `Failed to analyze ${upperSymbol}. Try again.`)
+    }
+  }
+
+  const fetchNews = async (symbol?: string) => {
+    const label = symbol ? symbol.toUpperCase() : 'market'
+    addLog('system', `Fetching news for ${label}...`)
+    try {
+      const url = symbol
+        ? `/api/news?symbol=${encodeURIComponent(symbol.toUpperCase())}`
+        : '/api/news'
+      const response = await fetch(url)
+      if (!response.ok) {
+        addLog('error', 'Failed to fetch news. Please try again.')
+        return
+      }
+      const data = await response.json()
+      const articles: Array<{ title: string; publisher: string; publishedAt: string }> = data.articles ?? []
+      if (articles.length === 0) {
+        addLog('warning', `No news found for ${label}`)
+        return
+      }
+      addLog('info', `━━━ Latest News: ${label.toUpperCase()} ━━━`)
+      articles.forEach((a) => {
+        const date = new Date(a.publishedAt)
+        const publishTimeStr = date.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false })
+        addLog('info', `[${publishTimeStr}] ${a.publisher}`)
+        addLog('info', `  ${a.title}`)
+      })
+    } catch {
+      addLog('error', 'Failed to fetch news. Please try again.')
+    }
+  }
+
   const searchStocks = async (query: string) => {
     addLog('system', `Searching for "${query}"...`)
     try {
@@ -253,6 +358,9 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
         addLog('info', 'compare A B           - Compare two stocks')
         addLog('info', 'list                  - Show watched stocks')
         addLog('info', 'popular               - Show popular stocks')
+        addLog('info', 'news                  - Show latest market news')
+        addLog('info', 'news <SYMBOL>         - Show news for a specific stock')
+        addLog('info', 'analyze <SYMBOL>      - Full technical & fundamental analysis')
         addLog('info', 'portfolio             - Show portfolio with P&L')
         addLog('info', 'portfolio add <SYMBOL> <SHARES> <PRICE>    - Add position to portfolio')
         addLog('info', 'portfolio remove <SYMBOL>                  - Remove position from portfolio')
@@ -357,6 +465,20 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
         addLog('info', '○ QQQ   (NASDAQ 100 ETF)')
         addLog('info', '○ VTI   (Total Market ETF)')
         addLog('info', 'Use "add <SYMBOL>" to add to watchlist')
+        break
+
+      case 'news':
+        await fetchNews(args[0])
+        break
+
+      case 'analyze':
+      case 'analysis':
+      case 'az':
+        if (!args[0]) {
+          addLog('error', 'Usage: analyze <SYMBOL>  (e.g., analyze AAPL)')
+          break
+        }
+        await analyzeStock(args[0])
         break
 
       case 'search':
@@ -553,7 +675,7 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
     } else if (e.key === 'Tab') {
       e.preventDefault()
       // Simple tab completion for commands
-      const commands = ['help', 'add', 'remove', 'search', 'browse', 'list', 'clear', 'clearall', 'popular', 'info', 'compare', 'system', 'portfolio', 'fx', 'currency', 'convert']
+      const commands = ['help', 'add', 'remove', 'search', 'browse', 'list', 'clear', 'clearall', 'popular', 'news', 'analyze', 'analysis', 'az', 'info', 'compare', 'system', 'portfolio', 'fx', 'currency', 'convert']
       const match = commands.find(c => c.startsWith(input.toLowerCase()))
       if (match) setInput(match + ' ')
     }
