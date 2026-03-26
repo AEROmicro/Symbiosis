@@ -18,6 +18,7 @@ export interface StockData {
   // Extended data
   fiftyTwoWeekHigh: number
   fiftyTwoWeekLow: number
+  fiftyTwoWeekChangePercent: number | null
   fiftyDayAvg: number
   twoHundredDayAvg: number
   peRatio: number | null

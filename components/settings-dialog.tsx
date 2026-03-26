@@ -10,6 +10,8 @@ export type AppTheme = 'default' | 'red' | 'mutualism-light' | 'mutualism-dark'
 interface SettingsDialogProps {
   currentTheme: AppTheme
   onThemeChange: (theme: AppTheme) => void
+  scanlineEnabled: boolean
+  onScanlineChange: (enabled: boolean) => void
 }
 
 const themes: {
