@@ -169,7 +169,7 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
       addLog('info', `━━━ Latest News: ${label.toUpperCase()} ━━━`)
       articles.forEach((a) => {
         const date = new Date(a.publishedAt)
-        const timeStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false })
+        const timeStr = date.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false })
         addLog('info', `[${timeStr}] ${a.publisher}`)
         addLog('info', `  ${a.title}`)
       })
