@@ -16,7 +16,7 @@
 ### "Finance. But Sexy"
 *Symbiosis is the future of advanced and high-quality data to help you not the corporations*
 
-[Website]([https://symbiosis-finance.pages.dev/])
+[Website](https://symbiosis-finance.pages.dev/)
 [Contact](mailto:aeroforge-co@outlook.com)
 
 
