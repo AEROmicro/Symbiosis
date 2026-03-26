@@ -248,6 +248,8 @@ export default function SymbiosisApp() {
                   <div><span className="text-foreground">fx add EURUSD</span> - Track FX pair</div>
                   <div><span className="text-foreground">news</span> - Market news</div>
                   <div><span className="text-foreground">news AAPL</span> - Stock news</div>
+                  <div><span className="text-foreground">analyze AAPL</span> - Full analysis</div>
+                  <div><span className="text-foreground">az AAPL</span> - Analysis (short)</div>
                   <div><span className="text-foreground">popular</span> - Popular stocks</div>
                   <div><span className="text-foreground">compare AAPL MSFT</span> - Compare two</div>
                   <div><span className="text-foreground">help</span> - All commands</div>

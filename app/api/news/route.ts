@@ -1,5 +1,6 @@
-export const runtime = 'edge'
 import { NextResponse } from 'next/server'
+
+export const runtime = 'edge'
 
 interface NewsArticle {
   title: string
