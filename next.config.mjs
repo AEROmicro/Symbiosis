@@ -1,12 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+  output: 'export', 
   images: {
     unoptimized: true,
   },
-}
+  trailingSlash: true, // This fixes "broken" looks on page refreshes
+};
 
-export default nextConfig
-
+export default nextConfig;
