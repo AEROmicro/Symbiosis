@@ -2,18 +2,19 @@
 
 ![Symbiosis Header](./logo.png)
 
-**The Final Protocol for Real Finance.**
+## **Redefine the Limits**
 
 ![Symbiosis Header](./screenshot.png)
 
-[![Version](https://img.shields.io/badge/Version-v1%20Synapse-007ACC?style=for-the-badge)](https://github.com/aeroxol5000/symbiosis)
+[![Version](https://img.shields.io/badge/Version-v4%20Petrichor-007ACC?style=for-the-badge)](https://github.com/aeroxol5000/symbiosis)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge)](https://www.gnu.org/licenses/gpl-3.0)
-[![Deployment](https://img.shields.io/badge/Cloudflare-Live-F48120?style=for-the-badge&logo=cloudflare&logoColor=white)](https://symbiosis-xol.vercel.app/)
+[![Deployment](https://img.shields.io/badge/Cloudflare-Live-F48120?style=for-the-badge&logo=cloudflare&logoColor=white)]([https://symbiosis-xol.vercel.app/](https://symbiosis-finance.pages.dev/))
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg?style=for-the-badge)](https://github.com/aeroxol5000/symbiosis/graphs/commit-activity)
+
 
 ---
 
-### "Finance. But Sexy"
+### "The Final Protocol for Real Finance."
 *Symbiosis is the future of advanced and high-quality data to help you not the corporations*
 
 [Website](https://symbiosis-finance.pages.dev/)
