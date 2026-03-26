@@ -8,7 +8,7 @@
 
 [![Version](https://img.shields.io/badge/Version-v1%20Synapse-007ACC?style=for-the-badge)](https://github.com/aeroxol5000/symbiosis)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge)](https://www.gnu.org/licenses/gpl-3.0)
-[![Deployment](https://img.shields.io/badge/Vercel-Live-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://symbiosis-xol.vercel.app/)
+[![Deployment](https://img.shields.io/badge/Cloudflare-Live-F48120?style=for-the-badge&logo=cloudflare&logoColor=white)](https://symbiosis-xol.vercel.app/)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg?style=for-the-badge)](https://github.com/aeroxol5000/symbiosis/graphs/commit-activity)
 
 ---
