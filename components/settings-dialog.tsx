@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
-export type AppTheme = 'default' | 'red' | 'bloomberg-light' | 'bloomberg-dark'
+export type AppTheme = 'default' | 'red' | 'mutualism-light' | 'mutualism-dark'
 
 interface SettingsDialogProps {
   currentTheme: AppTheme
@@ -31,14 +31,14 @@ const themes: {
     preview: { bg: '#120a0a', text: '#f87171', accent: '#f87171' },
   },
   {
-    id: 'bloomberg-light',
-    name: 'Bloomberg Light',
+    id: 'mutualism-light',
+    name: 'Mutualism Light',
     description: 'White background, black text',
     preview: { bg: '#ffffff', text: '#111111', accent: '#111111' },
   },
   {
-    id: 'bloomberg-dark',
-    name: 'Bloomberg Dark',
+    id: 'mutualism-dark',
+    name: 'Mutualism Dark',
     description: 'Black background, white text',
     preview: { bg: '#080808', text: '#eeeeee', accent: '#eeeeee' },
   },
