@@ -97,7 +97,7 @@ export function MarketTicker({ onMarketStateChange }: { onMarketStateChange?: (s
   return (
     <div className="border-b border-border bg-card/30 overflow-hidden">
       <div
-        className="flex whitespace-nowrap py-2 hover:[animation-play-state:paused]"
+        className="flex w-max whitespace-nowrap py-2 hover:[animation-play-state:paused]"
         style={{ animation: `marquee ${duration}s linear infinite` }}
       >
         {tickerItems.map((item, i) => (

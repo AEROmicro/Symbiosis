@@ -206,7 +206,7 @@ export function CurrencyConverter({ onAddToWatchlist, watchedStocks = [] }: Curr
         </button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-2xl bg-card border-border font-mono">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-card border-border font-mono">
         <DialogHeader>
           <DialogTitle className="text-primary flex items-center gap-2 font-mono">
             <ArrowLeftRight className="w-4 h-4" />
