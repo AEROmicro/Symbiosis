@@ -16,6 +16,20 @@ interface MarketData {
   lastUpdated: string
 }
 
+// Forex pair labels — items whose symbol contains '/' are FX pairs
+const isFXPair = (symbol: string) => symbol.includes('/')
+
+// Format price display — JPY pairs are quoted to 2dp, others to 4dp
+function formatTickerPrice(symbol: string, price: number): string {
+  if (symbol === 'USD/JPY' || symbol === 'USD/CAD' || symbol === 'USD/CHF') {
+    return price.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })
+  }
+  if (isFXPair(symbol)) {
+    return price.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })
+  }
+  return price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
+
 export function MarketTicker({ onMarketStateChange }: { onMarketStateChange?: (state: string) => void }) {
   const [items, setItems] = useState<TickerItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -75,20 +89,32 @@ export function MarketTicker({ onMarketStateChange }: { onMarketStateChange?: (s
     )
   }
 
-  // Create multiple copies for seamless infinite loop
-  const tickerItems = [...items, ...items, ...items, ...items]
+  // 2 copies for a seamless -50% translateX loop
+  const tickerItems = [...items, ...items]
+  // Scale duration so pixel speed stays consistent regardless of item count (~5s per item)
+  const duration = Math.max(40, items.length * 5)
 
   return (
     <div className="border-b border-border bg-card/30 overflow-hidden">
-      <div className="flex animate-marquee whitespace-nowrap py-2 hover:[animation-play-state:paused]">
+      <div
+        className="flex whitespace-nowrap py-2 hover:[animation-play-state:paused]"
+        style={{ animation: `marquee ${duration}s linear infinite` }}
+      >
         {tickerItems.map((item, i) => (
           <div 
             key={`${item.symbol}-${i}`} 
             className="flex items-center gap-2 px-4 text-sm"
           >
-            <span className="font-medium text-foreground">{item.symbol}</span>
+            {/* FX pairs get a subtle accent badge */}
+            {isFXPair(item.symbol) ? (
+              <span className="font-medium text-xs px-1.5 py-0.5 rounded bg-primary/10 border border-primary/20 text-primary/90 tracking-wide">
+                {item.symbol}
+              </span>
+            ) : (
+              <span className="font-medium text-foreground">{item.symbol}</span>
+            )}
             <span className="text-muted-foreground tabular-nums">
-              {item.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {formatTickerPrice(item.symbol, item.price)}
             </span>
             <span className={cn(
               "flex items-center gap-0.5 tabular-nums text-xs",
