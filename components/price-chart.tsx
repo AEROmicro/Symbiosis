@@ -235,7 +235,7 @@ export function PriceChart({ symbol }: PriceChartProps) {
             {/* Area fill */}
             <path
               d={getAreaPath()}
-              fill={isPositive ? 'rgba(0, 255, 65, 0.1)' : 'rgba(255, 80, 80, 0.1)'}
+              fill={isPositive ? 'color-mix(in oklch, var(--primary) 10%, transparent)' : 'color-mix(in oklch, var(--destructive) 10%, transparent)'}
             />
             
             {/* Line */}
