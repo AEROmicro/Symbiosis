@@ -1,73 +1,88 @@
 export const runtime = 'edge';
 import { NextResponse } from 'next/server'
 
-// Fetch comprehensive stock data from Yahoo Finance
+function n(v: number | null | undefined, decimals = 2): number {
+  if (v == null || isNaN(v)) return 0
+  return Number(v.toFixed(decimals))
+}
+
+function nOrNull(v: number | null | undefined, decimals = 2): number | null {
+  if (v == null || isNaN(v)) return null
+  return Number(v.toFixed(decimals))
+}
+
+// Fetch comprehensive stock data from Yahoo Finance v7 quote API
 async function fetchYahooFinanceData(symbol: string) {
   try {
-    // Fetch quote data for more details
-    const quoteUrl = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(symbol)}?modules=price,summaryDetail,defaultKeyStatistics`
-    
-    const quoteResponse = await fetch(quoteUrl, {
+    const fields = [
+      'symbol', 'shortName', 'longName',
+      'regularMarketPrice', 'regularMarketChange', 'regularMarketChangePercent',
+      'regularMarketDayHigh', 'regularMarketDayLow', 'regularMarketOpen',
+      'regularMarketPreviousClose', 'regularMarketVolume',
+      'averageDailyVolume3Month',
+      'marketCap',
+      'fiftyTwoWeekHigh', 'fiftyTwoWeekLow',
+      'fiftyDayAverage', 'twoHundredDayAverage',
+      'trailingPE', 'forwardPE', 'epsTrailingTwelveMonths',
+      'beta', 'trailingAnnualDividendYield', 'trailingAnnualDividendRate',
+      'targetMeanPrice',
+      'currency', 'fullExchangeName', 'marketState',
+    ].join(',')
+
+    const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(symbol)}&fields=${fields}`
+
+    const response = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept': 'application/json',
       },
-      next: { revalidate: 10 }
+      next: { revalidate: 10 },
     })
 
-    if (!quoteResponse.ok) {
-      // Fallback to chart API
-      return fetchChartData(symbol)
-    }
+    if (!response.ok) return fetchChartData(symbol)
 
-    const quoteData = await quoteResponse.json()
-    const result = quoteData.quoteSummary?.result?.[0]
-    
-    if (!result) {
-      return fetchChartData(symbol)
-    }
+    const data = await response.json()
+    const q = data.quoteResponse?.result?.[0]
+    if (!q) return fetchChartData(symbol)
 
-    const price = result.price || {}
-    const summary = result.summaryDetail || {}
-    const keyStats = result.defaultKeyStatistics || {}
-
-    const currentPrice = price.regularMarketPrice?.raw ?? price.preMarketPrice?.raw ?? 0
-    const previousClose = price.regularMarketPreviousClose?.raw ?? currentPrice
-    const change = price.regularMarketChange?.raw ?? 0
-    const changePercent = price.regularMarketChangePercent?.raw ?? 0
+    const price = n(q.regularMarketPrice)
+    const prevClose = n(q.regularMarketPreviousClose) || price
 
     return {
-      symbol: price.symbol || symbol.toUpperCase(),
-      name: price.shortName || price.longName || symbol.toUpperCase(),
-      price: Number(currentPrice.toFixed(2)),
-      change: Number(change.toFixed(2)),
-      changePercent: Number((changePercent * 100).toFixed(2)),
-      high: Number((price.regularMarketDayHigh?.raw ?? currentPrice).toFixed(2)),
-      low: Number((price.regularMarketDayLow?.raw ?? currentPrice).toFixed(2)),
-      open: Number((price.regularMarketOpen?.raw ?? previousClose).toFixed(2)),
-      previousClose: Number(previousClose.toFixed(2)),
-      volume: price.regularMarketVolume?.raw ?? 0,
-      avgVolume: summary.averageVolume?.raw ?? 0,
-      marketCap: formatMarketCap(price.marketCap?.raw),
-      currency: price.currency || 'USD',
-      exchange: price.exchangeName || price.exchange || 'N/A',
-      marketState: price.marketState || 'CLOSED',
-      
-      // Extended data
-      fiftyTwoWeekHigh: Number((summary.fiftyTwoWeekHigh?.raw ?? 0).toFixed(2)),
-      fiftyTwoWeekLow: Number((summary.fiftyTwoWeekLow?.raw ?? 0).toFixed(2)),
-      fiftyDayAvg: Number((summary.fiftyDayAverage?.raw ?? 0).toFixed(2)),
-      twoHundredDayAvg: Number((summary.twoHundredDayAverage?.raw ?? 0).toFixed(2)),
-      peRatio: summary.trailingPE?.raw ? Number(summary.trailingPE.raw.toFixed(2)) : null,
-      forwardPE: summary.forwardPE?.raw ? Number(summary.forwardPE.raw.toFixed(2)) : null,
-      eps: keyStats.trailingEps?.raw ? Number(keyStats.trailingEps.raw.toFixed(2)) : null,
-      beta: summary.beta?.raw ? Number(summary.beta.raw.toFixed(2)) : null,
-      dividendYield: summary.dividendYield?.raw ? Number((summary.dividendYield.raw * 100).toFixed(2)) : null,
-      dividendRate: summary.dividendRate?.raw ? Number(summary.dividendRate.raw.toFixed(2)) : null,
-      exDividendDate: summary.exDividendDate?.fmt || null,
-      earningsDate: keyStats.nextFundamentalDataDate?.fmt || null,
-      targetPrice: summary.targetMeanPrice?.raw ? Number(summary.targetMeanPrice.raw.toFixed(2)) : null,
-      
-      lastUpdated: new Date()
+      symbol: q.symbol || symbol.toUpperCase(),
+      name: q.shortName || q.longName || symbol.toUpperCase(),
+      price,
+      change: n(q.regularMarketChange),
+      // v7 returns changePercent already as a percentage (e.g. 0.11 = 0.11%)
+      changePercent: n(q.regularMarketChangePercent),
+      high: n(q.regularMarketDayHigh) || price,
+      low: n(q.regularMarketDayLow) || price,
+      open: n(q.regularMarketOpen) || prevClose,
+      previousClose: prevClose,
+      volume: q.regularMarketVolume ?? 0,
+      avgVolume: q.averageDailyVolume3Month ?? 0,
+      marketCap: formatMarketCap(q.marketCap),
+      currency: q.currency || 'USD',
+      exchange: q.fullExchangeName || 'N/A',
+      marketState: q.marketState || 'CLOSED',
+
+      // Extended data — all direct fields, no .raw nesting
+      fiftyTwoWeekHigh: n(q.fiftyTwoWeekHigh),
+      fiftyTwoWeekLow: n(q.fiftyTwoWeekLow),
+      fiftyDayAvg: n(q.fiftyDayAverage),
+      twoHundredDayAvg: n(q.twoHundredDayAverage),
+      peRatio: nOrNull(q.trailingPE),
+      forwardPE: nOrNull(q.forwardPE),
+      eps: nOrNull(q.epsTrailingTwelveMonths),
+      beta: nOrNull(q.beta),
+      // v7 returns dividendYield as a decimal (0.0044 = 0.44%)
+      dividendYield: q.trailingAnnualDividendYield ? n(q.trailingAnnualDividendYield * 100) : null,
+      dividendRate: nOrNull(q.trailingAnnualDividendRate),
+      exDividendDate: null,
+      earningsDate: null,
+      targetPrice: nOrNull(q.targetMeanPrice),
+
+      lastUpdated: new Date(),
     }
   } catch (error) {
     console.error(`Error fetching data for ${symbol}:`, error)
@@ -75,16 +90,17 @@ async function fetchYahooFinanceData(symbol: string) {
   }
 }
 
-// Fallback to chart data
+// Fallback to chart data (1y range so we can derive 52-week high/low)
 async function fetchChartData(symbol: string) {
   try {
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=1d`
-    
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=1y`
+
     const response = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept': 'application/json',
       },
-      next: { revalidate: 10 }
+      next: { revalidate: 10 },
     })
 
     if (!response.ok) return null
@@ -101,29 +117,38 @@ async function fetchChartData(symbol: string) {
     const change = price - previousClose
     const changePercent = (change / previousClose) * 100
 
-    const todayHigh = quote?.high?.filter((h: number | null) => h !== null).slice(-1)[0] ?? price
-    const todayLow = quote?.low?.filter((l: number | null) => l !== null).slice(-1)[0] ?? price
-    const todayOpen = quote?.open?.filter((o: number | null) => o !== null)[0] ?? previousClose
-    const volume = quote?.volume?.reduce((a: number, b: number | null) => a + (b ?? 0), 0) ?? 0
+    // Use last bar for today's intraday values
+    const highs: number[] = (quote?.high ?? []).filter((h: number | null) => h != null)
+    const lows: number[]  = (quote?.low  ?? []).filter((l: number | null) => l != null)
+    const opens: number[] = (quote?.open ?? []).filter((o: number | null) => o != null)
+    const todayHigh = highs.slice(-1)[0] ?? price
+    const todayLow  = lows.slice(-1)[0]  ?? price
+    const todayOpen = opens[0]           ?? previousClose
+
+    const volume = (quote?.volume ?? []).reduce((a: number, b: number | null) => a + (b ?? 0), 0)
+
+    // Derive 52-week high/low from the full 1y history
+    const fiftyTwoWeekHigh = highs.length ? n(Math.max(...highs)) : 0
+    const fiftyTwoWeekLow  = lows.length  ? n(Math.min(...lows))  : 0
 
     return {
       symbol: meta.symbol,
       name: meta.shortName || meta.longName || meta.symbol,
-      price: Number(price.toFixed(2)),
-      change: Number(change.toFixed(2)),
-      changePercent: Number(changePercent.toFixed(2)),
-      high: Number(todayHigh.toFixed(2)),
-      low: Number(todayLow.toFixed(2)),
-      open: Number(todayOpen.toFixed(2)),
-      previousClose: Number(previousClose.toFixed(2)),
-      volume: volume,
+      price: n(price),
+      change: n(change),
+      changePercent: n(changePercent),
+      high: n(todayHigh),
+      low: n(todayLow),
+      open: n(todayOpen),
+      previousClose: n(previousClose),
+      volume,
       avgVolume: 0,
       marketCap: formatMarketCap(meta.marketCap),
       currency: meta.currency || 'USD',
-      exchange: meta.exchangeName || meta.exchange,
-      marketState: meta.marketState,
-      fiftyTwoWeekHigh: 0,
-      fiftyTwoWeekLow: 0,
+      exchange: meta.exchangeName || meta.exchange || 'N/A',
+      marketState: meta.marketState || 'CLOSED',
+      fiftyTwoWeekHigh,
+      fiftyTwoWeekLow,
       fiftyDayAvg: 0,
       twoHundredDayAvg: 0,
       peRatio: null,
@@ -135,7 +160,7 @@ async function fetchChartData(symbol: string) {
       exDividendDate: null,
       earningsDate: null,
       targetPrice: null,
-      lastUpdated: new Date()
+      lastUpdated: new Date(),
     }
   } catch {
     return null
