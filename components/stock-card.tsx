@@ -58,9 +58,9 @@ export function StockCard({ symbol, onRemove, onClick, isSelected, refreshInterv
       onClick={() => onClick(symbol)}
       className={cn(
         "group relative border bg-card rounded-md p-4 cursor-pointer transition-all duration-200",
-        "hover:border-primary/50 hover:shadow-[0_0_15px_rgba(0,255,65,0.1)]",
+        "hover:border-primary/50 hover:shadow-[0_0_15px_color-mix(in_oklch,var(--primary)_10%,transparent)]",
         isSelected 
-          ? "border-primary shadow-[0_0_20px_rgba(0,255,65,0.15)]" 
+          ? "border-primary shadow-[0_0_20px_color-mix(in_oklch,var(--primary)_15%,transparent)]" 
           : "border-border"
       )}
     >
