@@ -206,7 +206,7 @@ export function CurrencyConverter({ onAddToWatchlist, watchedStocks = [] }: Curr
         </button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-card border-border font-mono">
+      <DialogContent className="max-w-2xl sm:max-w-2xl max-h-[90vh] overflow-y-auto bg-card border-border font-mono">
         <DialogHeader>
           <DialogTitle className="text-primary flex items-center gap-2 font-mono">
             <ArrowLeftRight className="w-4 h-4" />
@@ -232,10 +232,10 @@ export function CurrencyConverter({ onAddToWatchlist, watchedStocks = [] }: Curr
           <div className="flex-1 space-y-1">
             <div className="text-xs text-muted-foreground">From</div>
             <Select value={from} onValueChange={v => { setFrom(v); setRate(null); setChartData([]) }}>
-              <SelectTrigger className="font-mono bg-background border-border">
+              <SelectTrigger className="w-full font-mono bg-background border-border">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="font-mono" position="popper">
+              <SelectContent className="font-mono min-w-[280px] max-h-52" position="popper">
                 {CURRENCIES.map(c => (
                   <SelectItem key={c.code} value={c.code}>
                     <span className="font-bold mr-1">{c.code}</span>
@@ -259,10 +259,10 @@ export function CurrencyConverter({ onAddToWatchlist, watchedStocks = [] }: Curr
           <div className="flex-1 space-y-1">
             <div className="text-xs text-muted-foreground">To</div>
             <Select value={to} onValueChange={v => { setTo(v); setRate(null); setChartData([]) }}>
-              <SelectTrigger className="font-mono bg-background border-border">
+              <SelectTrigger className="w-full font-mono bg-background border-border">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="font-mono" position="popper">
+              <SelectContent className="font-mono min-w-[280px] max-h-52" position="popper">
                 {CURRENCIES.map(c => (
                   <SelectItem key={c.code} value={c.code}>
                     <span className="font-bold mr-1">{c.code}</span>
@@ -303,7 +303,7 @@ export function CurrencyConverter({ onAddToWatchlist, watchedStocks = [] }: Curr
                 })}{' '}
                 <span className="text-xl">{to}</span>
               </div>
-              <div className="text-xs text-muted-foreground mt-1.5 flex items-center gap-3">
+              <div className="text-xs text-muted-foreground mt-1.5 flex flex-wrap items-center gap-3">
                 <span>
                   1 {from} = {rate.toFixed(dp)} {to}
                 </span>
