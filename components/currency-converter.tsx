@@ -17,23 +17,63 @@ import {
 import { cn } from '@/lib/utils'
 
 const CURRENCIES = [
-  { code: 'USD', name: 'US Dollar',           symbol: '$'   },
-  { code: 'EUR', name: 'Euro',                symbol: '€'   },
-  { code: 'GBP', name: 'British Pound',       symbol: '£'   },
-  { code: 'JPY', name: 'Japanese Yen',        symbol: '¥'   },
-  { code: 'CAD', name: 'Canadian Dollar',     symbol: 'C$'  },
-  { code: 'AUD', name: 'Australian Dollar',   symbol: 'A$'  },
-  { code: 'CHF', name: 'Swiss Franc',         symbol: 'Fr'  },
-  { code: 'CNY', name: 'Chinese Yuan',        symbol: '¥'   },
-  { code: 'HKD', name: 'Hong Kong Dollar',    symbol: 'HK$' },
-  { code: 'SGD', name: 'Singapore Dollar',    symbol: 'S$'  },
-  { code: 'INR', name: 'Indian Rupee',        symbol: '₹'   },
-  { code: 'MXN', name: 'Mexican Peso',        symbol: '$'   },
-  { code: 'BRL', name: 'Brazilian Real',      symbol: 'R$'  },
-  { code: 'KRW', name: 'South Korean Won',    symbol: '₩'   },
-  { code: 'NOK', name: 'Norwegian Krone',     symbol: 'kr'  },
-  { code: 'SEK', name: 'Swedish Krona',       symbol: 'kr'  },
-  { code: 'NZD', name: 'New Zealand Dollar',  symbol: 'NZ$' },
+  // Major
+  { code: 'USD', name: 'US Dollar',              symbol: '$'    },
+  { code: 'EUR', name: 'Euro',                   symbol: '€'    },
+  { code: 'GBP', name: 'British Pound',          symbol: '£'    },
+  { code: 'JPY', name: 'Japanese Yen',           symbol: '¥'    },
+  { code: 'CHF', name: 'Swiss Franc',            symbol: 'Fr'   },
+  { code: 'CAD', name: 'Canadian Dollar',        symbol: 'C$'   },
+  { code: 'AUD', name: 'Australian Dollar',      symbol: 'A$'   },
+  { code: 'NZD', name: 'New Zealand Dollar',     symbol: 'NZ$'  },
+  // Asia-Pacific
+  { code: 'CNY', name: 'Chinese Yuan',           symbol: '¥'    },
+  { code: 'HKD', name: 'Hong Kong Dollar',       symbol: 'HK$'  },
+  { code: 'SGD', name: 'Singapore Dollar',       symbol: 'S$'   },
+  { code: 'KRW', name: 'South Korean Won',       symbol: '₩'    },
+  { code: 'INR', name: 'Indian Rupee',           symbol: '₹'    },
+  { code: 'TWD', name: 'Taiwan Dollar',          symbol: 'NT$'  },
+  { code: 'MYR', name: 'Malaysian Ringgit',      symbol: 'RM'   },
+  { code: 'IDR', name: 'Indonesian Rupiah',      symbol: 'Rp'   },
+  { code: 'PHP', name: 'Philippine Peso',        symbol: '₱'    },
+  { code: 'THB', name: 'Thai Baht',              symbol: '฿'    },
+  { code: 'VND', name: 'Vietnamese Dong',        symbol: '₫'    },
+  { code: 'PKR', name: 'Pakistani Rupee',        symbol: '₨'    },
+  { code: 'BDT', name: 'Bangladeshi Taka',       symbol: '৳'    },
+  // Americas
+  { code: 'MXN', name: 'Mexican Peso',           symbol: '$'    },
+  { code: 'BRL', name: 'Brazilian Real',         symbol: 'R$'   },
+  { code: 'ARS', name: 'Argentine Peso',         symbol: '$'    },
+  { code: 'CLP', name: 'Chilean Peso',           symbol: '$'    },
+  { code: 'COP', name: 'Colombian Peso',         symbol: '$'    },
+  { code: 'PEN', name: 'Peruvian Sol',           symbol: 'S/'   },
+  // Europe
+  { code: 'NOK', name: 'Norwegian Krone',        symbol: 'kr'   },
+  { code: 'SEK', name: 'Swedish Krona',          symbol: 'kr'   },
+  { code: 'DKK', name: 'Danish Krone',           symbol: 'kr'   },
+  { code: 'PLN', name: 'Polish Zloty',           symbol: 'zł'   },
+  { code: 'CZK', name: 'Czech Koruna',           symbol: 'Kč'   },
+  { code: 'HUF', name: 'Hungarian Forint',       symbol: 'Ft'   },
+  { code: 'RON', name: 'Romanian Leu',           symbol: 'lei'  },
+  { code: 'HRK', name: 'Croatian Kuna',          symbol: 'kn'   },
+  { code: 'TRY', name: 'Turkish Lira',           symbol: '₺'    },
+  { code: 'RUB', name: 'Russian Ruble',          symbol: '₽'    },
+  { code: 'UAH', name: 'Ukrainian Hryvnia',      symbol: '₴'    },
+  // Middle East & Africa
+  { code: 'SAR', name: 'Saudi Riyal',            symbol: '﷼'    },
+  { code: 'AED', name: 'UAE Dirham',             symbol: 'د.إ'  },
+  { code: 'QAR', name: 'Qatari Riyal',           symbol: '﷼'    },
+  { code: 'KWD', name: 'Kuwaiti Dinar',          symbol: 'د.ك'  },
+  { code: 'BHD', name: 'Bahraini Dinar',         symbol: '.د.ب' },
+  { code: 'OMR', name: 'Omani Rial',             symbol: '﷼'    },
+  { code: 'JOD', name: 'Jordanian Dinar',        symbol: 'د.ا'  },
+  { code: 'ILS', name: 'Israeli Shekel',         symbol: '₪'    },
+  { code: 'EGP', name: 'Egyptian Pound',         symbol: '£'    },
+  { code: 'NGN', name: 'Nigerian Naira',         symbol: '₦'    },
+  { code: 'KES', name: 'Kenyan Shilling',        symbol: 'KSh'  },
+  { code: 'GHS', name: 'Ghanaian Cedi',          symbol: '₵'    },
+  { code: 'ZAR', name: 'South African Rand',     symbol: 'R'    },
+  { code: 'MAD', name: 'Moroccan Dirham',        symbol: 'د.م.' },
 ]
 
 const CHART_RANGES = [
@@ -49,9 +89,9 @@ function fxSymbol(from: string, to: string): string {
   return `${from}${to}=X`
 }
 
-// Determine decimal places for display (JPY/KRW are large-integer currencies)
+// Determine decimal places for display (large-integer currencies quoted to 2dp)
 function priceDp(to: string): number {
-  return to === 'JPY' || to === 'KRW' ? 2 : 4
+  return ['JPY', 'KRW', 'IDR', 'VND', 'CLP', 'COP', 'HUF', 'PKR', 'BDT'].includes(to) ? 2 : 4
 }
 
 interface ChartPoint {
@@ -171,7 +211,6 @@ export function CurrencyConverter({ onAddToWatchlist, watchedStocks = [] }: Curr
           <DialogTitle className="text-primary flex items-center gap-2 font-mono">
             <ArrowLeftRight className="w-4 h-4" />
             Currency Converter
-            <span className="ml-auto text-xs text-muted-foreground font-normal">v4 Petrichor</span>
           </DialogTitle>
         </DialogHeader>
 
@@ -196,7 +235,7 @@ export function CurrencyConverter({ onAddToWatchlist, watchedStocks = [] }: Curr
               <SelectTrigger className="font-mono bg-background border-border">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="font-mono max-h-60">
+              <SelectContent className="font-mono" position="popper">
                 {CURRENCIES.map(c => (
                   <SelectItem key={c.code} value={c.code}>
                     <span className="font-bold mr-1">{c.code}</span>
@@ -223,7 +262,7 @@ export function CurrencyConverter({ onAddToWatchlist, watchedStocks = [] }: Curr
               <SelectTrigger className="font-mono bg-background border-border">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="font-mono max-h-60">
+              <SelectContent className="font-mono" position="popper">
                 {CURRENCIES.map(c => (
                   <SelectItem key={c.code} value={c.code}>
                     <span className="font-bold mr-1">{c.code}</span>
