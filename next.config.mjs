@@ -1,10 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export', 
+  // DELETE output: 'export' <--- This is what's causing the /api/market error
   images: {
     unoptimized: true,
   },
-  trailingSlash: true, // This fixes "broken" looks on page refreshes
+  // You can keep trailingSlash if you like, but it's optional with the adapter
+  trailingSlash: true, 
 };
 
 export default nextConfig;
