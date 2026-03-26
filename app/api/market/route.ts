@@ -1,3 +1,4 @@
+export const runtime = 'edge';
 import { NextResponse } from 'next/server'
 
 // Market indices and their Yahoo Finance symbols
