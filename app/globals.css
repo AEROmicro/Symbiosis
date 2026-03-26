@@ -284,8 +284,8 @@
 /* Terminal glow effect */
 .terminal-glow {
   box-shadow: 
-    0 0 20px rgba(0, 255, 65, 0.1),
-    inset 0 0 60px rgba(0, 255, 65, 0.02);
+    0 0 20px color-mix(in oklch, var(--primary) 10%, transparent),
+    inset 0 0 60px color-mix(in oklch, var(--primary) 2%, transparent);
 }
 
 /* Scrollbar styling */
