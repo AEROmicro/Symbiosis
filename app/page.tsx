@@ -284,7 +284,7 @@ export default function SymbiosisApp() {
           <div className="flex items-center justify-between text-xs text-muted-foreground font-mono">
             <div className="flex items-center gap-2">
               <span className="text-primary">{'>'}_</span>
-              <span>Symbiosis Terminal</span>
+              <span>Symbiosis // Redefine the Limits</span>
             </div>
             <div className="flex items-center gap-4">
               <span className="hidden sm:inline">Market data updates in real-time</span>
