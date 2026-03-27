@@ -100,10 +100,25 @@ export default function SymbiosisApp() {
     setSelectedStock(symbol)
   }, [])
 
+  // ==========================================
+  // HYDRATION GUARD: Prevents Next.js 16 Crash
+  // ==========================================
+  if (!hydrated) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center relative">
+        <div className="scanline" />
+        <div className="flex items-center gap-3 font-mono text-primary animate-pulse">
+          <Terminal className="w-5 h-5" />
+          <span className="tracking-widest text-sm">INITIALIZING_SYSTEM_CORE...</span>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-background relative">
       {/* Scanline Effect */}
-      <div className="scanline" />
+      {scanlineEnabled && <div className="scanline" />}
       
       {/* Background Grid Pattern */}
       <div 
@@ -150,7 +165,7 @@ export default function SymbiosisApp() {
             />
 
             {/* System Status */}
-            <div className="border border-border bg-card rounded-md p-4">
+            <div className="border border-border bg-card rounded-md p-4 z-10 relative">
               <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground mb-3">
                 <Activity className="w-3 h-3 text-primary" />
                 System Status
@@ -199,7 +214,7 @@ export default function SymbiosisApp() {
               </div>
               
               {watchedStocks.length === 0 ? (
-                <div className="border border-dashed border-border bg-card/50 rounded-md p-8 text-center">
+                <div className="border border-dashed border-border bg-card/50 rounded-md p-8 text-center z-10 relative">
                   <div className="text-4xl text-primary/30 mb-3 font-mono">{'[  ]'}</div>
                   <p className="text-muted-foreground mb-2">No stocks in watchlist</p>
                   <p className="text-sm text-muted-foreground">
@@ -207,7 +222,7 @@ export default function SymbiosisApp() {
                   </p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 z-10 relative">
                   {watchedStocks.map((symbol) => (
                     <StockCard
                       key={symbol}
@@ -224,7 +239,7 @@ export default function SymbiosisApp() {
 
             {/* Stock Detail */}
             {selectedStock && (
-              <div>
+              <div className="z-10 relative">
                 <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground mb-3">
                   <span className="text-primary">$</span>
                   Stock Details
@@ -234,7 +249,7 @@ export default function SymbiosisApp() {
             )}
 
             {/* Help Panel */}
-            <div className="border border-border bg-card/50 rounded-md p-4">
+            <div className="border border-border bg-card/50 rounded-md p-4 z-10 relative">
               <div className="text-xs text-muted-foreground font-mono">
                 <div className="text-primary mb-2">{'// Quick Reference'}</div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1">
@@ -262,7 +277,7 @@ export default function SymbiosisApp() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border py-4 mt-8">
+      <footer className="border-t border-border py-4 mt-8 relative z-10">
         <div className="container mx-auto px-4 max-w-7xl">
           <div className="flex items-center justify-between text-xs text-muted-foreground font-mono">
             <div className="flex items-center gap-2">
@@ -270,7 +285,7 @@ export default function SymbiosisApp() {
               <span>Symbiosis Terminal</span>
             </div>
             <div className="flex items-center gap-4">
-              <span>Market data updates in real-time</span>
+              <span className="hidden sm:inline">Market data updates in real-time</span>
               <span className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                 Connected
@@ -278,8 +293,8 @@ export default function SymbiosisApp() {
               <SettingsDialog 
                 currentTheme={theme} 
                 onThemeChange={handleThemeChange}
-                scanlineEnabled={scanlineEnabled} // Add this
-                onScanlineChange={setScanlineEnabled} // Add this
+                scanlineEnabled={scanlineEnabled}
+                onScanlineChange={setScanlineEnabled}
               />
             </div>
           </div>
