@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ArrowLeftRight, TrendingUp, Plus, RefreshCw, Check } from 'lucide-react'
@@ -200,10 +201,10 @@ export function CurrencyConverter({ onAddToWatchlist, watchedStocks = [] }: Curr
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className="w-full text-left text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 py-1">
+        <Button variant="outline" size="sm" className="w-full justify-start text-xs font-mono">
           <ArrowLeftRight className="w-3 h-3" />
           Currency Converter
-        </button>
+        </Button>
       </DialogTrigger>
 
       <DialogContent className="max-w-2xl sm:max-w-2xl max-h-[90vh] overflow-y-auto bg-card border-border font-mono">
