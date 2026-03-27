@@ -85,9 +85,9 @@ export function StockCard({ symbol, onRemove, onClick, isSelected, refreshInterv
         ${stock.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
       </div>
 
-      {/* Change */}
+      {/* Daily Change */}
       <div className={cn(
-        "flex items-center gap-1 text-sm font-medium",
+        "flex items-center gap-1 text-sm font-medium mb-2",
         isPositive ? "text-primary" : "text-destructive"
       )}>
         {isPositive ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
@@ -95,6 +95,24 @@ export function StockCard({ symbol, onRemove, onClick, isSelected, refreshInterv
           {isPositive ? '+' : ''}{stock.change.toFixed(2)} ({isPositive ? '+' : ''}{stock.changePercent.toFixed(2)}%)
         </span>
       </div>
+
+      {/* Day Range Bar */}
+      {stock.high > 0 && stock.low > 0 && stock.high !== stock.low && (
+        <div className="mt-1">
+          <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-1 tabular-nums">
+            <span>L ${stock.low.toFixed(2)}</span>
+            <span className="text-[9px] uppercase tracking-wide">Day Range</span>
+            <span>H ${stock.high.toFixed(2)}</span>
+          </div>
+          <div className="relative h-1.5 bg-muted rounded-full overflow-hidden">
+            <div className="absolute left-0 top-0 h-full bg-gradient-to-r from-destructive via-yellow-500 to-primary rounded-full w-full" />
+            <div
+              className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-foreground rounded-full border-2 border-background shadow"
+              style={{ left: `calc(${((stock.price - stock.low) / (stock.high - stock.low)) * 100}% - 5px)` }}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Live indicator */}
       <div className="absolute bottom-2 right-2 flex items-center gap-1 text-[10px] text-muted-foreground">
