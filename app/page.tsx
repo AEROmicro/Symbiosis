@@ -24,6 +24,7 @@ export default function SymbiosisApp() {
   const [selectedStock, setSelectedStock] = useState<string | null>('^IXIC')
   const [marketState, setMarketState] = useState<string>('CLOSED')
   const [hydrated, setHydrated] = useState(false)
+  const [scanlineEnabled, setScanlineEnabled] = useState(true)
   const [theme, setTheme] = useState<AppTheme>('default')
   const refreshInterval = 1000 // Fixed 1s refresh rate
 
@@ -274,7 +275,12 @@ export default function SymbiosisApp() {
                 <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                 Connected
               </span>
-              <SettingsDialog currentTheme={theme} onThemeChange={handleThemeChange} />
+              <SettingsDialog 
+                currentTheme={theme} 
+                onThemeChange={handleThemeChange}
+                scanlineEnabled={scanlineEnabled} // Add this
+                onScanlineChange={setScanlineEnabled} // Add this
+              />
             </div>
           </div>
           <div className="mt-3 text-center text-xs text-muted-foreground font-mono space-y-0.5">
