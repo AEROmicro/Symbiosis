@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { JetBrains_Mono, Fira_Code } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import 'react-grid-layout/css/styles.css'
+import 'react-resizable/css/styles.css'
 import './globals.css'
 
 const jetbrainsMono = JetBrains_Mono({ 
