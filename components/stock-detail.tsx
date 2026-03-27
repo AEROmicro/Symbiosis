@@ -35,12 +35,6 @@ export function StockDetail({ symbol, refreshInterval = 15000 }: StockDetailProp
 
   const isPositive = stock.change >= 0
 
-  // Calculate 52-week position
-  const fiftyTwoWeekRange = stock.fiftyTwoWeekHigh - stock.fiftyTwoWeekLow
-  const pricePosition = fiftyTwoWeekRange > 0 
-    ? ((stock.price - stock.fiftyTwoWeekLow) / fiftyTwoWeekRange) * 100 
-    : 50
-
   const coreStats = [
     { label: 'Open', value: `$${stock.open.toFixed(2)}`, icon: Clock },
     { label: 'Prev Close', value: `$${stock.previousClose.toFixed(2)}`, icon: DollarSign },
@@ -93,13 +87,13 @@ export function StockDetail({ symbol, refreshInterval = 15000 }: StockDetailProp
           </div>
         </div>
 
-        {/* 52-Week Range */}
-        {stock.fiftyTwoWeekLow > 0 && stock.fiftyTwoWeekHigh > 0 && (
+        {/* Daily Range Bar */}
+        {stock.high > 0 && stock.low > 0 && stock.high !== stock.low && (
           <div className="px-4 py-3 border-b border-border bg-muted/20">
             <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
-              <span>52-Week Range</span>
+              <span>Day Range</span>
               <span className="tabular-nums">
-                ${stock.fiftyTwoWeekLow.toFixed(2)} - ${stock.fiftyTwoWeekHigh.toFixed(2)}
+                ${stock.low.toFixed(2)} – ${stock.high.toFixed(2)}
               </span>
             </div>
             <div className="relative h-2 bg-muted rounded-full overflow-hidden">
@@ -109,7 +103,7 @@ export function StockDetail({ symbol, refreshInterval = 15000 }: StockDetailProp
               />
               <div 
                 className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-foreground rounded-full border-2 border-background shadow-lg"
-                style={{ left: `calc(${pricePosition}% - 6px)` }}
+                style={{ left: `calc(${((stock.price - stock.low) / (stock.high - stock.low)) * 100}% - 6px)` }}
               />
             </div>
           </div>
@@ -136,44 +130,6 @@ export function StockDetail({ symbol, refreshInterval = 15000 }: StockDetailProp
 
       {/* Price Chart */}
       <PriceChart symbol={symbol} />
-
-      {/* Moving Averages */}
-      {(stock.fiftyDayAvg > 0 || stock.twoHundredDayAvg > 0) && (
-        <div className="border border-border bg-card rounded-md overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-muted/20">
-            <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
-              <Activity className="w-3 h-3 text-primary" />
-              Moving Averages
-            </div>
-          </div>
-          <div className="grid grid-cols-2 divide-x divide-border">
-            {stock.fiftyDayAvg > 0 && (
-              <div className="p-4">
-                <div className="text-xs text-muted-foreground mb-1">50-Day MA</div>
-                <div className="text-lg font-semibold tabular-nums">${stock.fiftyDayAvg.toFixed(2)}</div>
-                <div className={cn(
-                  "text-xs tabular-nums",
-                  stock.price > stock.fiftyDayAvg ? "text-primary" : "text-destructive"
-                )}>
-                  {stock.price > stock.fiftyDayAvg ? 'Above' : 'Below'} ({((stock.price - stock.fiftyDayAvg) / stock.fiftyDayAvg * 100).toFixed(2)}%)
-                </div>
-              </div>
-            )}
-            {stock.twoHundredDayAvg > 0 && (
-              <div className="p-4">
-                <div className="text-xs text-muted-foreground mb-1">200-Day MA</div>
-                <div className="text-lg font-semibold tabular-nums">${stock.twoHundredDayAvg.toFixed(2)}</div>
-                <div className={cn(
-                  "text-xs tabular-nums",
-                  stock.price > stock.twoHundredDayAvg ? "text-primary" : "text-destructive"
-                )}>
-                  {stock.price > stock.twoHundredDayAvg ? 'Above' : 'Below'} ({((stock.price - stock.twoHundredDayAvg) / stock.twoHundredDayAvg * 100).toFixed(2)}%)
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   )
 }
