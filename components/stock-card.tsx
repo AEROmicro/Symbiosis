@@ -17,33 +17,30 @@ export function StockCard({ symbol, onRemove, onClick, isSelected, refreshInterv
 
   if (isLoading) {
     return (
-      <div className="group relative border border-border bg-card rounded-md p-4 animate-pulse">
-        <div className="flex items-center justify-between mb-3">
-          <div className="h-5 w-16 bg-muted rounded" />
-          <div className="h-4 w-4 bg-muted rounded" />
-        </div>
-        <div className="h-8 w-24 bg-muted rounded mb-2" />
-        <div className="h-4 w-20 bg-muted rounded" />
+      <div className="group relative border border-white/5 bg-black/40 rounded-xl p-4 animate-pulse">
+        <div className="h-4 w-16 bg-white/10 rounded mb-3" />
+        <div className="h-8 w-32 bg-white/10 rounded mb-2" />
+        <div className="h-4 w-24 bg-white/10 rounded" />
       </div>
     )
   }
 
   if (isError || !stock) {
     return (
-      <div className="group relative border border-destructive/50 bg-destructive/10 rounded-md p-4">
+      <div className="group relative border border-rose-500/20 bg-rose-500/5 rounded-xl p-4">
         <div className="flex items-center justify-between mb-2">
-          <span className="font-bold text-destructive">{symbol}</span>
+          <span className="font-bold text-rose-400 font-mono tracking-tighter">^{symbol}</span>
           <button
             onClick={(e) => { e.stopPropagation(); onRemove(symbol) }}
-            className="text-muted-foreground hover:text-destructive transition-colors"
+            className="text-white/20 hover:text-rose-400 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
-        <p className="text-xs text-destructive">Failed to load</p>
+        <p className="text-[10px] text-rose-400/60 uppercase tracking-widest font-mono">Sync Error</p>
         <button 
           onClick={(e) => { e.stopPropagation(); refresh() }}
-          className="text-xs text-muted-foreground hover:text-primary mt-2 flex items-center gap-1"
+          className="text-[10px] text-white/40 hover:text-white mt-2 flex items-center gap-1 font-mono uppercase"
         >
           <RefreshCw className="w-3 h-3" /> Retry
         </button>
@@ -57,71 +54,62 @@ export function StockCard({ symbol, onRemove, onClick, isSelected, refreshInterv
     <div
       onClick={() => onClick(symbol)}
       className={cn(
-        "group relative border bg-card rounded-md p-4 cursor-pointer transition-all duration-200",
-        "hover:border-primary/50 hover:shadow-[0_0_15px_color-mix(in_oklch,var(--primary)_10%,transparent)]",
+        "group relative border rounded-xl p-4 cursor-pointer transition-all duration-300",
+        "bg-black/40 backdrop-blur-sm",
+        "hover:bg-white/[0.02] hover:border-white/20",
         isSelected 
-          ? "border-primary shadow-[0_0_20px_color-mix(in_oklch,var(--primary)_15%,transparent)]" 
-          : "border-border"
+          ? "border-emerald-500/50 shadow-[0_0_25px_rgba(16,185,129,0.1)] bg-white/[0.03]" 
+          : "border-white/5"
       )}
     >
-      {/* Remove button */}
+      {/* Remove button - Hidden until hover */}
       <button
         onClick={(e) => { e.stopPropagation(); onRemove(symbol) }}
-        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-all"
+        className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 text-white/20 hover:text-rose-500 transition-all z-10"
       >
         <X className="w-4 h-4" />
       </button>
 
-      {/* Header */}
-      <div className="flex items-center gap-2 mb-2">
-        <span className="font-bold text-foreground">{stock.symbol}</span>
-        <span className="text-xs text-muted-foreground truncate max-w-[120px]">
+      {/* Symbol & Name */}
+      <div className="flex flex-col mb-1">
+        <span className={cn(
+          "text-sm font-bold tracking-tighter font-mono",
+          isPositive ? "text-emerald-400" : "text-rose-400"
+        )}>
+          ^{stock.symbol}
+        </span>
+        <span className="text-[10px] text-white/30 uppercase tracking-[0.12em] font-mono truncate max-w-[140px]">
           {stock.name}
         </span>
       </div>
 
-      {/* Price */}
-      <div className="text-2xl font-bold text-foreground mb-1 tabular-nums">
+      {/* Big Price */}
+      <div className="text-2xl font-bold text-white tracking-tighter font-mono tabular-nums mb-1">
         ${stock.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
       </div>
 
-      {/* Daily Change */}
+      {/* Fixed Daily Change (Calculated by our API) */}
       <div className={cn(
-        "flex items-center gap-1 text-sm font-medium mb-2",
-        isPositive ? "text-primary" : "text-destructive"
+        "flex items-center gap-1.5 text-[11px] font-mono font-medium tracking-tight",
+        isPositive ? "text-emerald-400" : "text-rose-400"
       )}>
-        {isPositive ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+        {isPositive ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
         <span className="tabular-nums">
-          {isPositive ? '+' : ''}{stock.change.toFixed(2)} ({isPositive ? '+' : ''}{stock.changePercent.toFixed(2)}%)
+          {isPositive ? '+' : ''}{stock.change.toFixed(2)} 
+          <span className="ml-1.5 opacity-60 text-[10px]">
+            ({isPositive ? '+' : ''}{stock.changePercent.toFixed(2)}%)
+          </span>
         </span>
       </div>
 
-      {/* Day Range Bar */}
-      {stock.high > 0 && stock.low > 0 && stock.high !== stock.low && (
-        <div className="mt-1">
-          <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-1 tabular-nums">
-            <span>L ${stock.low.toFixed(2)}</span>
-            <span className="text-[9px] uppercase tracking-wide">Day Range</span>
-            <span>H ${stock.high.toFixed(2)}</span>
-          </div>
-          <div className="relative h-1.5 bg-muted rounded-full overflow-hidden">
-            <div className="absolute left-0 top-0 h-full bg-gradient-to-r from-destructive via-yellow-500 to-primary rounded-full w-full" />
-            <div
-              className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-foreground rounded-full border-2 border-background shadow"
-              style={{ left: `calc(${((stock.price - stock.low) / (stock.high - stock.low)) * 100}% - 5px)` }}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Live indicator */}
-      <div className="absolute bottom-2 right-2 flex items-center gap-1 text-[10px] text-muted-foreground">
+      {/* Minimalist Live Pulse */}
+      <div className="absolute bottom-3 right-3 flex items-center gap-1.5">
         <span className={cn(
-          "w-1.5 h-1.5 rounded-full",
-          isPositive ? "bg-primary" : "bg-destructive",
+          "w-1 h-1 rounded-full",
+          isPositive ? "bg-emerald-500" : "bg-rose-500",
           "animate-pulse"
         )} />
-        LIVE
+        <span className="text-[8px] text-white/10 font-bold tracking-[0.2em] font-mono uppercase">Live</span>
       </div>
     </div>
   )
