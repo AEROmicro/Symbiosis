@@ -69,7 +69,7 @@ export function TerminalHeader({ marketState = 'CLOSED' }: TerminalHeaderProps) 
         {/* Status Indicators */}
         <div className="flex items-center gap-4">
           <div className="hidden md:flex items-center gap-2 text-xs">
-            <span className="text-muted-foreground">REDEFINE THE LIMITS {stateDisplay.label}</span>
+            <span className="text-muted-foreground">REDEFINE THE LIMITS</span>
           </div>
           
           {/* Time Display */}
