@@ -14,20 +14,22 @@ function buildEvents(): CalendarEvent[] {
   const now = new Date()
   const addDays = (d: number) => { const dt = new Date(now); dt.setDate(dt.getDate() + d); return dt }
 
-  // Generate realistic upcoming events offset from today
+  const ev = (name: string, impact: 'HIGH' | 'MED' | 'LOW', days: number, description: string): CalendarEvent =>
+    ({ name, impact, date: addDays(days), description })
+
   return [
-    { name: 'FOMC Meeting',           impact: 'HIGH', date: addDays(3),  description: 'Federal Open Market Committee rate decision' },
-    { name: 'CPI Release',            impact: 'HIGH', date: addDays(6),  description: 'Consumer Price Index — inflation gauge' },
-    { name: 'Non-Farm Payrolls',      impact: 'HIGH', date: addDays(9),  description: 'Monthly jobs report from BLS' },
-    { name: 'GDP (Preliminary)',      impact: 'HIGH', date: addDays(14), description: 'Advance estimate of quarterly GDP growth' },
-    { name: 'PPI Release',            impact: 'MED',  date: addDays(7),  description: 'Producer Price Index — wholesale inflation' },
-    { name: 'Retail Sales',           impact: 'MED',  date: addDays(11), description: 'Monthly consumer spending report' },
-    { name: 'ISM Manufacturing PMI',  impact: 'MED',  date: addDays(2),  description: 'Purchasing Managers Index for manufacturing' },
-    { name: 'Initial Jobless Claims', impact: 'MED',  date: addDays(4),  description: 'Weekly new unemployment benefit filings' },
-    { name: 'Housing Starts',         impact: 'LOW',  date: addDays(13), description: 'New residential construction data' },
-    { name: 'Industrial Production',  impact: 'LOW',  date: addDays(16), description: 'Output from factories, mines and utilities' },
-    { name: 'Consumer Confidence',    impact: 'LOW',  date: addDays(18), description: 'Conference Board consumer sentiment index' },
-    { name: 'Durable Goods Orders',   impact: 'MED',  date: addDays(20), description: 'Long-lasting manufactured goods orders' },
+    ev('FOMC Meeting',           'HIGH', 3,  'Federal Open Market Committee rate decision'),
+    ev('CPI Release',            'HIGH', 6,  'Consumer Price Index — inflation gauge'),
+    ev('Non-Farm Payrolls',      'HIGH', 9,  'Monthly jobs report from BLS'),
+    ev('GDP (Preliminary)',      'HIGH', 14, 'Advance estimate of quarterly GDP growth'),
+    ev('PPI Release',            'MED',  7,  'Producer Price Index — wholesale inflation'),
+    ev('Retail Sales',           'MED',  11, 'Monthly consumer spending report'),
+    ev('ISM Manufacturing PMI',  'MED',  2,  'Purchasing Managers Index for manufacturing'),
+    ev('Initial Jobless Claims', 'MED',  4,  'Weekly new unemployment benefit filings'),
+    ev('Housing Starts',         'LOW',  13, 'New residential construction data'),
+    ev('Industrial Production',  'LOW',  16, 'Output from factories, mines and utilities'),
+    ev('Consumer Confidence',    'LOW',  18, 'Conference Board consumer sentiment index'),
+    ev('Durable Goods Orders',   'MED',  20, 'Long-lasting manufactured goods orders'),
   ].sort((a, b) => a.date.getTime() - b.date.getTime())
 }
 
