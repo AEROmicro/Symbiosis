@@ -183,7 +183,7 @@ export function HelpDialog() {
                 View on GitHub
               </a>
               <p className="text-xs text-muted-foreground">
-                Symbiosis v4 Petrichor - Built with Next.js, React, and Tailwind CSS
+                Symbiosis v4.1 Petrichor - Built with Next.js, React, and Tailwind CSS
               </p>
             </div>
           </div>
