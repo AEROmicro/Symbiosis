@@ -1,6 +1,7 @@
 'use client'
 
-import { Settings } from 'lucide-react'
+import { useState } from 'react'
+import { Settings, LayoutDashboard } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -12,6 +13,7 @@ interface SettingsDialogProps {
   onThemeChange: (theme: AppTheme) => void
   scanlineEnabled: boolean
   onScanlineChange: (enabled: boolean) => void
+  onOpenBlueprint?: () => void
 }
 
 const themes: {
@@ -46,9 +48,10 @@ const themes: {
   },
 ]
 
-export function SettingsDialog({ currentTheme, onThemeChange }: SettingsDialogProps) {
+export function SettingsDialog({ currentTheme, onThemeChange, onOpenBlueprint }: SettingsDialogProps) {
+  const [open, setOpen] = useState(false)
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
           variant="ghost"
@@ -116,6 +119,26 @@ export function SettingsDialog({ currentTheme, onThemeChange }: SettingsDialogPr
               })}
             </div>
           </div>
+
+          {/* Blueprint button */}
+          {onOpenBlueprint && (
+            <div className="border-t border-border pt-4">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground mb-3">
+                Layout
+              </p>
+              <Button
+                variant="outline"
+                className="w-full justify-start gap-2 font-mono text-sm"
+                onClick={() => {
+                  setOpen(false)
+                  onOpenBlueprint()
+                }}
+              >
+                <LayoutDashboard className="w-4 h-4 text-primary" />
+                Customize Layout
+              </Button>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
