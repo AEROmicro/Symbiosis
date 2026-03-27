@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { TrendingUp, TrendingDown, RefreshCw } from 'lucide-react'
+import { RefreshCw } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface TickerItem {
@@ -95,35 +95,39 @@ export function MarketTicker({ onMarketStateChange }: { onMarketStateChange?: (s
   const duration = Math.max(40, items.length * 5)
 
   return (
-    <div className="border-b border-border bg-card/30 overflow-hidden">
+    <div className="border-b border-border bg-card/50 overflow-hidden">
       <div
-        className="flex w-max whitespace-nowrap py-2 hover:[animation-play-state:paused]"
+        className="flex w-max whitespace-nowrap py-1.5 hover:[animation-play-state:paused]"
         style={{ animation: `marquee ${duration}s linear infinite` }}
       >
         {tickerItems.map((item, i) => (
           <div 
             key={`${item.symbol}-${i}`} 
-            className="flex items-center gap-2 px-4 text-sm"
+            className="flex items-center gap-2 px-4"
           >
-            {/* FX pairs get a subtle accent badge */}
-            {isFXPair(item.symbol) ? (
-              <span className="font-medium text-xs px-1.5 py-0.5 rounded bg-primary/10 border border-primary/20 text-primary/90 tracking-wide">
-                {item.symbol}
-              </span>
-            ) : (
-              <span className="font-medium text-foreground">{item.symbol}</span>
-            )}
-            <span className="text-muted-foreground tabular-nums">
+            {/* Symbol — FX pairs get a subtle border, equities are plain */}
+            <span className={cn(
+              "font-bold text-xs tracking-wider text-primary",
+              isFXPair(item.symbol) && "px-1 py-0.5 rounded border border-primary/30"
+            )}>
+              {item.symbol}
+            </span>
+            {/* Price */}
+            <span className="text-foreground text-xs tabular-nums font-medium">
               {formatTickerPrice(item.symbol, item.price)}
             </span>
+            {/* Change badge */}
             <span className={cn(
-              "flex items-center gap-0.5 tabular-nums text-xs",
-              item.change >= 0 ? "text-primary" : "text-destructive"
+              "inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold tabular-nums",
+              item.change >= 0
+                ? "bg-primary/15 text-primary"
+                : "bg-destructive/15 text-destructive"
             )}>
-              {item.change >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+              {item.change >= 0 ? '▲' : '▼'}
               {item.change >= 0 ? '+' : ''}{item.change.toFixed(2)}%
             </span>
-            <span className="text-border">│</span>
+            {/* Separator */}
+            <span className="text-border/60 text-xs">·</span>
           </div>
         ))}
       </div>
