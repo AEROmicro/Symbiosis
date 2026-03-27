@@ -15,6 +15,7 @@ import { NewsDialog } from '@/components/news-dialog'
 import { MarketStatsDialog } from '@/components/market-stats-dialog'
 import { SettingsDialog, type AppTheme } from '@/components/settings-dialog'
 import { CurrencyConverter } from '@/components/currency-converter'
+import { PortfolioDialog } from '@/components/portfolio-dialog'
 
 const STORAGE_KEY = 'symbiosis-watchlist'
 const THEME_KEY = 'symbiosis-theme'
@@ -202,6 +203,7 @@ export default function SymbiosisApp() {
                   onAddToWatchlist={handleAddStock}
                   watchedStocks={watchedStocks}
                 />
+                <PortfolioDialog />
               </div>
             </div>
           </div>
