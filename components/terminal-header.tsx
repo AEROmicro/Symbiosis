@@ -71,21 +71,7 @@ export function TerminalHeader({ marketState = 'CLOSED' }: TerminalHeaderProps) 
         {/* Status Indicators */}
         <div className="flex items-center gap-4">
           <div className="hidden md:flex items-center gap-2 text-xs">
-            <span className="flex items-center gap-1.5">
-              <span className={cn(
-                "w-2 h-2 rounded-full",
-                stateDisplay.pulse ? "animate-pulse" : "",
-                stateDisplay.color === 'text-primary' ? "bg-primary" : 
-                stateDisplay.color === 'text-yellow-500' ? "bg-yellow-500" :
-                stateDisplay.color === 'text-orange-500' ? "bg-orange-500" : "bg-muted-foreground"
-              )} />
-              <span className={cn(stateDisplay.color)}>
-                {marketState === 'REGULAR' ? 'LIVE' : stateDisplay.label}
-              </span>
-            </span>
-            <span className="text-muted-foreground">|</span>
-            <span className="text-muted-foreground">NYSE: {stateDisplay.label}</span>
-            <span className="text-muted-foreground/60 text-[10px]">({etTime})</span>
+            <span className="text-muted-foreground">REDEFINE THE LIMITS {stateDisplay.label}</span>
           </div>
           
           {/* Time Display */}
