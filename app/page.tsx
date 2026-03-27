@@ -11,6 +11,7 @@ import { Activity, Terminal, LayoutGrid } from 'lucide-react'
 import { HelpDialog } from '@/components/help-dialog'
 import { KeyboardShortcuts } from '@/components/keyboard-shortcuts'
 import { MarketHoursDialog } from '@/components/market-hours-dialog'
+import { NewsDialog } from '@/components/news-dialog'
 import { MarketStatsDialog } from '@/components/market-stats-dialog'
 import { SettingsDialog, type AppTheme } from '@/components/settings-dialog'
 import { CurrencyConverter } from '@/components/currency-converter'
@@ -196,6 +197,7 @@ export default function SymbiosisApp() {
                 <KeyboardShortcuts />
                 <MarketStatsDialog />
                 <MarketHoursDialog />
+                <NewsDialog />
                 <CurrencyConverter
                   onAddToWatchlist={handleAddStock}
                   watchedStocks={watchedStocks}
