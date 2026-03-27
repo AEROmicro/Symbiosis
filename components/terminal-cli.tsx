@@ -245,7 +245,7 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
     }
   }
 
-  const addPortfolioEntry = async (symbol: string, shares: number, avgPrice: number) => {
+  const addPortfolioEntry = async (symbol: string, shares: number, avgPrice: number | null) => {
     const upperSymbol = symbol.toUpperCase()
     addLog('system', `Validating ${upperSymbol}...`)
     try {
@@ -255,20 +255,21 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
         return
       }
       const data = await response.json()
+      const resolvedPrice = avgPrice ?? data.price
       setPortfolio(prev => {
         const existing = prev.findIndex(e => e.symbol === upperSymbol)
         if (existing !== -1) {
           const updated = [...prev]
-          updated[existing] = { ...updated[existing], shares, avgPrice }
+          updated[existing] = { ...updated[existing], shares, avgPrice: resolvedPrice }
           return updated
         }
-        return [...prev, { symbol: upperSymbol, shares, avgPrice, addedAt: new Date().toISOString() }]
+        return [...prev, { symbol: upperSymbol, shares, avgPrice: resolvedPrice, addedAt: new Date().toISOString() }]
       })
-      const cost = shares * avgPrice
+      const cost = shares * resolvedPrice
       const currentValue = shares * data.price
       const pnl = currentValue - cost
       const pnlPct = ((pnl / cost) * 100)
-      addLog('success', `Added ${upperSymbol} to portfolio: ${shares} shares @ $${avgPrice.toFixed(2)}`)
+      addLog('success', `Added ${upperSymbol} to portfolio: ${shares} shares @ $${resolvedPrice.toFixed(2)}`)
       addLog('info', `Current value: $${currentValue.toFixed(2)} | P&L: ${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)} (${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(2)}%)`)
     } catch {
       addLog('error', `Failed to validate ${upperSymbol}. Try again.`)
@@ -329,7 +330,7 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
         addLog('info', 'news <SYMBOL>         - Show news for a specific stock')
         addLog('info', 'analyze <SYMBOL>      - Full technical & fundamental analysis')
         addLog('info', 'portfolio             - Show portfolio with P&L')
-        addLog('info', 'portfolio add <SYMBOL> <SHARES> <PRICE>    - Add position to portfolio')
+        addLog('info', 'portfolio add <SYMBOL> <SHARES> <PRICE|current>  - Add position (use "current" for live price)')
         addLog('info', 'portfolio remove <SYMBOL>                  - Remove position from portfolio')
         addLog('info', 'system                - Show system info')
         addLog('info', 'clear                 - Clear terminal output')
@@ -483,13 +484,16 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
         } else if (subCmd === 'add') {
           const portSymbol = args[1]
           const portShares = parseFloat(args[2])
-          const portPrice = parseFloat(args[3])
-          if (!portSymbol || isNaN(portShares) || isNaN(portPrice)) {
-            addLog('error', 'Usage: portfolio add <SYMBOL> <SHARES> <PRICE>')
+          const priceArg = args[3]
+          const useCurrentPrice = priceArg?.toLowerCase() === 'current'
+          const portPrice = useCurrentPrice ? null : parseFloat(priceArg)
+          if (!portSymbol || isNaN(portShares) || (!useCurrentPrice && (portPrice === null || isNaN(portPrice)))) {
+            addLog('error', 'Usage: portfolio add <SYMBOL> <SHARES> <PRICE|current>')
             addLog('error', 'Example: portfolio add AAPL 10 150.00')
+            addLog('error', 'Example: portfolio add AAPL 10 current  (uses live price)')
             break
           }
-          if (portShares <= 0 || portPrice <= 0) {
+          if (portShares <= 0 || (!useCurrentPrice && portPrice !== null && portPrice <= 0)) {
             addLog('error', 'Shares and price must be positive numbers')
             break
           }
@@ -509,7 +513,7 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
           addLog('success', `Removed ${rmPortSymbol} from portfolio`)
         } else {
           addLog('error', `Unknown portfolio sub-command: '${subCmd}'`)
-          addLog('info', 'Usage: portfolio | portfolio add <SYMBOL> <SHARES> <PRICE> | portfolio remove <SYMBOL>')
+          addLog('info', 'Usage: portfolio | portfolio add <SYMBOL> <SHARES> <PRICE|current> | portfolio remove <SYMBOL>')
         }
         break
       }
