@@ -178,40 +178,7 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
         if (posInRange !== null) addLog('info', `  52-Wk Pos.  ${posInRange.toFixed(1)}% (0%=yearly low, 100%=yearly high)`)
       }
       addLog('info', ``)
-      addLog('info', `── Moving Averages ─────────────────────────`)
-      if (d.fiftyDayAvg > 0) {
-        const diff50 = (((d.price - d.fiftyDayAvg) / d.fiftyDayAvg) * 100).toFixed(2)
-        addLog('info', `  50-Day MA   $${d.fiftyDayAvg.toFixed(2)}  (${aboveFiftyDay ? '+' : ''}${diff50}%) ${aboveFiftyDay ? '↑ Bullish' : '↓ Bearish'}`)
-      } else {
-        addLog('info', `  50-Day MA   N/A`)
-      }
-      if (d.twoHundredDayAvg > 0) {
-        const diff200 = (((d.price - d.twoHundredDayAvg) / d.twoHundredDayAvg) * 100).toFixed(2)
-        addLog('info', `  200-Day MA  $${d.twoHundredDayAvg.toFixed(2)}  (${aboveTwoHundredDay ? '+' : ''}${diff200}%) ${aboveTwoHundredDay ? '↑ Bullish' : '↓ Bearish'}`)
-      } else {
-        addLog('info', `  200-Day MA  N/A`)
-      }
-      addLog('info', ``)
-      addLog('info', `── Fundamentals ────────────────────────────`)
-      addLog('info', `  Market Cap  ${d.marketCap}`)
-      addLog('info', `  P/E Ratio   ${d.peRatio !== null ? d.peRatio : 'N/A'}${d.forwardPE !== null ? `  (Fwd: ${d.forwardPE})` : ''}`)
-      addLog('info', `  EPS         ${d.eps !== null ? '$' + d.eps : 'N/A'}`)
-      addLog('info', `  Beta        ${d.beta !== null ? d.beta : 'N/A'}${d.beta !== null ? (d.beta > 1.5 ? '  (High volatility)' : d.beta < 0.8 ? '  (Low volatility)' : '  (Market-like)') : ''}`)
-      if (d.dividendYield !== null) {
-        addLog('info', `  Dividend    ${d.dividendYield}% yield  ($${d.dividendRate ?? 'N/A'}/sh)`)
-      } else {
-        addLog('info', `  Dividend    None`)
-      }
-      addLog('info', ``)
-      addLog('info', `── Volume ──────────────────────────────────`)
-      addLog('info', `  Today       ${d.volume > 0 ? d.volume.toLocaleString() : 'N/A'}${volVsAvg ? ` (${volVsAvg}% of avg)` : ''}`)
-      addLog('info', `  Avg Volume  ${d.avgVolume > 0 ? d.avgVolume.toLocaleString() : 'N/A'}`)
-      addLog('info', ``)
-      if (d.targetPrice !== null && targetUpside !== null) {
-        addLog('info', `── Analyst Target ──────────────────────────`)
-        addLog('info', `  Price Tgt   $${d.targetPrice.toFixed(2)}  (${targetUpside >= 0 ? '+' : ''}${targetUpside.toFixed(1)}% upside)`)
-        addLog('info', ``)
-      }
+      
       // Summary signal
       const bullCount = [aboveFiftyDay, aboveTwoHundredDay, (d.changePercent >= 0)].filter(Boolean).length
       const signal = bullCount === 3 ? 'BULLISH' : bullCount === 0 ? 'BEARISH' : 'NEUTRAL'
