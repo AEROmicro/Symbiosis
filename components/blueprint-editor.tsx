@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import ReactGridLayout, { WidthProvider, Layout } from 'react-grid-layout'
+import GridLayout, { type Layout, type LayoutItem, useContainerWidth } from 'react-grid-layout'
 import {
   Terminal, LayoutGrid, TrendingUp, Zap, Server, Newspaper,
   Briefcase, Clock, Globe, Activity, Map, Bitcoin, DollarSign,
@@ -18,13 +18,11 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import {
-  WidgetConfig,
-  WidgetMeta,
+  type WidgetConfig,
+  type WidgetMeta,
   WIDGET_CATALOG,
   DEFAULT_WIDGET_LAYOUT,
 } from '@/lib/widget-types'
-
-const RGL = WidthProvider(ReactGridLayout)
 
 // ── Icon map ────────────────────────────────────────────────────────────────
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -34,7 +32,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
-function configsToLayout(configs: WidgetConfig[]): Layout[] {
+function configsToLayout(configs: WidgetConfig[]): Layout {
   return configs.map(c => ({
     i: c.id,
     x: c.x,
@@ -43,12 +41,12 @@ function configsToLayout(configs: WidgetConfig[]): Layout[] {
     h: c.h,
     minW: c.minW,
     minH: c.minH,
-  }))
+  })) as Layout
 }
 
-function mergeLayout(configs: WidgetConfig[], rglLayout: Layout[]): WidgetConfig[] {
+function mergeLayout(configs: WidgetConfig[], rglLayout: Layout): WidgetConfig[] {
   return configs.map(c => {
-    const found = rglLayout.find(l => l.i === c.id)
+    const found = rglLayout.find((l: LayoutItem) => l.i === c.id)
     if (!found) return c
     return { ...c, x: found.x, y: found.y, w: found.w, h: found.h }
   })
@@ -121,26 +119,24 @@ interface BlueprintEditorProps {
 }
 
 export function BlueprintEditor({ open, onClose, layout, onLayoutChange }: BlueprintEditorProps) {
-  // Local draft that we commit only on Save
   const [draft, setDraft] = useState<WidgetConfig[]>(layout)
   const [search, setSearch] = useState('')
+
+  const { width: containerWidth, containerRef } = useContainerWidth({ initialWidth: 900 })
 
   // Re-sync draft when the editor opens
   useEffect(() => {
     if (open) setDraft(layout)
   }, [open, layout])
 
-  // ── RGL event ────────────────────────────────────────────────────────────
-  const handleLayoutChange = (rglLayout: Layout[]) => {
+  const handleLayoutChange = (rglLayout: Layout) => {
     setDraft(prev => mergeLayout(prev, rglLayout))
   }
 
-  // ── Delete widget ─────────────────────────────────────────────────────────
   const handleDelete = (id: string) => {
     setDraft(prev => prev.filter(c => c.id !== id))
   }
 
-  // ── Add widget from sidebar ───────────────────────────────────────────────
   const handleAdd = (meta: WidgetMeta) => {
     const id = nextId(meta.type, draft)
     const newWidget: WidgetConfig = {
@@ -156,7 +152,6 @@ export function BlueprintEditor({ open, onClose, layout, onLayoutChange }: Bluep
     setDraft(prev => [...prev, newWidget])
   }
 
-  // ── Save / Reset ──────────────────────────────────────────────────────────
   const handleSave = () => {
     onLayoutChange(draft)
     onClose()
@@ -166,7 +161,6 @@ export function BlueprintEditor({ open, onClose, layout, onLayoutChange }: Bluep
     setDraft(DEFAULT_WIDGET_LAYOUT)
   }
 
-  // ── Catalog sidebar data ──────────────────────────────────────────────────
   const filteredCatalog = useMemo(() => {
     const q = search.toLowerCase()
     return WIDGET_CATALOG.filter(
@@ -200,8 +194,8 @@ export function BlueprintEditor({ open, onClose, layout, onLayoutChange }: Bluep
         <div className="flex flex-1 min-h-0">
           {/* ── Grid area ────────────────────────────────────────────────── */}
           <div className="flex-1 min-w-0 overflow-auto bg-background/50 p-3">
-            {/* Grid pattern background */}
             <div
+              ref={containerRef}
               className="min-h-full relative"
               style={{
                 backgroundImage: `
@@ -211,16 +205,21 @@ export function BlueprintEditor({ open, onClose, layout, onLayoutChange }: Bluep
                 backgroundSize: '40px 40px',
               }}
             >
-              <RGL
+              <GridLayout
+                width={containerWidth}
                 layout={rglLayout}
-                cols={12}
-                rowHeight={40}
-                isDraggable
-                isResizable
+                gridConfig={{
+                  cols: 12,
+                  rowHeight: 40,
+                  margin: [8, 8],
+                  containerPadding: [4, 4],
+                }}
+                dragConfig={{ enabled: true }}
+                resizeConfig={{
+                  enabled: true,
+                  handles: ['se', 'sw', 'ne', 'nw', 'e', 'w', 's', 'n'],
+                }}
                 onLayoutChange={handleLayoutChange}
-                resizeHandles={['se', 'sw', 'ne', 'nw', 'e', 'w', 's', 'n']}
-                margin={[8, 8]}
-                containerPadding={[4, 4]}
                 className="min-h-[600px]"
               >
                 {draft.map(config => {
@@ -263,7 +262,7 @@ export function BlueprintEditor({ open, onClose, layout, onLayoutChange }: Bluep
                     </div>
                   )
                 })}
-              </RGL>
+              </GridLayout>
             </div>
           </div>
 
@@ -316,7 +315,7 @@ export function BlueprintEditor({ open, onClose, layout, onLayoutChange }: Bluep
                 </>
               )}
               {filteredCatalog.length === 0 && (
-                <p className="text-xs text-muted-foreground text-center py-6">No widgets match "{search}"</p>
+                <p className="text-xs text-muted-foreground text-center py-6">No widgets match &ldquo;{search}&rdquo;</p>
               )}
             </div>
           </div>

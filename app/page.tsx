@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
-import ReactGridLayout, { WidthProvider } from 'react-grid-layout'
+import GridLayout, { type Layout, useContainerWidth } from 'react-grid-layout'
 import { TerminalHeader } from '@/components/terminal-header'
 import { MarketTicker } from '@/components/market-ticker'
 import { SettingsDialog, type AppTheme } from '@/components/settings-dialog'
@@ -9,12 +9,10 @@ import { WidgetRenderer, type WidgetAppProps } from '@/components/widget-rendere
 import { BlueprintEditor } from '@/components/blueprint-editor'
 import { Terminal } from 'lucide-react'
 import {
-  WidgetConfig,
+  type WidgetConfig,
   DEFAULT_WIDGET_LAYOUT,
   WIDGET_LAYOUT_KEY,
 } from '@/lib/widget-types'
-
-const RGL = WidthProvider(ReactGridLayout)
 
 const STORAGE_KEY = 'symbiosis-watchlist'
 const THEME_KEY   = 'symbiosis-theme'
@@ -30,6 +28,7 @@ export default function SymbiosisApp() {
   const [widgetLayout, setWidgetLayout]     = useState<WidgetConfig[]>(DEFAULT_WIDGET_LAYOUT)
   const [blueprintOpen, setBlueprintOpen]   = useState(false)
   const refreshInterval = 1000
+  const { width: gridWidth, containerRef }  = useContainerWidth({ initialWidth: 1280 })
 
   // Load from localStorage after mount
   useEffect(() => {
@@ -108,10 +107,10 @@ export default function SymbiosisApp() {
     refreshInterval,
   }
 
-  // RGL layout (static — not draggable by user)
-  const rglLayout = widgetLayout.map(c => ({
+  // RGL layout (static — not draggable by user on main screen)
+  const rglLayout: Layout = widgetLayout.map(c => ({
     i: c.id, x: c.x, y: c.y, w: c.w, h: c.h, minW: c.minW, minH: c.minH,
-  }))
+  })) as Layout
 
   if (!hydrated) {
     return (
@@ -149,21 +148,21 @@ export default function SymbiosisApp() {
 
       {/* Widget Grid */}
       <main className="container mx-auto px-4 py-6 max-w-7xl">
-        <RGL
-          layout={rglLayout}
-          cols={12}
-          rowHeight={40}
-          isDraggable={false}
-          isResizable={false}
-          margin={[16, 16]}
-          containerPadding={[0, 0]}
-        >
-          {widgetLayout.map(config => (
-            <div key={config.id}>
-              <WidgetRenderer config={config} appProps={appProps} />
-            </div>
-          ))}
-        </RGL>
+        <div ref={containerRef}>
+          <GridLayout
+            width={gridWidth}
+            layout={rglLayout}
+            gridConfig={{ cols: 12, rowHeight: 40, margin: [16, 16], containerPadding: [0, 0] }}
+            dragConfig={{ enabled: false }}
+            resizeConfig={{ enabled: false }}
+          >
+            {widgetLayout.map(config => (
+              <div key={config.id}>
+                <WidgetRenderer config={config} appProps={appProps} />
+              </div>
+            ))}
+          </GridLayout>
+        </div>
       </main>
 
       {/* Blueprint Editor */}
