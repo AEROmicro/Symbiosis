@@ -11,6 +11,15 @@ interface TerminalCLIProps {
   watchedStocks: string[]
 }
 
+interface ChartPoint {
+  time: number
+  open: number | null
+  high: number | null
+  low: number | null
+  close: number | null
+  volume: number | null
+}
+
 // Popular stocks for reference - but any valid ticker will work
 const POPULAR_STOCKS = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'META', 'NVDA', 'AMD']
 
@@ -310,6 +319,107 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
     addLog('info', `━━━ Total: $${totalValue.toFixed(2)} | P&L ${totalPnl >= 0 ? '+' : ''}$${totalPnl.toFixed(2)} (${totalPnlPct >= 0 ? '+' : ''}${totalPnlPct.toFixed(2)}%) ━━━`)
   }
 
+  const daysToRange = (days: number): string => {
+    if (days <= 1) return '1d'
+    if (days <= 5) return '5d'
+    if (days <= 30) return '1mo'
+    if (days <= 90) return '3mo'
+    if (days <= 180) return '6mo'
+    if (days <= 365) return '1y'
+    return '5y'
+  }
+
+  const downloadCSV = (filename: string, rows: string[][]) => {
+    const csv = rows.map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  const exportData = async (type: 'watchlist' | 'portfolio', days: number) => {
+    const range = daysToRange(days)
+    const symbols = type === 'watchlist' ? watchedStocks : portfolio.map(e => e.symbol)
+
+    if (symbols.length === 0) {
+      addLog('warning', `Your ${type} is empty. Nothing to export.`)
+      return
+    }
+
+    addLog('system', `Fetching ${days}-day history for ${symbols.length} symbol${symbols.length !== 1 ? 's' : ''}…`)
+
+    const rows: string[][] = []
+
+    if (type === 'watchlist') {
+      rows.push(['Symbol', 'Date', 'Open', 'High', 'Low', 'Close', 'Volume'])
+    } else {
+      rows.push(['Symbol', 'Date', 'Open', 'High', 'Low', 'Close', 'Volume', 'Shares', 'Avg Price', 'Cost Basis', 'Market Value', 'P&L', 'P&L %'])
+    }
+
+    let successCount = 0
+
+    for (const symbol of symbols) {
+      try {
+        const res = await fetch(`/api/stock/${encodeURIComponent(symbol)}/chart?range=${range}`)
+        if (!res.ok) {
+          addLog('warning', `Skipping ${symbol} — chart data unavailable`)
+          continue
+        }
+        const json = await res.json()
+        const chartData: ChartPoint[] = json.data ?? []
+
+        const portfolioEntry = type === 'portfolio' ? portfolio.find(e => e.symbol === symbol) : null
+
+        for (const point of chartData) {
+          const date = new Date(point.time).toISOString().slice(0, 10)
+          const open = point.open?.toFixed(4) ?? ''
+          const high = point.high?.toFixed(4) ?? ''
+          const low = point.low?.toFixed(4) ?? ''
+          const close = point.close?.toFixed(4) ?? ''
+          const volume = point.volume?.toString() ?? ''
+
+          if (type === 'watchlist') {
+            rows.push([symbol, date, open, high, low, close, volume])
+          } else if (portfolioEntry) {
+            const shares = portfolioEntry.shares
+            const avgPrice = portfolioEntry.avgPrice
+            const cost = shares * avgPrice
+            const marketValue = point.close != null ? shares * point.close : null
+            const pnl = marketValue != null ? marketValue - cost : null
+            const pnlPct = pnl != null && cost > 0 ? (pnl / cost) * 100 : null
+            rows.push([
+              symbol, date, open, high, low, close, volume,
+              shares.toString(),
+              avgPrice.toFixed(4),
+              cost.toFixed(2),
+              marketValue?.toFixed(2) ?? '',
+              pnl?.toFixed(2) ?? '',
+              pnlPct?.toFixed(4) ?? ''
+            ])
+          }
+        }
+        successCount++
+      } catch {
+        addLog('warning', `Skipping ${symbol} — failed to fetch data`)
+      }
+    }
+
+    if (successCount === 0) {
+      addLog('error', 'No data could be retrieved. Export cancelled.')
+      return
+    }
+
+    const dateStr = new Date().toISOString().slice(0, 10)
+    const filename = `symbiosis-${type}-${days}d-${dateStr}.csv`
+    downloadCSV(filename, rows)
+    addLog('success', `Exported ${type} (${days} days, ${rows.length - 1} rows) → ${filename}`)
+  }
+
   const processCommand = async (cmd: string) => {
     const trimmed = cmd.trim()
     const parts = trimmed.split(/\s+/)
@@ -332,6 +442,8 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
         addLog('info', 'portfolio             - Show portfolio with P&L')
         addLog('info', 'portfolio add <SYMBOL> <SHARES> <PRICE|current>  - Add position (use "current" for live price)')
         addLog('info', 'portfolio remove <SYMBOL>                  - Remove position from portfolio')
+        addLog('info', 'export watchlist <DAYS>       - Download watchlist history as CSV (e.g. export watchlist 30)')
+        addLog('info', 'export portfolio <DAYS>       - Download portfolio history as CSV (e.g. export portfolio 90)')
         addLog('info', 'system                - Show system info')
         addLog('info', 'clear                 - Clear terminal output')
         addLog('info', 'clearall              - Remove all stocks')
@@ -603,6 +715,19 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
         break
       }
 
+      case 'export': {
+        const exportType = args[0]?.toLowerCase()
+        const exportDays = parseInt(args[1])
+        if ((exportType !== 'watchlist' && exportType !== 'portfolio') || isNaN(exportDays) || exportDays <= 0) {
+          addLog('error', 'Usage: export <watchlist|portfolio> <days>')
+          addLog('error', 'Example: export watchlist 30')
+          addLog('error', 'Example: export portfolio 90')
+          break
+        }
+        await exportData(exportType, exportDays)
+        break
+      }
+
       default:
         // Try to interpret as a symbol if it looks like one
         if (/^[A-Za-z.-]{1,6}$/.test(command) && !args.length) {
@@ -646,7 +771,7 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
     } else if (e.key === 'Tab') {
       e.preventDefault()
       // Simple tab completion for commands
-      const commands = ['help', 'add', 'remove', 'search', 'browse', 'list', 'clear', 'clearall', 'popular', 'news', 'analyze', 'analysis', 'az', 'info', 'compare', 'system', 'portfolio', 'fx', 'currency', 'convert']
+      const commands = ['help', 'add', 'remove', 'search', 'browse', 'list', 'clear', 'clearall', 'popular', 'news', 'analyze', 'analysis', 'az', 'info', 'compare', 'system', 'portfolio', 'fx', 'currency', 'convert', 'export']
       const match = commands.find(c => c.startsWith(input.toLowerCase()))
       if (match) setInput(match + ' ')
     }
