@@ -291,7 +291,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     description: 'Quick reference for all terminal commands',
     iconName: 'HelpCircle',
     defaultW: 8,
-    defaultH: 6,
+    defaultH: 8,
     minW: 8,
     minH: 6,
     category: 'info',
