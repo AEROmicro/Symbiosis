@@ -430,6 +430,7 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
       case 'help':
         addLog('info', '━━━ Available Commands ━━━')
         addLog('info', 'add <SYMBOL>          - Add stock/FX pair to watchlist')
+        addLog('info', 'track <SYMBOL>        - Track a stock (alias for add)')
         addLog('info', 'remove <SYMBOL>       - Remove stock from watchlist')
         addLog('info', 'search <QUERY>        - Search stocks by name or ticker')
         addLog('info', 'info <SYMBOL>         - Show real-time stock info')
@@ -485,8 +486,9 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
         break
 
       case 'add':
+      case 'track':
         if (!args[0]) {
-          addLog('error', 'Usage: add <SYMBOL> (e.g., add AAPL)')
+          addLog('error', `Usage: ${command} <SYMBOL> (e.g., ${command} AAPL)`)
           break
         }
         await validateAndAddSymbol(args[0])
