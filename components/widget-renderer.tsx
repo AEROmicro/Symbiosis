@@ -4,7 +4,7 @@ import { ReactNode } from 'react'
 import {
   Terminal, LayoutGrid, TrendingUp, Zap, Server, Newspaper,
   Briefcase, Clock, Globe, Activity, Map, Bitcoin, DollarSign,
-  CalendarDays, HelpCircle,
+  CalendarDays, HelpCircle, Calculator, ListTodo, Rss,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { WidgetConfig } from '@/lib/widget-types'
@@ -22,6 +22,11 @@ import { NewsDialog }         from '@/components/news-dialog'
 import { MarketStatsDialog }  from '@/components/market-stats-dialog'
 import { CurrencyConverter }  from '@/components/currency-converter'
 import { PortfolioDialog }    from '@/components/portfolio-dialog'
+import { CalculatorDialog }   from '@/components/calculator-dialog'
+import { LayoutProfilesDialog } from '@/components/layout-profiles-dialog'
+import { CalculatorWidget }   from '@/components/widgets/calculator-widget'
+import { TodoWidget }         from '@/components/widgets/todo-widget'
+import { NewsTickerWidget }   from '@/components/widgets/news-ticker-widget'
 
 // New widget components
 import { ClockWidget }            from '@/components/widgets/clock-widget'
@@ -50,13 +55,15 @@ export interface WidgetAppProps {
   onSelectStock: (symbol: string) => void
   marketState: string
   refreshInterval: number
+  widgetLayout?: import('@/lib/widget-types').WidgetConfig[]
+  onLoadProfile?: (layout: import('@/lib/widget-types').WidgetConfig[]) => void
 }
 
 // ── Icon lookup by name ─────────────────────────────────────────────────────
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Terminal, LayoutGrid, TrendingUp, Zap, Server, Newspaper,
   Briefcase, Clock, Globe, Activity, Map, Bitcoin, DollarSign,
-  CalendarDays, HelpCircle,
+  CalendarDays, HelpCircle, Calculator, ListTodo, Rss,
 }
 
 // ── WidgetFrame ─────────────────────────────────────────────────────────────
@@ -101,6 +108,7 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
     watchedStocks, selectedStock,
     onAddStock, onRemoveStock, onClearAll, onSelectStock,
     refreshInterval,
+    widgetLayout, onLoadProfile,
   } = appProps
 
   switch (config.type) {
@@ -256,6 +264,13 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
                 <NewsDialog />
                 <CurrencyConverter onAddToWatchlist={onAddStock} watchedStocks={watchedStocks} />
                 <PortfolioDialog />
+                <CalculatorDialog />
+                {widgetLayout !== undefined && onLoadProfile !== undefined && (
+                  <LayoutProfilesDialog
+                    currentLayout={widgetLayout}
+                    onLoadProfile={onLoadProfile}
+                  />
+                )}
               </div>
             </div>
 
@@ -371,11 +386,33 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
 
     // ── Notes ────────────────────────────────────────────────────────────────
     case 'notes':
+    case 'notes-lg':
       return (
         <WidgetFrame title={title} iconName={iconName}>
           <NotesWidget />
         </WidgetFrame>
       )
+
+    // ── To-Do ────────────────────────────────────────────────────────────────
+    case 'todo':
+    case 'todo-lg':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <TodoWidget />
+        </WidgetFrame>
+      )
+
+    // ── Calculator ───────────────────────────────────────────────────────────
+    case 'calculator':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <CalculatorWidget />
+        </WidgetFrame>
+      )
+
+    // ── News Ticker ──────────────────────────────────────────────────────────
+    case 'news-ticker':
+      return <NewsTickerWidget />
 
     // ── Spacers ───────────────────────────────────────────────────────────────
     case 'spacer-sm':
