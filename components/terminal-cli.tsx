@@ -8,6 +8,7 @@ interface TerminalCLIProps {
   onAddStock: (symbol: string) => void
   onRemoveStock: (symbol: string) => void
   onClearAll: () => void
+  onSelectStock?: (symbol: string) => void
   watchedStocks: string[]
 }
 
@@ -25,7 +26,7 @@ const POPULAR_STOCKS = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'META', 'NVDA',
 
 const PORTFOLIO_STORAGE_KEY = 'symbiosis-portfolio'
 
-export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStocks }: TerminalCLIProps) {
+export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, onSelectStock, watchedStocks }: TerminalCLIProps) {
   const [input, setInput] = useState('')
   const [logs, setLogs] = useState<TerminalLog[]>([
     {
@@ -342,6 +343,67 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
     URL.revokeObjectURL(url)
   }
 
+  const trackStock = async (symbol: string) => {
+    const upperSymbol = symbol.toUpperCase()
+    addLog('system', `Fetching preview for ${upperSymbol}...`)
+    try {
+      const response = await fetch(`/api/stock/${upperSymbol}`)
+      if (!response.ok) {
+        addLog('error', `Symbol '${upperSymbol}' not found. Check the ticker symbol.`)
+        return
+      }
+      const data = await response.json()
+      const isPos = data.change >= 0
+      addLog('info', `━━━ PREVIEW: ${data.symbol} — ${data.name} ━━━`)
+      addLog('info', `Price:  $${data.price.toFixed(2)}  ${isPos ? '▲' : '▼'} ${isPos ? '+' : ''}${data.change.toFixed(2)} (${isPos ? '+' : ''}${data.changePercent.toFixed(2)}%)`)
+      addLog('info', `Range:  $${data.low.toFixed(2)} – $${data.high.toFixed(2)}  |  Market: ${data.marketState}`)
+      if (onSelectStock) {
+        onSelectStock(upperSymbol)
+        addLog('success', `Showing ${upperSymbol} in the detail panel  (not added to watchlist)`)
+      }
+      addLog('info', `Tip: Use "add ${upperSymbol}" to add it to your watchlist`)
+    } catch {
+      addLog('error', `Failed to fetch preview for ${upperSymbol}. Try again.`)
+    }
+  }
+
+  const exportSymbol = async (symbol: string, days: number) => {
+    const upperSymbol = symbol.toUpperCase()
+    const range = daysToRange(days)
+    addLog('system', `Fetching ${days}-day history for ${upperSymbol}…`)
+    try {
+      const res = await fetch(`/api/stock/${encodeURIComponent(upperSymbol)}/chart?range=${range}`)
+      if (!res.ok) {
+        addLog('error', `Chart data unavailable for ${upperSymbol}. Check the ticker symbol.`)
+        return
+      }
+      const json = await res.json()
+      const chartData: ChartPoint[] = json.data ?? []
+      if (chartData.length === 0) {
+        addLog('warning', `No historical data found for ${upperSymbol}.`)
+        return
+      }
+      const rows: string[][] = [['Symbol', 'Date', 'Open', 'High', 'Low', 'Close', 'Volume']]
+      for (const point of chartData) {
+        rows.push([
+          upperSymbol,
+          new Date(point.time).toISOString().slice(0, 10),
+          point.open?.toFixed(4) ?? '',
+          point.high?.toFixed(4) ?? '',
+          point.low?.toFixed(4) ?? '',
+          point.close?.toFixed(4) ?? '',
+          point.volume?.toString() ?? '',
+        ])
+      }
+      const dateStr = new Date().toISOString().slice(0, 10)
+      const filename = `symbiosis-${upperSymbol}-${days}d-${dateStr}.csv`
+      downloadCSV(filename, rows)
+      addLog('success', `Exported ${upperSymbol} (${days} days, ${rows.length - 1} rows) → ${filename}`)
+    } catch {
+      addLog('error', `Failed to export data for ${upperSymbol}. Try again.`)
+    }
+  }
+
   const exportData = async (type: 'watchlist' | 'portfolio', days: number) => {
     const range = daysToRange(days)
     const symbols = type === 'watchlist' ? watchedStocks : portfolio.map(e => e.symbol)
@@ -430,6 +492,7 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
       case 'help':
         addLog('info', '━━━ Available Commands ━━━')
         addLog('info', 'add <SYMBOL>          - Add stock/FX pair to watchlist')
+        addLog('info', 'track <SYMBOL>        - Preview a stock in the detail panel (no watchlist add)')
         addLog('info', 'remove <SYMBOL>       - Remove stock from watchlist')
         addLog('info', 'search <QUERY>        - Search stocks by name or ticker')
         addLog('info', 'info <SYMBOL>         - Show real-time stock info')
@@ -444,6 +507,7 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
         addLog('info', 'portfolio remove <SYMBOL>                  - Remove position from portfolio')
         addLog('info', 'export watchlist <DAYS>       - Download watchlist history as CSV (e.g. export watchlist 30)')
         addLog('info', 'export portfolio <DAYS>       - Download portfolio history as CSV (e.g. export portfolio 90)')
+        addLog('info', 'export <SYMBOL> <DAYS>        - Download a single symbol history as CSV (e.g. export AAPL 30)')
         addLog('info', 'system                - Show system info')
         addLog('info', 'clear                 - Clear terminal output')
         addLog('info', 'clearall              - Remove all stocks')
@@ -490,6 +554,14 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
           break
         }
         await validateAndAddSymbol(args[0])
+        break
+
+      case 'track':
+        if (!args[0]) {
+          addLog('error', 'Usage: track <SYMBOL> (e.g., track AAPL)')
+          break
+        }
+        await trackStock(args[0])
         break
 
       case 'remove':
@@ -716,15 +788,23 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
       }
 
       case 'export': {
-        const exportType = args[0]?.toLowerCase()
+        const exportArg = args[0]?.toLowerCase()
         const exportDays = parseInt(args[1])
-        if ((exportType !== 'watchlist' && exportType !== 'portfolio') || isNaN(exportDays) || exportDays <= 0) {
-          addLog('error', 'Usage: export <watchlist|portfolio> <days>')
+        if (exportArg === 'watchlist' || exportArg === 'portfolio') {
+          if (isNaN(exportDays) || exportDays <= 0) {
+            addLog('error', `Usage: export ${exportArg} <days>  (e.g. export ${exportArg} 30)`)
+            break
+          }
+          await exportData(exportArg, exportDays)
+        } else if (exportArg && !isNaN(exportDays) && exportDays > 0) {
+          // export <SYMBOL> <DAYS>
+          await exportSymbol(exportArg, exportDays)
+        } else {
+          addLog('error', 'Usage: export <watchlist|portfolio|SYMBOL> <days>')
           addLog('error', 'Example: export watchlist 30')
           addLog('error', 'Example: export portfolio 90')
-          break
+          addLog('error', 'Example: export AAPL 30')
         }
-        await exportData(exportType, exportDays)
         break
       }
 

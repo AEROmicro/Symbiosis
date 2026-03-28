@@ -62,6 +62,21 @@ const CATEGORIES = {
 
     ],
   },
+  sectors: {
+    label: 'Sectors',
+    items: [
+      { symbol: 'XLK',  name: 'Technology'    },
+      { symbol: 'XLV',  name: 'Healthcare'    },
+      { symbol: 'XLF',  name: 'Finance'       },
+      { symbol: 'XLE',  name: 'Energy'        },
+      { symbol: 'XLY',  name: 'Consumer'      },
+      { symbol: 'XLI',  name: 'Industrial'    },
+      { symbol: 'XLU',  name: 'Utilities'     },
+      { symbol: 'XLB',  name: 'Materials'     },
+      { symbol: 'XLRE', name: 'Real Estate'   },
+      { symbol: 'XLC',  name: 'Communication' },
+    ],
+  },
 } as const
 
 type TabKey = keyof typeof CATEGORIES
@@ -75,13 +90,13 @@ export function QuickActions({ onAddStock, onRemoveStock, onClearAll, watchedSto
   return (
     <div className="flex flex-col h-full p-3 gap-2">
       {/* Category tabs */}
-      <div className="flex gap-1 shrink-0">
+      <div className="flex flex-wrap gap-1 shrink-0">
         {(Object.keys(CATEGORIES) as TabKey[]).map(tab => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={cn(
-              'flex-1 py-1 text-[10px] font-mono uppercase tracking-wider rounded border transition-colors',
+              'flex-1 basis-[30%] py-0.5 text-[9px] font-mono uppercase tracking-wider rounded border transition-colors',
               activeTab === tab
                 ? 'border-primary bg-primary/10 text-primary'
                 : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground',
@@ -93,7 +108,7 @@ export function QuickActions({ onAddStock, onRemoveStock, onClearAll, watchedSto
       </div>
 
       {/* Item grid — expands to fill available space, items anchored top */}
-      <nav aria-label="Quick add symbols" className="flex-1 grid grid-cols-2 gap-1.5 content-start">
+      <nav aria-label="Quick add symbols" className="flex-1 grid grid-cols-2 gap-1 content-start overflow-hidden">
         {items.map(({ symbol, name }) => {
           const isWatched = watchedStocks.includes(symbol)
           return (
@@ -101,7 +116,7 @@ export function QuickActions({ onAddStock, onRemoveStock, onClearAll, watchedSto
               key={symbol}
               onClick={() => isWatched ? onRemoveStock(symbol) : onAddStock(symbol)}
               className={cn(
-                'flex items-center gap-1.5 px-2 py-1.5 text-xs rounded border transition-all text-left',
+                'flex items-center gap-1.5 px-2 py-1 text-xs rounded border transition-all text-left',
                 isWatched
                   ? 'border-primary/40 bg-primary/10 text-primary hover:border-destructive/60 hover:bg-destructive/10 hover:text-destructive'
                   : 'border-border hover:border-primary hover:bg-primary/5 text-foreground hover:text-primary',
