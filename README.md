@@ -14,7 +14,7 @@
 
 ---
 
-### "The Final Protocol for Real Finance."
+### "The Final Protocol for Modern Finance."
 *Symbiosis is the future of advanced and high-quality data to help you not the corporations*
 
 **NOTE: This is not meant to be viewed on mobile devices as certain elements will not work properly; best recommended you use on computer (Windows, Mac, Linux, etc)**
@@ -31,7 +31,7 @@
 
 ---
 
-## The Signal
+## The Mission
 Traditional "bro-finance" is built on noise, gatekeeping, and volatility. **Symbiosis** is built on:
 - **Zero Friction:** Institutional-grade UI for seamless interaction.
 - **Deep Connectivity:** Interconnected financial logic that actually scales.
