@@ -26,6 +26,8 @@ export interface WidgetConfig {
   h: number
   minW?: number
   minH?: number
+  maxW?: number // Added this
+  maxH?: number // Added this
 }
 
 export interface WidgetMeta {
@@ -37,12 +39,14 @@ export interface WidgetMeta {
   defaultH: number
   minW: number
   minH: number
+  maxW?: number // Added this
+  maxH?: number // Added this
   category: 'recommended' | 'market' | 'tools' | 'info'
   color: string
 }
 
 export const WIDGET_CATALOG: WidgetMeta[] = [
-  // ── Terminal variants ──────────────────────────────────────────────────────
+  // ... (keeping other widgets same)
   {
     type: 'terminal-sm',
     name: 'Terminal (S)',
@@ -100,7 +104,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     defaultH: 8,
     minW: 4,
     minH: 8,
-    maxH: 8,
+    maxH: 10, // Added your constraint here (set to 10 for a bit of wiggle room)
     category: 'recommended',
     color: 'bg-indigo-500/20',
   },
@@ -255,8 +259,8 @@ export const DEFAULT_WIDGET_LAYOUT: WidgetConfig[] = [
   { id: 'quick-actions-1', type: 'quick-actions', x: 0, y: 9,  w: 4, h: 6,  minW: 3, minH: 6  },
   { id: 'system-status-1', type: 'system-status', x: 0, y: 15, w: 4, h: 7,  minW: 3, minH: 7  },
   { id: 'watchlist-1',     type: 'watchlist',     x: 4, y: 0,  w: 8, h: 8,  minW: 4, minH: 8  },
-  { id: 'stock-detail-1',  type: 'stock-detail',  x: 4, y: 8,  w: 8, h: 18, minW: 4, minH: 18 },
-  { id: 'help-1',          type: 'help',          x: 4, y: 26, w: 8, h: 5,  minW: 3, minH: 5  },
+  { id: 'stock-detail-1',  type: 'stock-detail',  x: 4, y: 8,  w: 8, h: 10, minW: 4, minH: 8, maxH: 10 }, // Tightened this default
+  { id: 'help-1',          type: 'help',          x: 4, y: 18, w: 8, h: 5,  minW: 3, minH: 5  }, // Adjusted Y to match new height
 ]
 
 export const WIDGET_LAYOUT_KEY = 'symbiosis-widget-layout'
