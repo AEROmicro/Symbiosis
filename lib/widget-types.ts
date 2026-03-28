@@ -46,7 +46,6 @@ export interface WidgetMeta {
 }
 
 export const WIDGET_CATALOG: WidgetMeta[] = [
-  // ... (keeping other widgets same)
   {
     type: 'terminal-sm',
     name: 'Terminal (S)',
@@ -101,10 +100,10 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     description: 'Deep metrics and price chart for the selected stock',
     iconName: 'TrendingUp',
     defaultW: 8,
-    defaultH: 12,
+    defaultH: 14,
     minW: 4,
-    minH: 12,
-    maxH: 12, // Added your constraint here (set to 10 for a bit of wiggle room)
+    minH: 14,
+    maxH: 14, // Added your constraint here (set to 10 for a bit of wiggle room)
     category: 'recommended',
     color: 'bg-indigo-500/20',
   },
@@ -126,9 +125,9 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     description: 'Connection status, data feed info, and quick tool access',
     iconName: 'Server',
     defaultW: 4,
-    defaultH: 10,
+    defaultH: 12,
     minW: 3,
-    minH: 10,
+    minH: 12,
     category: 'recommended',
     color: 'bg-slate-500/20',
   },
