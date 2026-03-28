@@ -18,7 +18,7 @@ export function HelpWidget() {
     { cmd: 'popular',                     desc: 'Popular stocks' },
     { cmd: 'compare AAPL MSFT',           desc: 'Compare two stocks' },
     { cmd: 'system',                      desc: 'Show system information' },
-    { cmd: 'export watchlist 30',         desc: 'Export stocks from watchlist to .CSV' },
+    { cmd: 'export watchlist 30',         desc: 'Export to .CSV' },
     { cmd: 'help',                        desc: 'All commands' },
   ]
 
