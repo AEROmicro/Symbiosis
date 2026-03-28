@@ -151,7 +151,7 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
     case 'stock-detail':
       return (
         <WidgetFrame title={selectedStock ? `${title} — ${selectedStock}` : title} iconName={iconName}>
-          <div className="h-full overflow-y-auto p-3">
+          <div className="h-full overflow-hidden p-3">
             {selectedStock ? (
               <StockDetail symbol={selectedStock} refreshInterval={refreshInterval} />
             ) : (
