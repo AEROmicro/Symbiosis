@@ -38,6 +38,7 @@ import { TopMoversWidget }        from '@/components/widgets/top-movers-widget'
 import { HelpWidget }             from '@/components/widgets/help-widget'
 import { FearGreedWidget }        from '@/components/widgets/fear-greed-widget'
 import { NotesWidget }            from '@/components/widgets/notes-widget'
+import { SpacerWidget }           from '@/components/widgets/spacer-widget'
 
 // ── Props passed from the main app to stateful widgets ─────────────────────
 export interface WidgetAppProps {
@@ -264,6 +265,7 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
 
     // ── News ────────────────────────────────────────────────────────────────
     case 'news':
+    case 'news-lg':
       return (
         <WidgetFrame title={title} iconName={iconName}>
           <NewsWidget />
@@ -373,6 +375,12 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
           <NotesWidget />
         </WidgetFrame>
       )
+
+    // ── Spacers ───────────────────────────────────────────────────────────────
+    case 'spacer-sm':
+    case 'spacer-md':
+    case 'spacer-lg':
+      return <SpacerWidget />
 
     default:
       return (
