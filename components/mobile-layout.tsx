@@ -148,6 +148,7 @@ export function MobileLayout({
                 onAddStock={onAddStock}
                 onRemoveStock={onRemoveStock}
                 onClearAll={onClearAll}
+                onSelectStock={onSelectStock}
                 watchedStocks={watchedStocks}
               />
             </div>
