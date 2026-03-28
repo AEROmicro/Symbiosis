@@ -61,7 +61,7 @@ export function TerminalHeader({ marketState = 'CLOSED' }: TerminalHeaderProps) 
           </div>
           <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground font-mono">
             <span className="px-2 py-0.5 bg-primary/10 border border-primary/30 rounded text-primary">
-              v4.1 Petrichor
+              v45 Magnetar
             </span>
           </div>
         </div>
