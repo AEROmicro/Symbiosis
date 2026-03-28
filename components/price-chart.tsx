@@ -46,7 +46,7 @@ export function PriceChart({ symbol }: PriceChartProps) {
   const { data, isLoading } = useSWR<ChartResponse>(
     `/api/stock/${symbol}/chart?range=${range}`,
     fetcher,
-    { refreshInterval: range === '1d' ? 60000 : 0 }
+    { refreshInterval: range === '1d' ? 30000 : 0 }
   )
 
   const chartData = data?.data || []
