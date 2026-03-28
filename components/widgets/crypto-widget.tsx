@@ -50,8 +50,8 @@ export function CryptoWidget() {
   useEffect(() => { fetchPrices() }, [])
 
   return (
-    <div className="p-4 flex flex-col gap-3 h-full overflow-hidden">
-      <div className="flex-1 overflow-y-auto space-y-2">
+    <div className="p-4 flex flex-col gap-3 h-full">
+      <div className="flex-1 space-y-2">
         {prices.map((c) => {
           const pos = (c.change ?? 0) >= 0
           return (

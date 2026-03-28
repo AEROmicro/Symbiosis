@@ -803,7 +803,7 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, watchedStoc
       </div>
 
       {/* Logs Output */}
-      <div ref={logsContainerRef} className="flex-1 overflow-y-auto p-4 font-mono text-sm min-h-[280px] max-h-[400px]">
+      <div ref={logsContainerRef} className="flex-1 overflow-y-auto p-4 font-mono text-sm">
         {logs.map((log) => (
           <div key={log.id} className={cn("mb-0.5", getLogColor(log.type))}>
             {log.showTimestamp && (
