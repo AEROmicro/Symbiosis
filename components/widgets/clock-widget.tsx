@@ -51,7 +51,7 @@ export function ClockWidget() {
   const localDate = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
 
   return (
-    <div className="p-4 space-y-4 h-full overflow-y-auto">
+    <div className="p-4 space-y-4 h-full">
       {/* Local clock */}
       <div className="text-center">
         <div className="text-3xl font-mono font-bold text-primary tracking-widest tabular-nums">
