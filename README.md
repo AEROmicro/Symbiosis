@@ -81,7 +81,7 @@ npm install
 npm run dev
 ```
 
-Contributing
+## Contributing
 We welcome contributors who support the project and cause. Submit a pull request and our team will review your code. Please email us [here](mailto:aeroforge-co@outlook.com)
 
 <div align="center">
