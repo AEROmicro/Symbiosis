@@ -60,7 +60,7 @@ export function HeatmapWidget() {
   }, [])
 
   return (
-    <div className="p-4 h-full overflow-y-auto">
+    <div className="p-4 h-full">
       <div className="grid grid-cols-2 gap-2">
         {sectors.map((s) => (
           <div
