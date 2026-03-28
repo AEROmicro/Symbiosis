@@ -132,7 +132,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     defaultH: 10,
     minW: 3,
     minH: 10,
-    maxh: 10,
+    maxH: 10,
     category: 'recommended',
     color: 'bg-slate-500/20',
   },
