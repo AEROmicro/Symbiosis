@@ -84,6 +84,11 @@ export function FearGreedWidget() {
 
   useEffect(() => { fetchData() }, [])
 
+  useEffect(() => {
+    const id = setInterval(fetchData, 60_000)
+    return () => clearInterval(id)
+  }, [])
+
   const score = data?.score ?? 50
   const label = data?.label ?? 'Neutral'
   const color = scoreToColor(score)

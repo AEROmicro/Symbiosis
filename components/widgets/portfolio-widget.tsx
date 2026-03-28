@@ -51,6 +51,11 @@ export function PortfolioWidget() {
 
   useEffect(() => { fetchPortfolio() }, [fetchPortfolio])
 
+  useEffect(() => {
+    const id = setInterval(fetchPortfolio, 60_000)
+    return () => clearInterval(id)
+  }, [fetchPortfolio])
+
   const totalCost  = positions.reduce((s, p) => s + p.shares * p.avgPrice, 0)
   const totalValue = positions.reduce((s, p) => s + (p.value ?? p.shares * p.avgPrice), 0)
   const totalPnl   = totalValue - totalCost

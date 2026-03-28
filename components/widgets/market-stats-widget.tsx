@@ -59,7 +59,7 @@ export function MarketStatsWidget() {
       )}
 
       {/* Index grid */}
-      <div className="flex-1">
+      <div className="flex-1 overflow-y-auto">
         {loading && !stats ? (
           <div className="grid grid-cols-2 gap-2">
             {[...Array(6)].map((_, i) => <div key={i} className="h-16 bg-muted rounded animate-pulse" />)}

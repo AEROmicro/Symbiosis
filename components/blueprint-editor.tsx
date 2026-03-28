@@ -174,6 +174,7 @@ export function BlueprintEditor({ open, onClose, layout, onLayoutChange }: Bluep
   const market      = filteredCatalog.filter(m => m.category === 'market')
   const tools       = filteredCatalog.filter(m => m.category === 'tools')
   const info        = filteredCatalog.filter(m => m.category === 'info')
+  const layout      = filteredCatalog.filter(m => m.category === 'layout')
 
   const rglLayout = configsToLayout(draft)
 
@@ -233,30 +234,46 @@ export function BlueprintEditor({ open, onClose, layout, onLayoutChange }: Bluep
                         color,
                       )}
                     >
-                      {/* Title bar */}
-                      <div className="flex items-center justify-between px-2 py-1.5 bg-black/10 border-b border-border/40 cursor-move shrink-0">
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <Icon className="w-3 h-3 text-foreground/70 shrink-0" />
-                          <span className="text-xs font-semibold text-foreground/80 truncate">
-                            {meta?.name ?? config.type}
-                          </span>
+                      {config.type === 'spacer-sm' || config.type === 'spacer-md' || config.type === 'spacer-lg' ? (
+                        /* Spacer: minimal dashed bar with delete */
+                        <div className="flex items-center justify-between px-2 h-full bg-muted/20 border-dashed cursor-move">
+                          <span className="text-[10px] text-muted-foreground font-mono opacity-60">{meta?.name}</span>
+                          <button
+                            className="w-4 h-4 rounded flex items-center justify-center hover:bg-destructive/20 hover:text-destructive transition-colors shrink-0"
+                            onClick={(e) => { e.stopPropagation(); handleDelete(config.id) }}
+                            title="Remove widget"
+                          >
+                            <X className="w-2.5 h-2.5" />
+                          </button>
                         </div>
-                        <button
-                          className="w-5 h-5 rounded flex items-center justify-center hover:bg-destructive/20 hover:text-destructive transition-colors shrink-0 ml-1"
-                          onClick={(e) => { e.stopPropagation(); handleDelete(config.id) }}
-                          title="Remove widget"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </div>
+                      ) : (
+                        <>
+                          {/* Title bar */}
+                          <div className="flex items-center justify-between px-2 py-1.5 bg-black/10 border-b border-border/40 cursor-move shrink-0">
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <Icon className="w-3 h-3 text-foreground/70 shrink-0" />
+                              <span className="text-xs font-semibold text-foreground/80 truncate">
+                                {meta?.name ?? config.type}
+                              </span>
+                            </div>
+                            <button
+                              className="w-5 h-5 rounded flex items-center justify-center hover:bg-destructive/20 hover:text-destructive transition-colors shrink-0 ml-1"
+                              onClick={(e) => { e.stopPropagation(); handleDelete(config.id) }}
+                              title="Remove widget"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
 
-                      {/* Body placeholder */}
-                      <div className="flex-1 flex items-center justify-center p-2 min-h-0">
-                        <div className="text-center opacity-50 pointer-events-none">
-                          <Icon className="w-6 h-6 mx-auto mb-1 text-foreground/50" />
-                          <div className="text-[10px] text-foreground/50 font-mono">{meta?.name}</div>
-                        </div>
-                      </div>
+                          {/* Body placeholder */}
+                          <div className="flex-1 flex items-center justify-center p-2 min-h-0">
+                            <div className="text-center opacity-50 pointer-events-none">
+                              <Icon className="w-6 h-6 mx-auto mb-1 text-foreground/50" />
+                              <div className="text-[10px] text-foreground/50 font-mono">{meta?.name}</div>
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
                   )
                 })}
@@ -309,6 +326,14 @@ export function BlueprintEditor({ open, onClose, layout, onLayoutChange }: Bluep
                   <CategoryLabel label="Info" />
                   {info.map(m => (
                     <CatalogItem key={m.type} meta={m} alreadyAdded={typesInDraft.has(m.type)} onAdd={() => handleAdd(m)} />
+                  ))}
+                </>
+              )}
+              {layout.length > 0 && (
+                <>
+                  <CategoryLabel label="Layout" />
+                  {layout.map(m => (
+                    <CatalogItem key={m.type} meta={m} alreadyAdded={false} onAdd={() => handleAdd(m)} />
                   ))}
                 </>
               )}
