@@ -15,19 +15,19 @@ export function StockDetail({ symbol, refreshInterval = 15000 }: StockDetailProp
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        <div className="border border-border bg-card rounded-md p-6 animate-pulse">
-          <div className="h-8 w-32 bg-muted rounded mb-4" />
-          <div className="h-12 w-40 bg-muted rounded mb-6" />
+      <div className="flex flex-col h-full space-y-2 p-2">
+        <div className="flex-none border border-border bg-card rounded-md p-4 animate-pulse">
+          <div className="h-6 w-24 bg-muted rounded mb-3" />
+          <div className="h-10 w-32 bg-muted rounded" />
         </div>
-        <div className="h-42 bg-muted rounded animate-pulse" />
+        <div className="flex-1 bg-muted rounded-md animate-pulse" />
       </div>
     )
   }
 
   if (!stock) {
     return (
-      <div className="border border-border bg-card rounded-md p-6 text-center">
+      <div className="flex items-center justify-center h-full border border-border bg-card rounded-md p-6 text-center">
         <p className="text-muted-foreground">Select a stock to view details</p>
       </div>
     )
@@ -45,15 +45,19 @@ export function StockDetail({ symbol, refreshInterval = 15000 }: StockDetailProp
   ]
 
   return (
-    <div className="space-y-4">
-      {/* Header Card */}
-      <div className="border border-border bg-card rounded-md overflow-hidden">
-        <div className="p-4 border-b border-border">
+    // 1. ADDED: flex, flex-col, and h-full to the outer wrapper so it matches the grid height
+    <div className="flex flex-col h-full w-full overflow-hidden space-y-2">
+      
+      {/* 2. ADDED: flex-none so the header card never gets squished */}
+      <div className="flex-none border border-border bg-card rounded-md overflow-hidden">
+        
+        {/* Header Card (Slightly tightened padding for grid layouts) */}
+        <div className="p-3 border-b border-border">
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-3">
-              <span className="text-2xl font-bold text-foreground">{stock.symbol}</span>
+              <span className="text-xl font-bold text-foreground">{stock.symbol}</span>
               <span className={cn(
-                "px-2 py-0.5 text-xs border rounded",
+                "px-2 py-0.5 text-[10px] font-bold tracking-wider border rounded",
                 stock.marketState === 'REGULAR' 
                   ? "bg-primary/10 border-primary/30 text-primary" 
                   : stock.marketState === 'PRE' || stock.marketState === 'POST'
@@ -69,17 +73,17 @@ export function StockDetail({ symbol, refreshInterval = 15000 }: StockDetailProp
               {stock.marketState === 'REGULAR' ? 'Market Open' : stock.marketState === 'PRE' ? 'Pre-Market' : stock.marketState === 'POST' ? 'After Hours' : 'Market Closed'}
             </div>
           </div>
-          <p className="text-sm text-muted-foreground mb-4">{stock.name}</p>
+          <p className="text-xs text-muted-foreground mb-2">{stock.name}</p>
 
-          <div className="flex items-end gap-4">
-            <span className="text-4xl font-bold text-foreground tabular-nums">
+          <div className="flex items-end gap-3">
+            <span className="text-3xl font-bold text-foreground tabular-nums leading-none">
               ${stock.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </span>
             <div className={cn(
-              "flex items-center gap-1 text-lg font-medium pb-1",
+              "flex items-center gap-1 text-sm font-medium",
               isPositive ? "text-primary" : "text-destructive"
             )}>
-              {isPositive ? <TrendingUp className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
+              {isPositive ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
               <span className="tabular-nums">
                 {isPositive ? '+' : ''}{stock.change.toFixed(2)} ({isPositive ? '+' : ''}{stock.changePercent.toFixed(2)}%)
               </span>
@@ -89,38 +93,38 @@ export function StockDetail({ symbol, refreshInterval = 15000 }: StockDetailProp
 
         {/* Daily Range Bar */}
         {stock.high > 0 && stock.low > 0 && stock.high !== stock.low && (
-          <div className="px-4 py-3 border-b border-border bg-muted/20">
-            <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
+          <div className="px-3 py-2 border-b border-border bg-muted/10">
+            <div className="flex items-center justify-between text-[10px] uppercase text-muted-foreground mb-1.5">
               <span>Day Range</span>
               <span className="tabular-nums">
                 ${stock.low.toFixed(2)} – ${stock.high.toFixed(2)}
               </span>
             </div>
-            <div className="relative h-2 bg-muted rounded-full overflow-hidden">
+            <div className="relative h-1.5 bg-muted rounded-full overflow-hidden">
               <div 
-                className="absolute left-0 top-0 h-full bg-gradient-to-r from-destructive via-yellow-500 to-primary rounded-full"
+                className="absolute left-0 top-0 h-full bg-gradient-to-r from-destructive via-yellow-500 to-primary rounded-full opacity-80"
                 style={{ width: '100%' }}
               />
               <div 
-                className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-foreground rounded-full border-2 border-background shadow-lg"
-                style={{ left: `calc(${((stock.price - stock.low) / (stock.high - stock.low)) * 100}% - 6px)` }}
+                className="absolute top-1/2 -translate-y-1/2 w-2 h-2 bg-foreground rounded-full border border-background shadow-md"
+                style={{ left: `calc(${((stock.price - stock.low) / (stock.high - stock.low)) * 100}% - 4px)` }}
               />
             </div>
           </div>
         )}
 
-        {/* Quick Stats Row */}
-        <div className="grid grid-cols-3 lg:grid-cols-6 border-b border-border">
+        {/* Quick Stats Row (Hides on very small screens to save space) */}
+        <div className="hidden sm:grid grid-cols-3 lg:grid-cols-6 border-b border-border">
           {coreStats.map((stat) => (
             <div 
               key={stat.label} 
-              className="p-3 border-r border-border last:border-r-0 hover:bg-muted/30 transition-colors"
+              className="p-2 border-r border-border last:border-r-0 hover:bg-muted/30 transition-colors"
             >
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
+              <div className="flex items-center gap-1 text-[10px] uppercase text-muted-foreground mb-0.5">
                 <stat.icon className="w-3 h-3" />
                 {stat.label}
               </div>
-              <div className="text-sm font-semibold text-foreground tabular-nums">
+              <div className="text-xs font-semibold text-foreground tabular-nums">
                 {stat.value}
               </div>
             </div>
@@ -128,8 +132,11 @@ export function StockDetail({ symbol, refreshInterval = 15000 }: StockDetailProp
         </div>
       </div>
 
-      {/* Price Chart */}
-      <PriceChart symbol={symbol} />
+      {/* 3. ADDED: flex-1 and min-h-0. This forces the chart to perfectly fill whatever vertical space is left! */}
+      <div className="flex-1 min-h-0 w-full relative bg-card border border-border rounded-md overflow-hidden">
+        <PriceChart symbol={symbol} />
+      </div>
+      
     </div>
   )
 }
