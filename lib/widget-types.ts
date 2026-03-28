@@ -101,9 +101,9 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     description: 'Deep metrics and price chart for the selected stock',
     iconName: 'TrendingUp',
     defaultW: 8,
-    defaultH: 8,
+    defaultH: 10,
     minW: 4,
-    minH: 8,
+    minH: 10,
     maxH: 10, // Added your constraint here (set to 10 for a bit of wiggle room)
     category: 'recommended',
     color: 'bg-indigo-500/20',
