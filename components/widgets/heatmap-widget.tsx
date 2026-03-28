@@ -62,8 +62,8 @@ export function HeatmapWidget() {
   }, [])
 
   return (
-    <div className="p-4 h-full">
-      <div className="grid grid-cols-2 gap-2">
+    <div className="p-4 h-full flex flex-col">
+      <div className="grid grid-cols-2 gap-2 flex-1 min-h-0">
         {sectors.map((s) => (
           <div
             key={s.ticker}
