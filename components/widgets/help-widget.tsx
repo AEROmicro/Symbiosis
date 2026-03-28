@@ -21,7 +21,7 @@ export function HelpWidget() {
   ]
 
   return (
-    <div className="p-4 h-full overflow-y-auto">
+    <div className="p-4 h-full">
       <div className="text-xs text-muted-foreground font-mono">
         <div className="text-primary mb-3">{'// Quick Reference'}</div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1">
