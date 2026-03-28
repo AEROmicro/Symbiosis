@@ -183,7 +183,7 @@ export function HelpDialog() {
                 View on GitHub
               </a>
               <p className="text-xs text-muted-foreground">
-                Symbiosis v5.1 Magnetar - Built with Next.js, React, and Tailwind CSS
+                Symbiosis v5.2 Magnetar - Built with Next.js, React, and Tailwind CSS
               </p>
             </div>
           </div>
