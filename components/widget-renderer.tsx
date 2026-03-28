@@ -180,8 +180,8 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
     case 'system-status':
       return (
         <WidgetFrame title={title} iconName={iconName}>
-          <div className="h-full overflow-y-auto p-4 space-y-3">
-            <div className="space-y-2 text-sm font-mono">
+          <div className="h-full overflow-y-auto p-3 space-y-2">
+            <div className="space-y-1.5 text-sm font-mono">
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground text-xs">Connection</span>
                 <span className="flex items-center gap-1.5 text-primary text-xs">
@@ -202,7 +202,7 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
                 <span className="text-foreground text-xs">{watchedStocks.length} stocks</span>
               </div>
             </div>
-            <div className="pt-2 border-t border-border space-y-2">
+            <div className="pt-1.5 border-t border-border space-y-1.5">
               <HelpDialog />
               <KeyboardShortcuts />
               <MarketStatsDialog />
