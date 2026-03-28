@@ -183,7 +183,7 @@ export function BlueprintEditor({ open, onClose, layout, onLayoutChange }: Bluep
         <DialogHeader className="px-4 py-3 border-b border-border shrink-0">
           <DialogTitle className="flex items-center gap-2 text-sm font-mono tracking-wider uppercase">
             <LayoutDashboard className="w-4 h-4 text-primary" />
-            Blueprint Editor
+            Blueprint
             <span className="text-muted-foreground font-normal text-xs tracking-normal ml-1">
               — drag to reposition · X to remove
             </span>
@@ -193,7 +193,7 @@ export function BlueprintEditor({ open, onClose, layout, onLayoutChange }: Bluep
         {/* Body */}
         <div className="flex flex-1 min-h-0">
           {/* ── Grid area ────────────────────────────────────────────────── */}
-          <div className="flex-1 min-w-0 overflow-auto bg-background/50 p-3">
+          <div className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden bg-background/50 p-3">
             <div
               ref={containerRef}
               className="min-h-full relative"
