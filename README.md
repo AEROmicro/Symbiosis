@@ -20,7 +20,11 @@
 **NOTE: This is not meant to be viewed on mobile devices as certain elements will not work properly; best recommended you use on computer (Windows, Mac, Linux, etc)**
 
 [Website](https://symbiosis-finance.pages.dev/)
+---
 [Contact](mailto:aeroforge-co@outlook.com)
+---
+[User Manual](User_Manual.pdf)
+---
 
 
 </div>
