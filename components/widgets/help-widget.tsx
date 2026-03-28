@@ -8,6 +8,7 @@ export function HelpWidget() {
     { cmd: 'list',                        desc: 'Show watchlist' },
     { cmd: 'portfolio',                   desc: 'View portfolio P&L' },
     { cmd: 'portfolio add AAPL 10 150',   desc: 'Add position' },
+    { cmd: 'portfolio remove AAPL',       desc: 'Remove position' },
     { cmd: 'fx',                          desc: 'Major exchange rates' },
     { cmd: 'fx 100 USD EUR',              desc: 'Convert currency' },
     { cmd: 'fx add EURUSD',               desc: 'Track FX pair' },
@@ -18,8 +19,17 @@ export function HelpWidget() {
     { cmd: 'popular',                     desc: 'Popular stocks' },
     { cmd: 'compare AAPL MSFT',           desc: 'Compare two stocks' },
     { cmd: 'system',                      desc: 'Show system information' },
-    { cmd: 'export watchlist 30',         desc: 'Export to .CSV' },
+    { cmd: 'export watchlist 30',         desc: 'Export watchlist to .CSV' },
+    { cmd: 'export portfolio 30',         desc: 'Export portfolio to .CSV' },
+    { cmd: 'export AAPL 30',         desc: 'Export symbol to .CSV' },
+    { cmd: 'export watchlist 30',         desc: 'See trending stocks' },
     { cmd: 'help',                        desc: 'All commands' },
+    { cmd: 'Up Arrow',                        desc: 'Previous command' },
+    { cmd: 'Down Arrow',                        desc: 'Next commands' },
+    { cmd: 'Tab',                        desc: 'Autocomplete command' },
+    { cmd: 'Enter',                        desc: 'Execute command' },
+
+
   ]
 
   return (
