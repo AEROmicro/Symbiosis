@@ -294,6 +294,16 @@
   height: 6px;
 }
 
+/* Mobile safe-area bottom padding (iPhone home bar) */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Ensure full-height on mobile browsers */
+@supports (height: 100dvh) {
+  .h-dvh { height: 100dvh; }
+}
+
 ::-webkit-scrollbar-track {
   background: var(--muted);
 }
