@@ -20,7 +20,7 @@ export function StockDetail({ symbol, refreshInterval = 15000 }: StockDetailProp
           <div className="h-8 w-32 bg-muted rounded mb-4" />
           <div className="h-12 w-40 bg-muted rounded mb-6" />
         </div>
-        <div className="h-64 bg-muted rounded animate-pulse" />
+        <div className="h-42 bg-muted rounded animate-pulse" />
       </div>
     )
   }
