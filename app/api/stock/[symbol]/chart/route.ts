@@ -1,4 +1,6 @@
 export const runtime = 'edge';
+export const dynamic = 'force-static';
+export function generateStaticParams() { return [] }
 import { NextResponse } from 'next/server'
 
 export async function GET(

@@ -1,4 +1,5 @@
 export const runtime = 'edge';
+export const dynamic = 'force-static';
 import { NextRequest, NextResponse } from 'next/server'
 
 export interface SearchResult {
