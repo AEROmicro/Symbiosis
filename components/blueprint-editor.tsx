@@ -193,7 +193,7 @@ export function BlueprintEditor({ open, onClose, layout, onLayoutChange }: Bluep
         {/* Body */}
         <div className="flex flex-1 min-h-0">
           {/* ── Grid area ────────────────────────────────────────────────── */}
-          <div className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden bg-background/50 p-3">
+          <div className="flex-1 min-w-0 overflow-hidden bg-background/50 p-3">  {/* Remove overflow-y-auto */}
             <div
               ref={containerRef}
               className="min-h-full relative"
