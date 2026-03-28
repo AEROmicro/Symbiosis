@@ -1,4 +1,4 @@
-const CACHE_NAME = 'symbiosis-v5';
+const CACHE_NAME = 'symbiosis-v5.1';
 const urlsToCache = [
   '/',
   '/index.html',
