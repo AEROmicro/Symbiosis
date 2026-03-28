@@ -36,6 +36,8 @@ import { CryptoWidget }           from '@/components/widgets/crypto-widget'
 import { EconomicCalendarWidget } from '@/components/widgets/economic-calendar-widget'
 import { TopMoversWidget }        from '@/components/widgets/top-movers-widget'
 import { HelpWidget }             from '@/components/widgets/help-widget'
+import { FearGreedWidget }        from '@/components/widgets/fear-greed-widget'
+import { NotesWidget }            from '@/components/widgets/notes-widget'
 
 // ── Props passed from the main app to stateful widgets ─────────────────────
 export interface WidgetAppProps {
@@ -351,6 +353,22 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
       return (
         <WidgetFrame title={title} iconName={iconName}>
           <HelpWidget />
+        </WidgetFrame>
+      )
+
+    // ── Fear & Greed ─────────────────────────────────────────────────────────
+    case 'fear-greed':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <FearGreedWidget />
+        </WidgetFrame>
+      )
+
+    // ── Notes ────────────────────────────────────────────────────────────────
+    case 'notes':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <NotesWidget />
         </WidgetFrame>
       )
 

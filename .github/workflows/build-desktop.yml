@@ -1,0 +1,83 @@
+name: Build Desktop App
+
+on:
+  push:
+    branches:
+      - '**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+          - os: macos-latest
+            name: macos
+          - os: ubuntu-latest
+            name: linux
+
+    runs-on: ${{ matrix.os }}
+    name: Build (${{ matrix.name }})
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # ── Linux only: libraries required by electron-builder ───────────────────
+      - name: Install Linux build dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get update && sudo apt-get install -y libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 libasound2t64 fuse
+
+      # ── Build Electron installers ────────────────────────────────────────────
+      # The app loads https://symbiosis-finance.pages.dev/ at runtime, so no
+      # Next.js build step is required here.
+      - name: Build Electron app
+        run: npm run electron:build
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── Upload artifacts ─────────────────────────────────────────────────────
+      - name: Upload Windows installer
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Symbiosis-Windows
+          path: dist-electron/*.exe
+          if-no-files-found: error
+
+      - name: Upload macOS disk image
+        if: matrix.os == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Symbiosis-macOS
+          path: dist-electron/*.dmg
+          if-no-files-found: error
+
+      - name: Upload Linux AppImage
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Symbiosis-Linux-AppImage
+          path: dist-electron/*.AppImage
+          if-no-files-found: error
+
+      - name: Upload Linux deb
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Symbiosis-Linux-deb
+          path: dist-electron/*.deb
+          if-no-files-found: error
+
