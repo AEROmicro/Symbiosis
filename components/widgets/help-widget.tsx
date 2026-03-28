@@ -21,13 +21,15 @@ export function HelpWidget() {
     { cmd: 'system',                      desc: 'Show system information' },
     { cmd: 'export watchlist 30',         desc: 'Export watchlist to .CSV' },
     { cmd: 'export portfolio 30',         desc: 'Export portfolio to .CSV' },
-    { cmd: 'export AAPL 30',         desc: 'Export symbol to .CSV' },
-    { cmd: 'export watchlist 30',         desc: 'See trending stocks' },
+    { cmd: 'export AAPL 30',              desc: 'Export symbol to .CSV' },
+    { cmd: 'clear',                       desc: 'Clear terminal' },
+    { cmd: 'clearall',                    desc: 'Clear watchlist' },
+    { cmd: 'popular',                     desc: 'See trending stocks' },
     { cmd: 'help',                        desc: 'All commands' },
-    { cmd: 'Up Arrow',                        desc: 'Previous command' },
-    { cmd: 'Down Arrow',                        desc: 'Next commands' },
-    { cmd: 'Tab',                        desc: 'Autocomplete command' },
-    { cmd: 'Enter',                        desc: 'Execute command' },
+    { cmd: 'Up Arrow',                    desc: 'Previous command' },
+    { cmd: 'Down Arrow',                  desc: 'Next commands' },
+    { cmd: 'Tab',                         desc: 'Autocomplete command' },
+    { cmd: 'Enter',                       desc: 'Execute command' },
 
 
   ]
