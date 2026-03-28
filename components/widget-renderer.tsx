@@ -180,8 +180,14 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
     case 'system-status':
       return (
         <WidgetFrame title={title} iconName={iconName}>
-          <div className="h-full overflow-y-auto p-3 space-y-2">
-            <div className="space-y-1.5 text-sm font-mono">
+          <div className="h-full min-h-0 p-3 flex flex-col gap-2 overflow-hidden">
+            <div className="shrink-0 space-y-1.5 text-sm font-mono">...</div>
+          
+            <div className="min-h-0 overflow-y-auto pt-1.5 border-t border-border space-y-1.5">
+              ...
+            </div>
+          </div>
+          <div className="space-y-1.5 text-sm font-mono">
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground text-xs">Connection</span>
                 <span className="flex items-center gap-1.5 text-primary text-xs">
