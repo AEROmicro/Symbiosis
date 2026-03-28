@@ -215,6 +215,7 @@ export function BlueprintEditor({ open, onClose, layout, onLayoutChange }: Bluep
                   containerPadding: [4, 4],
                 }}
                 dragConfig={{ enabled: true }}
+                // Resizing disabled — widgets use exact fixed heights to eliminate internal scrolling
                 resizeConfig={{ enabled: false }}
                 onLayoutChange={handleLayoutChange}
                 className="min-h-[600px]"

@@ -40,7 +40,7 @@ export function MarketStatsWidget() {
   }, [])
 
   return (
-    <div className="p-4 flex flex-col gap-3 h-full overflow-hidden">
+    <div className="p-4 flex flex-col gap-3 h-full">
       {/* Status bar */}
       {stats && (
         <div className="flex items-center justify-between text-xs shrink-0">
@@ -59,7 +59,7 @@ export function MarketStatsWidget() {
       )}
 
       {/* Index grid */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1">
         {loading && !stats ? (
           <div className="grid grid-cols-2 gap-2">
             {[...Array(6)].map((_, i) => <div key={i} className="h-16 bg-muted rounded animate-pulse" />)}
