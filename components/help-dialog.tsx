@@ -24,7 +24,7 @@ export function HelpDialog() {
           Help
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-6xl max-h-[80vh] overflow-y-auto font-mono">        <DialogHeader>
+      <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto font-mono">        <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <span className="text-primary">{'>'}_</span>
             Symbiosis Help Center
@@ -183,7 +183,7 @@ export function HelpDialog() {
                 View on GitHub
               </a>
               <p className="text-xs text-muted-foreground">
-                Symbiosis v5 Magnetar - Built with Next.js, React, and Tailwind CSS
+                Symbiosis v5.1 Magnetar - Built with Next.js, React, and Tailwind CSS
               </p>
             </div>
           </div>

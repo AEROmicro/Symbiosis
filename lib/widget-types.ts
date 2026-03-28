@@ -18,6 +18,8 @@ export type WidgetType =
   | 'economic-calendar'
   | 'top-movers'
   | 'help'
+  | 'fear-greed'
+  | 'notes'
 
 export interface WidgetConfig {
   id: string
@@ -275,6 +277,30 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     minW: 3,
     minH: 5,
     category: 'info',
+    color: 'bg-zinc-500/20',
+  },
+  {
+    type: 'fear-greed',
+    name: 'Fear & Greed',
+    description: 'Market sentiment score derived from VIX and SPY momentum',
+    iconName: 'Activity',
+    defaultW: 3,
+    defaultH: 9,
+    minW: 3,
+    minH: 9,
+    category: 'market',
+    color: 'bg-yellow-500/20',
+  },
+  {
+    type: 'notes',
+    name: 'Notes',
+    description: 'Scratch pad for trade ideas, tickers, or anything else',
+    iconName: 'Terminal',
+    defaultW: 4,
+    defaultH: 6,
+    minW: 2,
+    minH: 4,
+    category: 'tools',
     color: 'bg-zinc-500/20',
   },
 ]
