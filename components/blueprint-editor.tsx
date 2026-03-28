@@ -184,7 +184,7 @@ export function BlueprintEditor({ open, onClose, layout, onLayoutChange }: Bluep
         <DialogHeader className="px-4 py-3 border-b border-border shrink-0">
           <DialogTitle className="flex items-center gap-2 text-sm font-mono tracking-wider uppercase">
             <LayoutDashboard className="w-4 h-4 text-primary" />
-            Blueprint
+            Azurite
             <span className="text-muted-foreground font-normal text-xs tracking-normal ml-1">
               — drag to reposition · X to remove
             </span>
