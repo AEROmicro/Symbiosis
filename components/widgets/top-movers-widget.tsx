@@ -103,7 +103,7 @@ export function TopMoversWidget() {
 
       {/* Footer */}
       {lastUpdated && (
-        <div className="mt-2 flex items-center justify-between text-[10px] text-muted-foreground font-mono pt-1 border-t border-border shrink-0">
+        <div className="mt-auto flex items-center justify-between text-[10px] text-muted-foreground font-mono pt-1 border-t border-border shrink-0">          
           <span>Updated {lastUpdated.toLocaleTimeString()}</span>
           <button
             onClick={fetchData}
