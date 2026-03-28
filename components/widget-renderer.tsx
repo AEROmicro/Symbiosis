@@ -99,8 +99,10 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
   } = appProps
 
   switch (config.type) {
-    // ── Terminal ────────────────────────────────────────────────────────────
+    // ── Terminal (all sizes) ────────────────────────────────────────────────
     case 'terminal':
+    case 'terminal-sm':
+    case 'terminal-lg':
       return (
         <WidgetFrame title={title} iconName={iconName}>
           <div className="h-full overflow-hidden">
@@ -165,9 +167,12 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
     case 'quick-actions':
       return (
         <WidgetFrame title={title} iconName={iconName}>
-          <div className="h-full overflow-y-auto p-3">
-            <QuickActions onAddStock={onAddStock} watchedStocks={watchedStocks} />
-          </div>
+          <QuickActions
+            onAddStock={onAddStock}
+            onRemoveStock={onRemoveStock}
+            onClearAll={onClearAll}
+            watchedStocks={watchedStocks}
+          />
         </WidgetFrame>
       )
 

@@ -61,7 +61,7 @@ export function MarketHoursWidget() {
   }, [])
 
   return (
-    <div className="p-4 space-y-2 h-full overflow-y-auto">
+    <div className="p-4 space-y-2 h-full">
       {markets.map(m => (
         <div
           key={m.name}

@@ -68,9 +68,9 @@ export function CurrencyWidget() {
   }
 
   return (
-    <div className="p-4 flex flex-col gap-3 h-full overflow-hidden">
+    <div className="p-4 flex flex-col gap-3 h-full">
       {/* Rates list */}
-      <div className="flex-1 overflow-y-auto space-y-1">
+      <div className="flex-1 space-y-1">
         {loading && rates.length === 0 ? (
           <div className="space-y-1">
             {[...Array(6)].map((_, i) => <div key={i} className="h-8 bg-muted rounded animate-pulse" />)}
