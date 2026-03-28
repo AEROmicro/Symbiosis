@@ -46,6 +46,11 @@ export function NewsWidget() {
 
   useEffect(() => { fetchNews() }, [fetchNews])
 
+  useEffect(() => {
+    const id = setInterval(() => fetchNews(symbol.trim() || undefined), 300_000)
+    return () => clearInterval(id)
+  }, [fetchNews, symbol])
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     fetchNews(symbol.trim() || undefined)

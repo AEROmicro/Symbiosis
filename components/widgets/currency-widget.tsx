@@ -53,6 +53,11 @@ export function CurrencyWidget() {
 
   useEffect(() => { fetchRates() }, [])
 
+  useEffect(() => {
+    const id = setInterval(fetchRates, 60_000)
+    return () => clearInterval(id)
+  }, [])
+
   const handleConvert = async () => {
     if (from === to) { setConverted(parseFloat(amount)); return }
     try {

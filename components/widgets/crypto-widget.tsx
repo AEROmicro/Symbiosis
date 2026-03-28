@@ -47,7 +47,11 @@ export function CryptoWidget() {
     setLoading(false)
   }
 
-  useEffect(() => { fetchPrices() }, [])
+  useEffect(() => {
+    fetchPrices()
+    const id = setInterval(fetchPrices, 30_000)
+    return () => clearInterval(id)
+  }, [])
 
   return (
     <div className="p-4 flex flex-col gap-3 h-full">
