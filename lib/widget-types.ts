@@ -21,6 +21,7 @@ export type WidgetType =
   | 'help'
   | 'fear-greed'
   | 'notes'
+  | 'notes-lg'
   | 'spacer-sm'
   | 'spacer-md'
   | 'spacer-lg'
@@ -317,6 +318,18 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     defaultH: 5,
     minW: 4,
     minH: 5,
+    category: 'tools',
+    color: 'bg-zinc-500/20',
+  },
+  {
+    type: 'notes-lg',
+    name: 'Notes (L)',
+    description: 'Scratch pad for trade ideas, tickers, or anything else; now larger',
+    iconName: 'Terminal',
+    defaultW: 8,
+    defaultH: 8,
+    minW: 8,
+    minH: 8,
     category: 'tools',
     color: 'bg-zinc-500/20',
   },
