@@ -26,8 +26,6 @@ export function HelpWidget() {
     { cmd: 'clearall',                    desc: 'Clear watchlist' },
     { cmd: 'popular',                     desc: 'See trending stocks' },
     { cmd: 'help',                        desc: 'All commands' },
-    { cmd: '',                            desc: '' },
-    { cmd: '',                            desc: '' },
     { cmd: 'Up Arrow',                    desc: 'Previous command' },
     { cmd: 'Down Arrow',                  desc: 'Next commands' },
     { cmd: 'Tab',                         desc: 'Autocomplete command' },
