@@ -57,6 +57,8 @@ export function HeatmapWidget() {
       setLoading(false)
     }
     fetchAll()
+    const id = setInterval(fetchAll, 60_000)
+    return () => clearInterval(id)
   }, [])
 
   return (
