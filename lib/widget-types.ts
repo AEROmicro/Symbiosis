@@ -97,9 +97,9 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     description: 'Deep metrics and price chart for the selected stock',
     iconName: 'TrendingUp',
     defaultW: 8,
-    defaultH: 10,
+    defaultH: 18,
     minW: 4,
-    minH: 10,
+    minH: 18,
     category: 'recommended',
     color: 'bg-indigo-500/20',
   },
@@ -121,9 +121,9 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     description: 'Connection status, data feed info, and quick tool access',
     iconName: 'Server',
     defaultW: 4,
-    defaultH: 9,
+    defaultH: 7,
     minW: 3,
-    minH: 9,
+    minH: 7,
     category: 'recommended',
     color: 'bg-slate-500/20',
   },
@@ -250,12 +250,12 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
 ]
 
 export const DEFAULT_WIDGET_LAYOUT: WidgetConfig[] = [
-  { id: 'terminal-1',      type: 'terminal',      x: 0, y: 0,  w: 4, h: 14, minW: 3, minH: 14 },
-  { id: 'quick-actions-1', type: 'quick-actions', x: 0, y: 14, w: 4, h: 6,  minW: 3, minH: 6  },
-  { id: 'system-status-1', type: 'system-status', x: 0, y: 20, w: 4, h: 9,  minW: 3, minH: 9  },
+  { id: 'terminal-sm-1',   type: 'terminal-sm',   x: 0, y: 0,  w: 4, h: 9,  minW: 3, minH: 9  },
+  { id: 'quick-actions-1', type: 'quick-actions', x: 0, y: 9,  w: 4, h: 6,  minW: 3, minH: 6  },
+  { id: 'system-status-1', type: 'system-status', x: 0, y: 15, w: 4, h: 7,  minW: 3, minH: 7  },
   { id: 'watchlist-1',     type: 'watchlist',     x: 4, y: 0,  w: 8, h: 8,  minW: 4, minH: 8  },
-  { id: 'stock-detail-1',  type: 'stock-detail',  x: 4, y: 8,  w: 8, h: 10, minW: 4, minH: 10 },
-  { id: 'help-1',          type: 'help',          x: 4, y: 18, w: 8, h: 5,  minW: 3, minH: 5  },
+  { id: 'stock-detail-1',  type: 'stock-detail',  x: 4, y: 8,  w: 8, h: 18, minW: 4, minH: 18 },
+  { id: 'help-1',          type: 'help',          x: 4, y: 26, w: 8, h: 5,  minW: 3, minH: 5  },
 ]
 
 export const WIDGET_LAYOUT_KEY = 'symbiosis-widget-layout'
