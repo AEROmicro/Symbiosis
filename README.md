@@ -17,6 +17,8 @@
 ### "The Final Protocol for Real Finance."
 *Symbiosis is the future of advanced and high-quality data to help you not the corporations*
 
+**NOTE: This is not meant to be viewed on mobile devices as certain elements will not work properly; best recommended you use on computer (Windows, Mac, Linux, etc)**
+
 [Website](https://symbiosis-finance.pages.dev/)
 [Contact](mailto:aeroforge-co@outlook.com)
 
