@@ -242,7 +242,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     description: 'Biggest gainers and losers across all tracked instruments',
     iconName: 'TrendingUp',
     defaultW: 4,
-    defaultH: 10,
+    defaultH: 9,
     minW: 4,
     minH: 9,
     category: 'market',
