@@ -62,6 +62,21 @@ const CATEGORIES = {
 
     ],
   },
+  sectors: {
+    label: 'Sectors',
+    items: [
+      { symbol: 'XLK',  name: 'Technology'    },
+      { symbol: 'XLV',  name: 'Healthcare'    },
+      { symbol: 'XLF',  name: 'Finance'       },
+      { symbol: 'XLE',  name: 'Energy'        },
+      { symbol: 'XLY',  name: 'Consumer'      },
+      { symbol: 'XLI',  name: 'Industrial'    },
+      { symbol: 'XLU',  name: 'Utilities'     },
+      { symbol: 'XLB',  name: 'Materials'     },
+      { symbol: 'XLRE', name: 'Real Estate'   },
+      { symbol: 'XLC',  name: 'Communication' },
+    ],
+  },
 } as const
 
 type TabKey = keyof typeof CATEGORIES
