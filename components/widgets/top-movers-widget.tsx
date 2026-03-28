@@ -45,7 +45,7 @@ export function TopMoversWidget() {
 
   const MoverRow = ({ item, positive }: { item: Mover; positive: boolean }) => (
     <div className={cn(
-      'flex items-center justify-between px-2 py-1.5 rounded text-xs border',
+      'flex flex-1 items-center justify-between px-2 rounded text-xs border',
       positive
         ? 'bg-primary/5 border-primary/15'
         : 'bg-destructive/5 border-destructive/15',
@@ -76,29 +76,33 @@ export function TopMoversWidget() {
   }
 
   return (
-    <div className="p-3 h-full flex flex-col gap-3 overflow-y-auto">
+    <div className="p-3 h-full flex flex-col gap-2 overflow-hidden">
       {/* Gainers */}
-      <div className="space-y-1.5">
+      <div className="flex flex-col flex-1 gap-1.5 min-h-0">
         <div className="flex items-center gap-1.5 text-xs text-primary font-mono font-semibold shrink-0">
           <TrendingUp className="w-3 h-3" />
           Top Gainers
         </div>
-        {gainers.length === 0
-          ? <p className="text-xs text-muted-foreground font-mono">No gainers found</p>
-          : gainers.map(g => <MoverRow key={g.symbol} item={g} positive={true} />)
-        }
+        <div className="flex flex-col flex-1 gap-1.5 min-h-0">
+          {gainers.length === 0
+            ? <p className="text-xs text-muted-foreground font-mono">No gainers found</p>
+            : gainers.map(g => <MoverRow key={g.symbol} item={g} positive={true} />)
+          }
+        </div>
       </div>
 
       {/* Losers */}
-      <div className="space-y-1.5">
+      <div className="flex flex-col flex-1 gap-1.5 min-h-0">
         <div className="flex items-center gap-1.5 text-xs text-destructive font-mono font-semibold shrink-0">
           <TrendingDown className="w-3 h-3" />
           Top Losers
         </div>
-        {losers.length === 0
-          ? <p className="text-xs text-muted-foreground font-mono">No losers found</p>
-          : losers.map(l => <MoverRow key={l.symbol} item={l} positive={false} />)
-        }
+        <div className="flex flex-col flex-1 gap-1.5 min-h-0">
+          {losers.length === 0
+            ? <p className="text-xs text-muted-foreground font-mono">No losers found</p>
+            : losers.map(l => <MoverRow key={l.symbol} item={l} positive={false} />)
+          }
+        </div>
       </div>
 
       {/* Footer */}
