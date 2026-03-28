@@ -9,12 +9,14 @@ export type WidgetType =
   | 'news'
   | 'portfolio'
   | 'clock'
+  | 'analog-clock'
   | 'market-hours'
   | 'currency'
   | 'market-stats'
   | 'heatmap'
   | 'crypto'
   | 'economic-calendar'
+  | 'top-movers'
   | 'help'
 
 export interface WidgetConfig {
@@ -61,24 +63,24 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
   {
     type: 'terminal',
     name: 'Terminal (M)',
-    description: 'Medium command-line interface for stock queries and operations',
+    description: 'Medium full-width terminal — spans the entire dashboard width',
     iconName: 'Terminal',
-    defaultW: 4,
-    defaultH: 14,
-    minW: 3,
-    minH: 14,
+    defaultW: 12,
+    defaultH: 12,
+    minW: 6,
+    minH: 12,
     category: 'recommended',
     color: 'bg-primary/20',
   },
   {
     type: 'terminal-lg',
     name: 'Terminal (L)',
-    description: 'Large command-line interface — maximum visible history',
+    description: 'Large full-width terminal — maximum history, spans the entire dashboard width',
     iconName: 'Terminal',
-    defaultW: 4,
-    defaultH: 22,
-    minW: 3,
-    minH: 22,
+    defaultW: 12,
+    defaultH: 16,
+    minW: 6,
+    minH: 14,
     category: 'recommended',
     color: 'bg-primary/20',
   },
@@ -122,10 +124,10 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
   {
     type: 'system-status',
     name: 'System Status',
-    description: 'Connection status, data feed info, and quick tool access',
+    description: 'Connection status, data feed info, market session, and quick tool access',
     iconName: 'Server',
     defaultW: 4,
-    defaultH: 12,
+    defaultH: 14,
     minW: 3,
     minH: 12,
     category: 'recommended',
@@ -158,12 +160,24 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
   {
     type: 'clock',
     name: 'Clock',
-    description: 'Live clock with major market timezone times',
+    description: 'Live digital clock with major market timezone times',
     iconName: 'Clock',
     defaultW: 3,
     defaultH: 5,
     minW: 2,
     minH: 5,
+    category: 'recommended',
+    color: 'bg-cyan-500/20',
+  },
+  {
+    type: 'analog-clock',
+    name: 'Analog Clock',
+    description: 'SVG analog clock with hands plus market timezone open/close status',
+    iconName: 'Clock',
+    defaultW: 3,
+    defaultH: 11,
+    minW: 2,
+    minH: 9,
     category: 'recommended',
     color: 'bg-cyan-500/20',
   },
@@ -202,6 +216,18 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     minH: 9,
     category: 'market',
     color: 'bg-rose-500/20',
+  },
+  {
+    type: 'top-movers',
+    name: 'Top Movers',
+    description: 'Biggest gainers and losers across all tracked instruments',
+    iconName: 'TrendingUp',
+    defaultW: 4,
+    defaultH: 10,
+    minW: 3,
+    minH: 9,
+    category: 'market',
+    color: 'bg-fuchsia-500/20',
   },
   {
     type: 'crypto',
@@ -256,10 +282,10 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
 export const DEFAULT_WIDGET_LAYOUT: WidgetConfig[] = [
   { id: 'terminal-sm-1',   type: 'terminal-sm',   x: 0, y: 0,  w: 4, h: 9,  minW: 3, minH: 9  },
   { id: 'quick-actions-1', type: 'quick-actions', x: 0, y: 9,  w: 4, h: 6,  minW: 3, minH: 6  },
-  { id: 'system-status-1', type: 'system-status', x: 0, y: 15, w: 4, h: 7,  minW: 3, minH: 7  },
+  { id: 'system-status-1', type: 'system-status', x: 0, y: 15, w: 4, h: 14, minW: 3, minH: 12 },
   { id: 'watchlist-1',     type: 'watchlist',     x: 4, y: 0,  w: 8, h: 8,  minW: 4, minH: 8  },
-  { id: 'stock-detail-1',  type: 'stock-detail',  x: 4, y: 8,  w: 8, h: 10, minW: 4, minH: 8, maxH: 10 }, // Tightened this default
-  { id: 'help-1',          type: 'help',          x: 4, y: 18, w: 8, h: 5,  minW: 3, minH: 5  }, // Adjusted Y to match new height
+  { id: 'stock-detail-1',  type: 'stock-detail',  x: 4, y: 8,  w: 8, h: 10, minW: 4, minH: 8, maxH: 10 },
+  { id: 'help-1',          type: 'help',          x: 4, y: 18, w: 8, h: 5,  minW: 3, minH: 5  },
 ]
 
 export const WIDGET_LAYOUT_KEY = 'symbiosis-widget-layout'
