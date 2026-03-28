@@ -179,13 +179,13 @@ export function BlueprintEditor({ open, onClose, layout, onLayoutChange }: Bluep
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-7xl w-full h-[90vh] flex flex-col font-mono p-0 gap-0 overflow-hidden">
+      <DialogContent className="!top-0 !left-0 !translate-x-0 !translate-y-0 !max-w-none !rounded-none w-screen h-screen flex flex-col font-mono p-0 gap-0 overflow-hidden">
         <DialogHeader className="px-4 py-3 border-b border-border shrink-0">
           <DialogTitle className="flex items-center gap-2 text-sm font-mono tracking-wider uppercase">
             <LayoutDashboard className="w-4 h-4 text-primary" />
             Blueprint Editor
             <span className="text-muted-foreground font-normal text-xs tracking-normal ml-1">
-              — drag to reposition · resize from corners · X to remove
+              — drag to reposition · X to remove
             </span>
           </DialogTitle>
         </DialogHeader>
@@ -215,10 +215,7 @@ export function BlueprintEditor({ open, onClose, layout, onLayoutChange }: Bluep
                   containerPadding: [4, 4],
                 }}
                 dragConfig={{ enabled: true }}
-                resizeConfig={{
-                  enabled: true,
-                  handles: ['se', 'sw', 'ne', 'nw', 'e', 'w', 's', 'n'],
-                }}
+                resizeConfig={{ enabled: false }}
                 onLayoutChange={handleLayoutChange}
                 className="min-h-[600px]"
               >
