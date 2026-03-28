@@ -36,7 +36,8 @@
     "linux": {
       "target": ["AppImage", "deb"],
       "icon": "public/icon.png",
-      "category": "Finance"
+      "category": "Finance",
+      "maintainer": "AEROmicro <noreply@aeromicro.dev>"
     },
     "nsis": {
       "oneClick": false,
