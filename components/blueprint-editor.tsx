@@ -174,7 +174,7 @@ export function BlueprintEditor({ open, onClose, layout, onLayoutChange }: Bluep
   const market      = filteredCatalog.filter(m => m.category === 'market')
   const tools       = filteredCatalog.filter(m => m.category === 'tools')
   const info        = filteredCatalog.filter(m => m.category === 'info')
-  const layout      = filteredCatalog.filter(m => m.category === 'layout')
+  const layoutWidgets = filteredCatalog.filter(m => m.category === 'layout')
 
   const rglLayout = configsToLayout(draft)
 
@@ -329,10 +329,10 @@ export function BlueprintEditor({ open, onClose, layout, onLayoutChange }: Bluep
                   ))}
                 </>
               )}
-              {layout.length > 0 && (
+              {layoutWidgets.length > 0 && (
                 <>
                   <CategoryLabel label="Layout" />
-                  {layout.map(m => (
+                  {layoutWidgets.map(m => (
                     <CatalogItem key={m.type} meta={m} alreadyAdded={false} onAdd={() => handleAdd(m)} />
                   ))}
                 </>
