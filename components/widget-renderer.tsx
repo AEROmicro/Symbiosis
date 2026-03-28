@@ -25,6 +25,7 @@ import { PortfolioDialog }    from '@/components/portfolio-dialog'
 
 // New widget components
 import { ClockWidget }            from '@/components/widgets/clock-widget'
+import { AnalogClockWidget }      from '@/components/widgets/analog-clock-widget'
 import { NewsWidget }             from '@/components/widgets/news-widget'
 import { PortfolioWidget }        from '@/components/widgets/portfolio-widget'
 import { MarketHoursWidget }      from '@/components/widgets/market-hours-widget'
@@ -33,6 +34,7 @@ import { CurrencyWidget }         from '@/components/widgets/currency-widget'
 import { HeatmapWidget }          from '@/components/widgets/heatmap-widget'
 import { CryptoWidget }           from '@/components/widgets/crypto-widget'
 import { EconomicCalendarWidget } from '@/components/widgets/economic-calendar-widget'
+import { TopMoversWidget }        from '@/components/widgets/top-movers-widget'
 import { HelpWidget }             from '@/components/widgets/help-widget'
 
 // ── Props passed from the main app to stateful widgets ─────────────────────
@@ -177,49 +179,84 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
       )
 
     // ── System Status ───────────────────────────────────────────────────────
-    case 'system-status':
-    return (
-      <WidgetFrame title={title} iconName={iconName}>
-        <div className="h-full min-h-0 p-3 flex flex-col gap-2 overflow-hidden">
-          {/* Top status (fixed) */}
-          <div className="shrink-0 space-y-1.5 text-sm font-mono">
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground text-xs">Connection</span>
-              <span className="flex items-center gap-1.5 text-primary text-xs">
-                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                Active
-              </span>
+    case 'system-status': {
+      const sessionLabel =
+        appProps.marketState === 'REGULAR' ? 'Regular Hours' :
+        appProps.marketState === 'PRE'     ? 'Pre-Market'    :
+        appProps.marketState === 'POST'    ? 'After-Hours'   : 'Market Closed'
+      const sessionColor =
+        appProps.marketState === 'REGULAR' ? 'text-primary'           :
+        appProps.marketState === 'PRE'     ? 'text-yellow-500'        :
+        appProps.marketState === 'POST'    ? 'text-orange-500'        : 'text-muted-foreground'
+
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <div className="h-full p-3 flex flex-col gap-3 overflow-hidden">
+
+            {/* ── Status rows ── */}
+            <div className="shrink-0 space-y-2 font-mono text-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Connection</span>
+                <span className="flex items-center gap-1.5 text-primary">
+                  <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                  Active
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Data Feed</span>
+                <span className="text-primary">Real-time</span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Refresh Rate</span>
+                <span className="text-foreground">1s</span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Watching</span>
+                <span className="text-foreground">{watchedStocks.length} stocks</span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Session</span>
+                <span className={cn('flex items-center gap-1.5', sessionColor)}>
+                  {appProps.marketState !== 'CLOSED' && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
+                  )}
+                  {sessionLabel}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Exchange</span>
+                <span className="text-foreground">NYSE / NASDAQ</span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Hours (ET)</span>
+                <span className="text-foreground">09:30 – 16:00</span>
+              </div>
             </div>
-  
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground text-xs">Data Feed</span>
-              <span className="text-primary text-xs">Real-time</span>
+
+            {/* ── Divider ── */}
+            <div className="shrink-0 border-t border-border" />
+
+            {/* ── Tools — 2-column grid, no scroll ── */}
+            <div className="shrink-0 grid grid-cols-2 gap-1.5">
+              <HelpDialog />
+              <KeyboardShortcuts />
+              <MarketStatsDialog />
+              <MarketHoursDialog />
+              <NewsDialog />
+              <CurrencyConverter onAddToWatchlist={onAddStock} watchedStocks={watchedStocks} />
+              <PortfolioDialog />
             </div>
-  
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground text-xs">Refresh Rate</span>
-              <span className="text-foreground text-xs">1s</span>
-            </div>
-  
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground text-xs">Watching</span>
-              <span className="text-foreground text-xs">{watchedStocks.length} stocks</span>
-            </div>
+
           </div>
-  
-          {/* Tools area (scrollable) */}
-          <div className="min-h-0 overflow-y-auto pt-1.5 border-t border-border space-y-1.5">
-            <HelpDialog />
-            <KeyboardShortcuts />
-            <MarketStatsDialog />
-            <MarketHoursDialog />
-            <NewsDialog />
-            <CurrencyConverter onAddToWatchlist={onAddStock} watchedStocks={watchedStocks} />
-            <PortfolioDialog />
-          </div>
-        </div>
-      </WidgetFrame>
-    )
+        </WidgetFrame>
+      )
+    }
 
     // ── News ────────────────────────────────────────────────────────────────
     case 'news':
@@ -237,11 +274,19 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
         </WidgetFrame>
       )
 
-    // ── Clock ───────────────────────────────────────────────────────────────
+    // ── Clock (digital) ─────────────────────────────────────────────────────
     case 'clock':
       return (
         <WidgetFrame title={title} iconName={iconName}>
           <ClockWidget />
+        </WidgetFrame>
+      )
+
+    // ── Analog Clock ────────────────────────────────────────────────────────
+    case 'analog-clock':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <AnalogClockWidget />
         </WidgetFrame>
       )
 
@@ -290,6 +335,14 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
       return (
         <WidgetFrame title={title} iconName={iconName}>
           <EconomicCalendarWidget />
+        </WidgetFrame>
+      )
+
+    // ── Top Movers ──────────────────────────────────────────────────────────
+    case 'top-movers':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <TopMoversWidget />
         </WidgetFrame>
       )
 
