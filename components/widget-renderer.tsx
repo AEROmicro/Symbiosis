@@ -115,6 +115,7 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
               onAddStock={onAddStock}
               onRemoveStock={onRemoveStock}
               onClearAll={onClearAll}
+              onSelectStock={onSelectStock}
               watchedStocks={watchedStocks}
             />
           </div>
