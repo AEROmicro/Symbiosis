@@ -46,7 +46,6 @@ const CATEGORIES = {
       { symbol: 'GLD', name: 'Gold ETF'    },
       { symbol: 'SLV', name: 'Silver ETF'  },
       { symbol: 'VTI', name: 'Vanguard Total Market'  },
-      { symbol: 'VOO', name: 'Vanguard S&P 500'  },
       { symbol: 'VXUS', name: 'Vanguard International'  },
     ],
   },
@@ -58,7 +57,6 @@ const CATEGORIES = {
       { symbol: 'SOL-USD',  name: 'Solana'   },
       { symbol: 'BNB-USD', name: 'BNB' },
       { symbol: 'XRP-USD', name: 'XRP' },
-      { symbol: 'USDT', name: 'Tether' },
       { symbol: 'AVAX-USD', name: 'Avalanche' },
       { symbol: 'DOGE-USD', name: 'Dogecoin' },
 
