@@ -291,9 +291,9 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     description: 'Quick reference for all terminal commands',
     iconName: 'HelpCircle',
     defaultW: 4,
-    defaultH: 5,
+    defaultH: 6,
     minW: 4,
-    minH: 5,
+    minH: 6,
     category: 'info',
     color: 'bg-zinc-500/20',
   },
@@ -387,7 +387,7 @@ export const DEFAULT_WIDGET_LAYOUT: WidgetConfig[] = [
   { id: 'stock-detail-1',  type: 'stock-detail',  x: 4, y: 8,  w: 8, h: 10, minW: 4, minH: 8, maxH: 10 },
   { id: 'heatmap-1',       type: 'heatmap',       x: 4, y: 18, w: 4, h: 9,  minW: 4, minH: 9  },
   { id: 'top-movers-1',    type: 'top-movers',    x: 8, y: 18, w: 4, h: 9,  minW: 4, minH: 9  },
-  { id: 'help-1',          type: 'help',          x: 4, y: 27, w: 8, h: 5,  minW: 4, minH: 5  },
+  { id: 'help-1',          type: 'help',          x: 4, y: 27, w: 8, h: 5,  minW: 4, minH: 6  },
 ]
 
 export const WIDGET_LAYOUT_KEY = 'symbiosis-widget-layout'
