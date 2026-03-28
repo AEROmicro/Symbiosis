@@ -380,9 +380,9 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
 export const DEFAULT_WIDGET_LAYOUT: WidgetConfig[] = [
   { id: 'clock-1',         type: 'clock',         x: 0, y: 0,  w: 4, h: 5,  minW: 4, minH: 5  },
   { id: 'terminal-sm-1',   type: 'terminal-sm',   x: 0, y: 5,  w: 4, h: 9,  minW: 4, minH: 9  },
-  { id: 'quick-actions-1', type: 'quick-actions', x: 0, y: 14, w: 4, h: 6,  minW: 4, minH: 6  },
-  { id: 'system-status-1', type: 'system-status', x: 0, y: 20, w: 4, h: 7,  minW: 4, minH: 7, maxH: 7 },
-  { id: 'notes-1',         type: 'notes',         x: 0, y: 27, w: 4, h: 5,  minW: 4, minH: 7, maxH: 7 },
+  { id: 'quick-actions-1', type: 'quick-actions', x: 0, y: 14, w: 4, h: 7,  minW: 4, minH: 7  },
+  { id: 'system-status-1', type: 'system-status', x: 0, y: 21, w: 4, h: 7,  minW: 4, minH: 7, maxH: 7 },
+  { id: 'notes-1',         type: 'notes',         x: 0, y: 28, w: 4, h: 5,  minW: 4, minH: 7, maxH: 7 },
   { id: 'watchlist-1',     type: 'watchlist',     x: 4, y: 0,  w: 8, h: 8,  minW: 4, minH: 8  },
   { id: 'stock-detail-1',  type: 'stock-detail',  x: 4, y: 8,  w: 8, h: 10, minW: 4, minH: 8, maxH: 10 },
   { id: 'heatmap-1',       type: 'heatmap',       x: 4, y: 18, w: 4, h: 9,  minW: 4, minH: 9  },
