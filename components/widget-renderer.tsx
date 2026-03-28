@@ -245,7 +245,7 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
             <div className="shrink-0 border-t border-border" />
 
             {/* ── Tools — 2-column grid, no scroll ── */}
-            <div className="shrink-0 grid grid-cols-2 gap-1.5">
+            <div className="shrink-0 grid grid-cols-2 gap-1.5 pb-3">
               <HelpDialog />
               <KeyboardShortcuts />
               <MarketStatsDialog />
