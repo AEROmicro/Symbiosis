@@ -7,6 +7,7 @@ import { MarketTicker } from '@/components/market-ticker'
 import { SettingsDialog, type AppTheme } from '@/components/settings-dialog'
 import { WidgetRenderer, type WidgetAppProps } from '@/components/widget-renderer'
 import { BlueprintEditor } from '@/components/blueprint-editor'
+import { MobileLayout } from '@/components/mobile-layout'
 import { Terminal } from 'lucide-react'
 import {
   type WidgetConfig,
@@ -27,6 +28,7 @@ export default function SymbiosisApp() {
   const [theme, setTheme]                   = useState<AppTheme>('default')
   const [widgetLayout, setWidgetLayout]     = useState<WidgetConfig[]>(DEFAULT_WIDGET_LAYOUT)
   const [blueprintOpen, setBlueprintOpen]   = useState(false)
+  const [isMobile, setIsMobile]             = useState(false)
   const refreshInterval = 1000
   const { width: gridWidth, containerRef }  = useContainerWidth({ initialWidth: 1280 })
 
@@ -55,6 +57,14 @@ export default function SymbiosisApp() {
       // localStorage unavailable — fall back to defaults
     }
     setHydrated(true)
+  }, [])
+
+  // Mobile detection
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
   }, [])
 
   // Apply theme
@@ -125,20 +135,25 @@ export default function SymbiosisApp() {
   }
 
   return (
-    <div className="min-h-screen bg-background relative">
+    <div className={isMobile
+      ? 'h-dvh bg-background flex flex-col overflow-hidden relative'
+      : 'min-h-screen bg-background relative'
+    }>
       {scanlineEnabled && <div className="scanline" />}
 
-      {/* Background grid */}
-      <div
-        className="fixed inset-0 opacity-[0.02] pointer-events-none"
-        style={{
-          backgroundImage: `
-            linear-gradient(var(--primary) 1px, transparent 1px),
-            linear-gradient(90deg, var(--primary) 1px, transparent 1px)
-          `,
-          backgroundSize: '50px 50px',
-        }}
-      />
+      {/* Background grid — desktop only */}
+      {!isMobile && (
+        <div
+          className="fixed inset-0 opacity-[0.02] pointer-events-none"
+          style={{
+            backgroundImage: `
+              linear-gradient(var(--primary) 1px, transparent 1px),
+              linear-gradient(90deg, var(--primary) 1px, transparent 1px)
+            `,
+            backgroundSize: '50px 50px',
+          }}
+        />
+      )}
 
       {/* Header */}
       <TerminalHeader marketState={marketState} />
@@ -146,24 +161,68 @@ export default function SymbiosisApp() {
       {/* Market Ticker */}
       <MarketTicker onMarketStateChange={setMarketState} />
 
-      {/* Widget Grid */}
-      <main className="container mx-auto px-4 py-6 max-w-7xl">
-        <div ref={containerRef}>
-          <GridLayout
-            width={gridWidth}
-            layout={rglLayout}
-            gridConfig={{ cols: 12, rowHeight: 40, margin: [16, 16], containerPadding: [0, 0] }}
-            dragConfig={{ enabled: false }}
-            resizeConfig={{ enabled: false }}
-          >
-            {widgetLayout.map(config => (
-              <div key={config.id}>
-                <WidgetRenderer config={config} appProps={appProps} />
+      {/* ── Mobile layout ─────────────────────────────────────── */}
+      {isMobile ? (
+        <MobileLayout
+          appProps={appProps}
+          theme={theme}
+          onThemeChange={handleThemeChange}
+          scanlineEnabled={scanlineEnabled}
+          onScanlineChange={setScanlineEnabled}
+          onOpenBlueprint={() => setBlueprintOpen(true)}
+        />
+      ) : (
+        <>
+          {/* ── Desktop widget grid ──────────────────────────── */}
+          <main className="container mx-auto px-4 py-6 max-w-7xl">
+            <div ref={containerRef}>
+              <GridLayout
+                width={gridWidth}
+                layout={rglLayout}
+                gridConfig={{ cols: 12, rowHeight: 40, margin: [16, 16], containerPadding: [0, 0] }}
+                dragConfig={{ enabled: false }}
+                resizeConfig={{ enabled: false }}
+              >
+                {widgetLayout.map(config => (
+                  <div key={config.id}>
+                    <WidgetRenderer config={config} appProps={appProps} />
+                  </div>
+                ))}
+              </GridLayout>
+            </div>
+          </main>
+
+          {/* Footer */}
+          <footer className="border-t border-border py-4 mt-8 relative z-10">
+            <div className="container mx-auto px-4 max-w-7xl">
+              <div className="flex items-center justify-between text-xs text-muted-foreground font-mono">
+                <div className="flex items-center gap-2">
+                  <span className="text-primary">{'>'}_</span>
+                  <span>Symbiosis // Redefine the Limits</span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <span className="hidden sm:inline">Market data updates in real-time</span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                    Connected
+                  </span>
+                  <SettingsDialog
+                    currentTheme={theme}
+                    onThemeChange={handleThemeChange}
+                    scanlineEnabled={scanlineEnabled}
+                    onScanlineChange={setScanlineEnabled}
+                    onOpenBlueprint={() => setBlueprintOpen(true)}
+                  />
+                </div>
               </div>
-            ))}
-          </GridLayout>
-        </div>
-      </main>
+              <div className="mt-3 text-center text-xs text-muted-foreground font-mono space-y-0.5">
+                <div>© ÆROforge 2026</div>
+                <div>Licensed under GNU GPLv3</div>
+              </div>
+            </div>
+          </footer>
+        </>
+      )}
 
       {/* Blueprint Editor */}
       <BlueprintEditor
@@ -172,36 +231,6 @@ export default function SymbiosisApp() {
         layout={widgetLayout}
         onLayoutChange={setWidgetLayout}
       />
-
-      {/* Footer */}
-      <footer className="border-t border-border py-4 mt-8 relative z-10">
-        <div className="container mx-auto px-4 max-w-7xl">
-          <div className="flex items-center justify-between text-xs text-muted-foreground font-mono">
-            <div className="flex items-center gap-2">
-              <span className="text-primary">{'>'}_</span>
-              <span>Symbiosis // Redefine the Limits</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <span className="hidden sm:inline">Market data updates in real-time</span>
-              <span className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                Connected
-              </span>
-              <SettingsDialog
-                currentTheme={theme}
-                onThemeChange={handleThemeChange}
-                scanlineEnabled={scanlineEnabled}
-                onScanlineChange={setScanlineEnabled}
-                onOpenBlueprint={() => setBlueprintOpen(true)}
-              />
-            </div>
-          </div>
-          <div className="mt-3 text-center text-xs text-muted-foreground font-mono space-y-0.5">
-            <div>© ÆROforge 2026</div>
-            <div>Licensed under GNU GPLv3</div>
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }
