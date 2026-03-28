@@ -45,6 +45,9 @@ const CATEGORIES = {
       { symbol: 'DIA', name: 'Dow ETF'     },
       { symbol: 'GLD', name: 'Gold ETF'    },
       { symbol: 'SLV', name: 'Silver ETF'  },
+      { symbol: 'VTI', name: 'Vanguard Total Market'  },
+      { symbol: 'VOO', name: 'Vanguard S&P 500'  },
+      { symbol: 'VXUS', name: 'Vanguard International'  },
     ],
   },
   crypto: {
@@ -53,7 +56,12 @@ const CATEGORIES = {
       { symbol: 'BTC-USD',  name: 'Bitcoin'  },
       { symbol: 'ETH-USD',  name: 'Ethereum' },
       { symbol: 'SOL-USD',  name: 'Solana'   },
+      { symbol: 'BNB-USD', name: 'BNB' },
+      { symbol: 'XRP-USD', name: 'XRP' },
+      { symbol: 'USDT', name: 'Tether' },
+      { symbol: 'AVAX-USD', name: 'Avalanche' },
       { symbol: 'DOGE-USD', name: 'Dogecoin' },
+
     ],
   },
 } as const
