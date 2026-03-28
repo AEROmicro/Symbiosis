@@ -48,7 +48,7 @@ const themes: {
   },
 ]
 
-export function SettingsDialog({ currentTheme, onThemeChange, onOpenBlueprint }: SettingsDialogProps) {
+export function SettingsDialog({ currentTheme, onThemeChange, scanlineEnabled, onScanlineChange, onOpenBlueprint }: SettingsDialogProps) {
   const [open, setOpen] = useState(false)
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -118,6 +118,42 @@ export function SettingsDialog({ currentTheme, onThemeChange, onOpenBlueprint }:
                 )
               })}
             </div>
+          </div>
+
+          {/* CRT Scanline toggle */}
+          <div className="border-t border-border pt-4">
+            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-3">
+              Display
+            </p>
+            <button
+              onClick={() => onScanlineChange(!scanlineEnabled)}
+              className={cn(
+                'w-full flex items-center justify-between px-3 py-2.5 rounded-md border text-left transition-all text-sm',
+                scanlineEnabled
+                  ? 'border-primary/40 bg-primary/5'
+                  : 'border-border hover:border-primary/30 hover:bg-muted/30',
+              )}
+            >
+              <div>
+                <div className="font-semibold text-xs">CRT Scanlines</div>
+                <div className="text-xs text-muted-foreground mt-0.5">
+                  Retro scanline overlay effect
+                </div>
+              </div>
+              <div
+                className={cn(
+                  'relative w-9 h-5 rounded-full border transition-colors shrink-0',
+                  scanlineEnabled ? 'bg-primary border-primary' : 'bg-muted border-border',
+                )}
+              >
+                <span
+                  className={cn(
+                    'absolute top-0.5 w-4 h-4 rounded-full bg-background transition-transform',
+                    scanlineEnabled ? 'translate-x-4' : 'translate-x-0.5',
+                  )}
+                />
+              </div>
+            </button>
           </div>
 
           {/* Blueprint button */}
