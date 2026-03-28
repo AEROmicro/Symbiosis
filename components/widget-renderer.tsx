@@ -193,10 +193,10 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
 
       return (
         <WidgetFrame title={title} iconName={iconName}>
-          <div className="h-full p-3 flex flex-col gap-3 overflow-hidden">
+          <div className="h-full p-2 flex flex-col justify-between overflow-hidden">
 
             {/* ── Status rows ── */}
-            <div className="shrink-0 space-y-2 font-mono text-xs">
+            <div className="space-y-2 font-mono text-xs">
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Connection</span>
                 <span className="flex items-center gap-1.5 text-primary">
@@ -241,6 +241,20 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
               </div>
             </div>
 
+            {/* ── Divider + Tools ── */}
+            <div className="flex flex-col gap-2">
+              <div className="border-t border-border" />
+
+              {/* ── Tools — 2-column grid, no scroll ── */}
+              <div className="grid grid-cols-2 gap-1.5">
+                <HelpDialog />
+                <KeyboardShortcuts />
+                <MarketStatsDialog />
+                <MarketHoursDialog />
+                <NewsDialog />
+                <CurrencyConverter onAddToWatchlist={onAddStock} watchedStocks={watchedStocks} />
+                <PortfolioDialog />
+              </div>
             {/* ── Divider ── */}
             <div className="shrink-0 border-t border-border" />
 
@@ -253,6 +267,7 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
               <NewsDialog />
               <CurrencyConverter onAddToWatchlist={onAddStock} watchedStocks={watchedStocks} />
               <PortfolioDialog />
+
             </div>
 
           </div>
