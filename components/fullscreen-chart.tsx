@@ -8,6 +8,7 @@ import {
   Clock, Target, Calendar, Zap, Percent,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { getCurrencySymbol } from '@/lib/utils'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -159,6 +160,7 @@ export function FullscreenChart({ symbol, onClose }: FullscreenChartProps) {
 
   const chartData = data?.data ?? []
   const previousClose = data?.previousClose ?? stock?.previousClose ?? 0
+  const sym = getCurrencySymbol(stock?.currency)
 
   const closes = chartData.map(d => d.close)
   const ma50 = calculateMA(closes, 50)
@@ -234,7 +236,7 @@ export function FullscreenChart({ symbol, onClose }: FullscreenChartProps) {
 
   // ── Axis labels ────────────────────────────────────────────────────────────
 
-  // Y-axis: 5 price labels
+  // Y-axis: 6 price labels evenly spaced across the visible range
   const priceLabels = Array.from({ length: 6 }, (_, i) => {
     const price = adjMin + (i / 5) * adjRange
     return { y: toY(price), price }
@@ -253,6 +255,7 @@ export function FullscreenChart({ symbol, onClose }: FullscreenChartProps) {
   const color = isPositive ? 'var(--primary)' : 'var(--destructive)'
 
   // Candlestick width based on data density
+  // Candlestick body width: use 90% of the per-bar slot, leaving 10% spacing between candles
   const candleWidth = chartData.length > 0 ? Math.max(0.4, 90 / chartData.length) : 1
 
   // RSI y-coordinate (RSI is 0–100, map to SVG 0–100 top-down)
@@ -266,24 +269,24 @@ export function FullscreenChart({ symbol, onClose }: FullscreenChartProps) {
 
   const stats = stock
     ? [
-        { label: 'Open',      value: `$${stock.open.toFixed(2)}`,            icon: Clock },
-        { label: 'Prev Close',value: `$${stock.previousClose.toFixed(2)}`,   icon: DollarSign },
-        { label: 'Day High',  value: `$${stock.high.toFixed(2)}`,            icon: TrendingUp,   pos: true },
-        { label: 'Day Low',   value: `$${stock.low.toFixed(2)}`,             icon: TrendingDown, pos: false },
+        { label: 'Open',      value: `${sym}${stock.open.toFixed(2)}`,            icon: Clock },
+        { label: 'Prev Close',value: `${sym}${stock.previousClose.toFixed(2)}`,   icon: DollarSign },
+        { label: 'Day High',  value: `${sym}${stock.high.toFixed(2)}`,            icon: TrendingUp,   pos: true },
+        { label: 'Day Low',   value: `${sym}${stock.low.toFixed(2)}`,             icon: TrendingDown, pos: false },
         { label: 'Volume',    value: formatNumber(stock.volume),              icon: BarChart3 },
         { label: 'Avg Vol',   value: formatNumber(stock.avgVolume),           icon: Activity },
         { label: 'Mkt Cap',   value: stock.marketCap,                         icon: DollarSign },
-        { label: '52W High',  value: `$${stock.fiftyTwoWeekHigh.toFixed(2)}`,icon: TrendingUp,   pos: true },
-        { label: '52W Low',   value: `$${stock.fiftyTwoWeekLow.toFixed(2)}`, icon: TrendingDown, pos: false },
+        { label: '52W High',  value: `${sym}${stock.fiftyTwoWeekHigh.toFixed(2)}`,icon: TrendingUp,   pos: true },
+        { label: '52W Low',   value: `${sym}${stock.fiftyTwoWeekLow.toFixed(2)}`, icon: TrendingDown, pos: false },
         { label: 'P/E',       value: stock.peRatio != null ? stock.peRatio.toFixed(2) : 'N/A',         icon: Percent },
         { label: 'Fwd P/E',   value: stock.forwardPE != null ? stock.forwardPE.toFixed(2) : 'N/A',     icon: Percent },
-        { label: 'EPS',       value: stock.eps != null ? `$${stock.eps.toFixed(2)}` : 'N/A',           icon: DollarSign },
+        { label: 'EPS',       value: stock.eps != null ? `${sym}${stock.eps.toFixed(2)}` : 'N/A',           icon: DollarSign },
         { label: 'Beta',      value: stock.beta != null ? stock.beta.toFixed(2) : 'N/A',               icon: Zap },
         { label: 'Div Yield', value: stock.dividendYield != null ? `${stock.dividendYield.toFixed(2)}%` : 'N/A', icon: Percent },
-        { label: 'Target',    value: stock.targetPrice != null ? `$${stock.targetPrice.toFixed(2)}` : 'N/A', icon: Target },
+        { label: 'Target',    value: stock.targetPrice != null ? `${sym}${stock.targetPrice.toFixed(2)}` : 'N/A', icon: Target },
         { label: 'Earnings',  value: stock.earningsDate ?? 'N/A',             icon: Calendar },
-        { label: 'MA 50',     value: lastMA50 != null ? `$${lastMA50.toFixed(2)}` : 'N/A',  icon: Activity },
-        { label: 'MA 200',    value: lastMA200 != null ? `$${lastMA200.toFixed(2)}` : 'N/A', icon: Activity },
+        { label: 'MA 50',     value: lastMA50 != null ? `${sym}${lastMA50.toFixed(2)}` : 'N/A',  icon: Activity },
+        { label: 'MA 200',    value: lastMA200 != null ? `${sym}${lastMA200.toFixed(2)}` : 'N/A', icon: Activity },
       ]
     : []
 
@@ -324,7 +327,7 @@ export function FullscreenChart({ symbol, onClose }: FullscreenChartProps) {
         {/* Price + change */}
         <div className="flex items-baseline gap-2 flex-none">
           <span className="text-xl font-bold tabular-nums font-mono">
-            ${displayPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {sym}{displayPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
           <span className={cn('text-sm tabular-nums font-mono', displayIsPos ? 'text-primary' : 'text-destructive')}>
             {displayIsPos ? '+' : ''}{displayChange.toFixed(2)} ({displayIsPos ? '+' : ''}{displayChangePct.toFixed(2)}%)
@@ -334,16 +337,16 @@ export function FullscreenChart({ symbol, onClose }: FullscreenChartProps) {
         {/* OHLCV + indicator values on hover */}
         {hoveredPoint && (
           <div className="hidden lg:flex items-center gap-2 text-[10px] font-mono text-muted-foreground border-l border-border pl-3 flex-wrap">
-            <span>O: <span className="text-foreground">${hoveredPoint.open?.toFixed(2)}</span></span>
-            <span>H: <span className="text-primary">${hoveredPoint.high?.toFixed(2)}</span></span>
-            <span>L: <span className="text-destructive">${hoveredPoint.low?.toFixed(2)}</span></span>
-            <span>C: <span className="text-foreground">${hoveredPoint.close?.toFixed(2)}</span></span>
+            <span>O: <span className="text-foreground">{sym}{hoveredPoint.open?.toFixed(2)}</span></span>
+            <span>H: <span className="text-primary">{sym}{hoveredPoint.high?.toFixed(2)}</span></span>
+            <span>L: <span className="text-destructive">{sym}{hoveredPoint.low?.toFixed(2)}</span></span>
+            <span>C: <span className="text-foreground">{sym}{hoveredPoint.close?.toFixed(2)}</span></span>
             <span>V: <span className="text-foreground">{formatNumber(hoveredPoint.volume)}</span></span>
             {hoveredMA50 != null && showMA50 && (
-              <span>MA50: <span className="text-blue-400">${hoveredMA50.toFixed(2)}</span></span>
+              <span>MA50: <span className="text-blue-400">{sym}{hoveredMA50.toFixed(2)}</span></span>
             )}
             {hoveredMA200 != null && showMA200 && (
-              <span>MA200: <span className="text-orange-400">${hoveredMA200.toFixed(2)}</span></span>
+              <span>MA200: <span className="text-orange-400">{sym}{hoveredMA200.toFixed(2)}</span></span>
             )}
             {hoveredRSI != null && showRSI && (
               <span>RSI: <span className={cn(
@@ -521,7 +524,7 @@ export function FullscreenChart({ symbol, onClose }: FullscreenChartProps) {
                   <div className="absolute right-1 top-1 bottom-5 flex flex-col justify-between text-[9px] font-mono text-muted-foreground/50 pointer-events-none z-10">
                     {priceLabels.slice().reverse().map((pl, i) => (
                       <span key={i} className="leading-none tabular-nums">
-                        ${pl.price.toFixed(pl.price >= 100 ? 0 : 2)}
+                        {sym}{pl.price.toFixed(pl.price >= 100 ? 0 : 2)}
                       </span>
                     ))}
                   </div>
@@ -679,13 +682,13 @@ export function FullscreenChart({ symbol, onClose }: FullscreenChartProps) {
                         </div>
                         <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 tabular-nums">
                           <span className="text-muted-foreground">O</span>
-                          <span>${hoveredPoint.open?.toFixed(2)}</span>
+                          <span>{sym}{hoveredPoint.open?.toFixed(2)}</span>
                           <span className="text-primary">H</span>
-                          <span className="text-primary">${hoveredPoint.high?.toFixed(2)}</span>
+                          <span className="text-primary">{sym}{hoveredPoint.high?.toFixed(2)}</span>
                           <span className="text-destructive">L</span>
-                          <span className="text-destructive">${hoveredPoint.low?.toFixed(2)}</span>
+                          <span className="text-destructive">{sym}{hoveredPoint.low?.toFixed(2)}</span>
                           <span>C</span>
-                          <span>${hoveredPoint.close?.toFixed(2)}</span>
+                          <span>{sym}{hoveredPoint.close?.toFixed(2)}</span>
                           <span className="text-muted-foreground">Vol</span>
                           <span>{formatNumber(hoveredPoint.volume)}</span>
                         </div>
