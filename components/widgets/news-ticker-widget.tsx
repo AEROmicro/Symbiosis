@@ -19,7 +19,7 @@ export function NewsTickerWidget() {
       const res = await fetch('/api/news')
       if (!res.ok) return
       const data = await res.json()
-      setArticles((data.articles ?? []).slice(0, 10))
+      setArticles((data.articles ?? []).slice(0, 35))
     } catch {
       // silent
     } finally {
