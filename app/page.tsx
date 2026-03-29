@@ -128,7 +128,7 @@ export default function SymbiosisApp() {
         <div className="scanline" />
         <div className="flex items-center gap-3 font-mono text-primary animate-pulse">
           <Terminal className="w-5 h-5" />
-          <span className="tracking-widest text-sm">INITIALIZING_SYSTEM_CORE...</span>
+          <span className="tracking-widest text-sm">REDEFINE THE LIMITS</span>
         </div>
       </div>
     )
