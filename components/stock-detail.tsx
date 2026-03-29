@@ -134,22 +134,21 @@ export function StockDetail({ symbol, refreshInterval = 15000 }: StockDetailProp
         </div>
       </div>
 
-      {/* Chart area */}
+      {/* Chart area — swaps between basic and advanced chart */}
       <div className="flex-1 min-h-0 w-full relative bg-card border border-border rounded-md overflow-hidden">
-        <PriceChart
-          symbol={symbol}
-          currency={stock.currency}
-          onExpand={() => setFullscreenOpen(true)}
-        />
+        {fullscreenOpen ? (
+          <FullscreenChart
+            symbol={symbol}
+            onClose={() => setFullscreenOpen(false)}
+          />
+        ) : (
+          <PriceChart
+            symbol={symbol}
+            currency={stock.currency}
+            onExpand={() => setFullscreenOpen(true)}
+          />
+        )}
       </div>
-
-      {/* Fullscreen chart overlay */}
-      {fullscreenOpen && (
-        <FullscreenChart
-          symbol={symbol}
-          onClose={() => setFullscreenOpen(false)}
-        />
-      )}
     </div>
   )
 }
