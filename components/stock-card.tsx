@@ -2,7 +2,7 @@
 
 import { useStockData } from '@/hooks/use-stock-data'
 import { TrendingUp, TrendingDown, X, RefreshCw } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, getCurrencySymbol } from '@/lib/utils'
 
 interface StockCardProps {
   symbol: string
@@ -49,6 +49,7 @@ export function StockCard({ symbol, onRemove, onClick, isSelected, refreshInterv
   }
 
   const isPositive = stock.change >= 0
+  const sym = getCurrencySymbol(stock.currency)
 
   return (
     <div
@@ -86,7 +87,7 @@ export function StockCard({ symbol, onRemove, onClick, isSelected, refreshInterv
 
       {/* Big Price */}
       <div className="text-2xl font-bold text-foreground tracking-tighter font-mono tabular-nums mb-1">
-        ${stock.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        {sym}{stock.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
       </div>
 
       {/* Fixed Daily Change (Calculated by our API) */}

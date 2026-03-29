@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { cn } from '@/lib/utils'
 
 type CalcOp = '+' | '-' | '×' | '÷' | null
@@ -42,8 +42,9 @@ function formatDisplay(value: string): string {
 
 export function CalculatorWidget() {
   const [state, setState] = useState<CalcState>(initialState)
+  const [displayFocused, setDisplayFocused] = useState(false)
 
-  const handleDigit = (digit: string) => {
+  const handleDigit = useCallback((digit: string) => {
     setState(prev => {
       if (prev.waitingForOperand) {
         return { ...prev, display: digit, waitingForOperand: false }
@@ -56,9 +57,9 @@ export function CalculatorWidget() {
       }
       return { ...prev, display: prev.display + digit }
     })
-  }
+  }, [])
 
-  const handleOperator = (op: CalcOp) => {
+  const handleOperator = useCallback((op: CalcOp) => {
     setState(prev => {
       const current = parseFloat(prev.display)
       if (prev.operator && !prev.waitingForOperand) {
@@ -77,9 +78,9 @@ export function CalculatorWidget() {
         waitingForOperand: true,
       }
     })
-  }
+  }, [])
 
-  const handleEquals = () => {
+  const handleEquals = useCallback(() => {
     setState(prev => {
       if (!prev.operator || prev.waitingForOperand) return prev
       const current = parseFloat(prev.display)
@@ -91,44 +92,87 @@ export function CalculatorWidget() {
         waitingForOperand: true,
       }
     })
-  }
+  }, [])
 
-  const handleClear = () => setState(initialState)
+  const handleClear = useCallback(() => setState(initialState), [])
 
-  const handleToggleSign = () => {
+  const handleToggleSign = useCallback(() => {
     setState(prev => ({
       ...prev,
       display: formatDisplay((parseFloat(prev.display) * -1).toString()),
     }))
-  }
+  }, [])
 
-  const handlePercent = () => {
+  const handlePercent = useCallback(() => {
     setState(prev => ({
       ...prev,
       display: formatDisplay((parseFloat(prev.display) / 100).toString()),
     }))
-  }
+  }, [])
+
+  const handleBackspace = useCallback(() => {
+    setState(prev => {
+      if (prev.waitingForOperand) return prev
+      if (prev.display.length <= 1 || prev.display === '-0') {
+        return { ...prev, display: '0' }
+      }
+      return { ...prev, display: prev.display.slice(0, -1) }
+    })
+  }, [])
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    const key = e.key
+    if (key >= '0' && key <= '9') { e.preventDefault(); handleDigit(key); return }
+    if (key === '.') { e.preventDefault(); handleDigit('.'); return }
+    if (key === '+') { e.preventDefault(); handleOperator('+'); return }
+    if (key === '-') { e.preventDefault(); handleOperator('-'); return }
+    if (key === '*' || key === 'x' || key === 'X') { e.preventDefault(); handleOperator('×'); return }
+    if (key === '/') { e.preventDefault(); handleOperator('÷'); return }
+    if (key === 'Enter' || key === '=') { e.preventDefault(); handleEquals(); return }
+    if (key === 'Backspace') { e.preventDefault(); handleBackspace(); return }
+    if (key === 'Escape' || key === 'c' || key === 'C') { e.preventDefault(); handleClear(); return }
+    if (key === '%') { e.preventDefault(); handlePercent(); return }
+  }, [handleDigit, handleOperator, handleEquals, handleBackspace, handleClear, handlePercent])
 
   const isOp = (op: CalcOp) => state.operator === op && state.waitingForOperand
 
   const btnBase = 'flex items-center justify-center rounded font-mono text-sm font-medium transition-colors select-none cursor-pointer active:scale-95'
-  const numBtn = cn(btnBase, 'bg-muted/60 hover:bg-muted text-foreground')
-  const opBtn  = cn(btnBase, 'bg-primary/15 hover:bg-primary/25 text-primary')
+  const numBtn  = cn(btnBase, 'bg-muted/60 hover:bg-muted text-foreground')
+  const opBtn   = cn(btnBase, 'bg-primary/15 hover:bg-primary/25 text-primary')
   const opActive = cn(btnBase, 'bg-primary text-primary-foreground')
-  const fnBtn  = cn(btnBase, 'bg-muted/40 hover:bg-muted/70 text-muted-foreground')
-  const eqBtn  = cn(btnBase, 'bg-primary hover:bg-primary/90 text-primary-foreground')
+  const fnBtn   = cn(btnBase, 'bg-muted/40 hover:bg-muted/70 text-muted-foreground')
+  const eqBtn   = cn(btnBase, 'bg-primary hover:bg-primary/90 text-primary-foreground')
 
   return (
     <div className="flex flex-col h-full p-3 gap-2">
-      {/* Display */}
-      <div className="bg-muted/30 border border-border rounded-md px-3 py-2 text-right shrink-0">
-        <div className="text-[10px] text-muted-foreground font-mono h-3 mb-0.5">
+      {/* Display — click to focus, then type directly */}
+      <div
+        role="textbox"
+        aria-label="Calculator display"
+        tabIndex={0}
+        className={cn(
+          'bg-muted/30 border rounded-md px-3 py-2 text-right shrink-0 outline-none cursor-text transition-colors',
+          displayFocused
+            ? 'border-primary ring-1 ring-primary/30'
+            : 'border-border hover:border-primary/40',
+        )}
+        onFocus={() => setDisplayFocused(true)}
+        onBlur={() => setDisplayFocused(false)}
+        onKeyDown={handleKeyDown}
+      >
+        <div className="text-[10px] text-muted-foreground font-mono h-3 mb-0.5 flex items-center justify-end gap-1">
           {state.previous !== null && state.operator
             ? `${state.previous} ${state.operator}`
             : ''}
+          {displayFocused && (
+            <span className="text-primary/50 text-[8px] tracking-widest">TYPE</span>
+          )}
         </div>
-        <div className="text-xl font-bold font-mono text-foreground truncate">
+        <div className="text-xl font-bold font-mono text-foreground truncate flex items-center justify-end gap-1">
           {state.display}
+          {displayFocused && (
+            <span className="w-0.5 h-5 bg-primary animate-pulse rounded-full inline-block" />
+          )}
         </div>
       </div>
 

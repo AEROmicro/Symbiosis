@@ -1,9 +1,11 @@
 'use client'
 
+import { useState } from 'react'
 import { useStockData } from '@/hooks/use-stock-data'
 import { PriceChart } from '@/components/price-chart'
+import { FullscreenChart } from '@/components/fullscreen-chart'
 import { TrendingUp, TrendingDown, Activity, BarChart3, DollarSign, Clock } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, getCurrencySymbol } from '@/lib/utils'
 
 interface StockDetailProps {
   symbol: string
@@ -12,6 +14,7 @@ interface StockDetailProps {
 
 export function StockDetail({ symbol, refreshInterval = 15000 }: StockDetailProps) {
   const { stock, isLoading } = useStockData(symbol, refreshInterval)
+  const [fullscreenOpen, setFullscreenOpen] = useState(false)
 
   if (isLoading) {
     return (
@@ -34,24 +37,23 @@ export function StockDetail({ symbol, refreshInterval = 15000 }: StockDetailProp
   }
 
   const isPositive = stock.change >= 0
+  const sym = getCurrencySymbol(stock.currency)
 
   const coreStats = [
-    { label: 'Open', value: `$${stock.open.toFixed(2)}`, icon: Clock },
-    { label: 'Prev Close', value: `$${stock.previousClose.toFixed(2)}`, icon: DollarSign },
-    { label: 'Day High', value: `$${stock.high.toFixed(2)}`, icon: TrendingUp },
-    { label: 'Day Low', value: `$${stock.low.toFixed(2)}`, icon: TrendingDown },
-    { label: 'Volume', value: formatNumber(stock.volume), icon: BarChart3 },
-    { label: 'Avg Volume', value: formatNumber(stock.avgVolume), icon: Activity },
+    { label: 'Open',      value: `${sym}${stock.open.toFixed(2)}`,         icon: Clock },
+    { label: 'Prev Close',value: `${sym}${stock.previousClose.toFixed(2)}`,icon: DollarSign },
+    { label: 'Day High',  value: `${sym}${stock.high.toFixed(2)}`,         icon: TrendingUp },
+    { label: 'Day Low',   value: `${sym}${stock.low.toFixed(2)}`,          icon: TrendingDown },
+    { label: 'Volume',    value: formatNumber(stock.volume),                icon: BarChart3 },
+    { label: 'Avg Volume',value: formatNumber(stock.avgVolume),             icon: Activity },
   ]
 
   return (
-    // 1. ADDED: flex, flex-col, and h-full to the outer wrapper so it matches the grid height
     <div className="flex flex-col h-full w-full overflow-hidden space-y-2">
       
-      {/* 2. ADDED: flex-none so the header card never gets squished */}
       <div className="flex-none border border-border bg-card rounded-md overflow-hidden">
         
-        {/* Header Card (Slightly tightened padding for grid layouts) */}
+        {/* Header Card */}
         <div className="p-3 border-b border-border">
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-3">
@@ -77,7 +79,7 @@ export function StockDetail({ symbol, refreshInterval = 15000 }: StockDetailProp
 
           <div className="flex items-end gap-3">
             <span className="text-3xl font-bold text-foreground tabular-nums leading-none">
-              ${stock.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {sym}{stock.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </span>
             <div className={cn(
               "flex items-center gap-1 text-sm font-medium",
@@ -97,7 +99,7 @@ export function StockDetail({ symbol, refreshInterval = 15000 }: StockDetailProp
             <div className="flex items-center justify-between text-[10px] uppercase text-muted-foreground mb-1.5">
               <span>Day Range</span>
               <span className="tabular-nums">
-                ${stock.low.toFixed(2)} – ${stock.high.toFixed(2)}
+                {sym}{stock.low.toFixed(2)} – {sym}{stock.high.toFixed(2)}
               </span>
             </div>
             <div className="relative h-1.5 bg-muted rounded-full overflow-hidden">
@@ -113,7 +115,7 @@ export function StockDetail({ symbol, refreshInterval = 15000 }: StockDetailProp
           </div>
         )}
 
-        {/* Quick Stats Row (Hides on very small screens to save space) */}
+        {/* Quick Stats Row */}
         <div className="hidden sm:grid grid-cols-3 lg:grid-cols-6 border-b border-border">
           {coreStats.map((stat) => (
             <div 
@@ -132,11 +134,22 @@ export function StockDetail({ symbol, refreshInterval = 15000 }: StockDetailProp
         </div>
       </div>
 
-      {/* 3. ADDED: flex-1 and min-h-0. This forces the chart to perfectly fill whatever vertical space is left! */}
+      {/* Chart area */}
       <div className="flex-1 min-h-0 w-full relative bg-card border border-border rounded-md overflow-hidden">
-        <PriceChart symbol={symbol} />
+        <PriceChart
+          symbol={symbol}
+          currency={stock.currency}
+          onExpand={() => setFullscreenOpen(true)}
+        />
       </div>
-      
+
+      {/* Fullscreen chart overlay */}
+      {fullscreenOpen && (
+        <FullscreenChart
+          symbol={symbol}
+          onClose={() => setFullscreenOpen(false)}
+        />
+      )}
     </div>
   )
 }
