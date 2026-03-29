@@ -29,6 +29,10 @@ export type WidgetType =
   | 'spacer-sm'
   | 'spacer-md'
   | 'spacer-lg'
+  | 'bonds'
+  | 'commodities'
+  | 'position-sizer'
+  | 'dividends'
 
 export interface WidgetConfig {
   id: string
@@ -434,6 +438,54 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     maxH: 1,
     category: 'layout',
     color: 'bg-muted/40',
+  },
+  {
+    type: 'bonds',
+    name: 'Treasury Yields',
+    description: 'Live US Treasury yield rates for 3M, 5Y, 10Y and 30Y maturities',
+    iconName: 'Landmark',
+    defaultW: 4,
+    defaultH: 9,
+    minW: 4,
+    minH: 9,
+    category: 'market',
+    color: 'bg-blue-500/20',
+  },
+  {
+    type: 'commodities',
+    name: 'Commodities',
+    description: 'Real-time prices for Gold, Silver, Crude Oil, Natural Gas, Copper and Wheat',
+    iconName: 'Gem',
+    defaultW: 4,
+    defaultH: 11,
+    minW: 4,
+    minH: 11,
+    category: 'market',
+    color: 'bg-yellow-500/20',
+  },
+  {
+    type: 'position-sizer',
+    name: 'Position Sizer',
+    description: 'Calculate shares and position size based on account risk, entry and stop-loss',
+    iconName: 'Target',
+    defaultW: 4,
+    defaultH: 14,
+    minW: 4,
+    minH: 14,
+    category: 'tools',
+    color: 'bg-indigo-500/20',
+  },
+  {
+    type: 'dividends',
+    name: 'Dividends',
+    description: 'Dividend yield, annual rate and ex-dividend dates for popular dividend stocks',
+    iconName: 'Coins',
+    defaultW: 4,
+    defaultH: 13,
+    minW: 4,
+    minH: 13,
+    category: 'market',
+    color: 'bg-emerald-500/20',
   },
 ]
 export const DEFAULT_WIDGET_LAYOUT: WidgetConfig[] = [
