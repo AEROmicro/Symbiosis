@@ -5,7 +5,7 @@ import useSWR from 'swr'
 import { useStockData } from '@/hooks/use-stock-data'
 import {
   X, TrendingUp, TrendingDown, Activity, BarChart3, DollarSign,
-  Clock, Target, Calendar, Zap, Percent,
+  Clock, Target, Calendar, Zap, Percent, Search, ZoomIn,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { getCurrencySymbol } from '@/lib/utils'
@@ -35,6 +35,7 @@ export interface FullscreenChartProps {
   symbol: string
   open: boolean
   onClose: () => void
+  onSymbolChange?: (symbol: string) => void
 }
 
 type ChartType = 'area' | 'candlestick' | 'line'
@@ -121,7 +122,7 @@ const fetcher = (url: string) => fetch(url).then(r => r.json())
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export function FullscreenChart({ symbol, open, onClose }: FullscreenChartProps) {
+export function FullscreenChart({ symbol, open, onClose, onSymbolChange }: FullscreenChartProps) {
   const [range, setRange] = useState('1d')
   const [chartType, setChartType] = useState<ChartType>('area')
   const [showMA50, setShowMA50] = useState(true)
@@ -131,7 +132,29 @@ export function FullscreenChart({ symbol, open, onClose }: FullscreenChartProps)
   const [hoveredX, setHoveredX] = useState<number | null>(null)
   const chartRef = useRef<HTMLDivElement>(null)
 
-  const { stock } = useStockData(symbol, 30000)
+  // Active symbol for in-chart search
+  const [activeSymbol, setActiveSymbol] = useState(symbol)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<Array<{ symbol: string; name: string; exchange: string }>>([])
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchLoading, setSearchLoading] = useState(false)
+  const searchRef = useRef<HTMLDivElement>(null)
+  const searchInputRef = useRef<HTMLInputElement>(null)
+
+  // Zoom state: [startIndex, endIndex] into chartData, null = show all
+  const [zoomRange, setZoomRange] = useState<[number, number] | null>(null)
+
+  // Sync activeSymbol when the parent symbol prop changes
+  useEffect(() => {
+    setActiveSymbol(symbol)
+  }, [symbol])
+
+  // Reset zoom when range or activeSymbol changes
+  useEffect(() => {
+    setZoomRange(null)
+  }, [range, activeSymbol])
+
+  const { stock } = useStockData(activeSymbol, 30000)
 
   const isMarketOpen =
     stock?.marketState === 'REGULAR' ||
@@ -139,7 +162,7 @@ export function FullscreenChart({ symbol, open, onClose }: FullscreenChartProps)
     stock?.marketState === 'POST'
 
   const { data, isLoading: chartLoading } = useSWR<ChartResponse>(
-    `/api/stock/${symbol}/chart?range=${range}`,
+    `/api/stock/${activeSymbol}/chart?range=${range}`,
     fetcher,
     {
       refreshInterval: range === '1d' && isMarketOpen ? 30000 : 0,
