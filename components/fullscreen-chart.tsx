@@ -145,15 +145,11 @@ export function FullscreenChart({ symbol, onClose }: FullscreenChartProps) {
     }
   )
 
-  // Keyboard / scroll lock
+  // Keyboard shortcut to collapse back to basic chart
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     document.addEventListener('keydown', handleKey)
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.removeEventListener('keydown', handleKey)
-      document.body.style.overflow = ''
-    }
+    return () => { document.removeEventListener('keydown', handleKey) }
   }, [onClose])
 
   // ── Data derivation ────────────────────────────────────────────────────────
@@ -293,7 +289,7 @@ export function FullscreenChart({ symbol, onClose }: FullscreenChartProps) {
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="fixed inset-0 z-[200] bg-background flex flex-col overflow-hidden">
+    <div className="h-full w-full flex flex-col overflow-hidden bg-background">
 
       {/* ── HEADER ── */}
       <div className="flex-none border-b border-border bg-card/60 backdrop-blur-sm px-4 py-2 flex items-center gap-3 flex-wrap">
@@ -335,26 +331,29 @@ export function FullscreenChart({ symbol, onClose }: FullscreenChartProps) {
         </div>
 
         {/* OHLCV + indicator values on hover */}
-        {hoveredPoint && (
-          <div className="hidden lg:flex items-center gap-2 text-[10px] font-mono text-muted-foreground border-l border-border pl-3 flex-wrap">
-            <span>O: <span className="text-foreground">{sym}{hoveredPoint.open?.toFixed(2)}</span></span>
-            <span>H: <span className="text-primary">{sym}{hoveredPoint.high?.toFixed(2)}</span></span>
-            <span>L: <span className="text-destructive">{sym}{hoveredPoint.low?.toFixed(2)}</span></span>
-            <span>C: <span className="text-foreground">{sym}{hoveredPoint.close?.toFixed(2)}</span></span>
-            <span>V: <span className="text-foreground">{formatNumber(hoveredPoint.volume)}</span></span>
-            {hoveredMA50 != null && showMA50 && (
-              <span>MA50: <span className="text-blue-400">{sym}{hoveredMA50.toFixed(2)}</span></span>
-            )}
-            {hoveredMA200 != null && showMA200 && (
-              <span>MA200: <span className="text-orange-400">{sym}{hoveredMA200.toFixed(2)}</span></span>
-            )}
-            {hoveredRSI != null && showRSI && (
-              <span>RSI: <span className={cn(
-                hoveredRSI > 70 ? 'text-destructive' : hoveredRSI < 30 ? 'text-primary' : 'text-purple-400',
-              )}>{hoveredRSI.toFixed(1)}</span></span>
-            )}
-          </div>
-        )}
+        <div className={cn(
+          'hidden lg:flex items-center gap-2 text-[10px] font-mono text-muted-foreground border-l border-border pl-3 flex-wrap',
+          !hoveredPoint && 'invisible',
+        )}>
+          <span>O: <span className="text-foreground">{sym}{hoveredPoint?.open?.toFixed(2) ?? '—'}</span></span>
+          <span>H: <span className="text-primary">{sym}{hoveredPoint?.high?.toFixed(2) ?? '—'}</span></span>
+          <span>L: <span className="text-destructive">{sym}{hoveredPoint?.low?.toFixed(2) ?? '—'}</span></span>
+          <span>C: <span className="text-foreground">{sym}{hoveredPoint?.close?.toFixed(2) ?? '—'}</span></span>
+          <span>V: <span className="text-foreground">{hoveredPoint ? formatNumber(hoveredPoint.volume) : '—'}</span></span>
+          {showMA50 && (
+            <span>MA50: <span className="text-blue-400">{hoveredMA50 != null ? `${sym}${hoveredMA50.toFixed(2)}` : '—'}</span></span>
+          )}
+          {showMA200 && (
+            <span>MA200: <span className="text-orange-400">{hoveredMA200 != null ? `${sym}${hoveredMA200.toFixed(2)}` : '—'}</span></span>
+          )}
+          {showRSI && (
+            <span>RSI: <span className={cn(
+              hoveredRSI != null && hoveredRSI > 70 ? 'text-destructive'
+                : hoveredRSI != null && hoveredRSI < 30 ? 'text-primary'
+                : 'text-purple-400',
+            )}>{hoveredRSI != null ? hoveredRSI.toFixed(1) : '—'}</span></span>
+          )}
+        </div>
 
         {/* Right-side controls */}
         <div className="ml-auto flex items-center gap-2 flex-none">
@@ -365,7 +364,7 @@ export function FullscreenChart({ symbol, onClose }: FullscreenChartProps) {
             </div>
           )}
           <span className="hidden sm:inline text-[10px] font-mono text-muted-foreground">
-            Press <kbd className="px-1 border border-border rounded text-[9px]">Esc</kbd> to close
+            Press <kbd className="px-1 border border-border rounded text-[9px]">Esc</kbd> to collapse
           </span>
           <button
             onClick={onClose}
