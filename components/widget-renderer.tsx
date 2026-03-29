@@ -173,7 +173,7 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
         <WidgetFrame title={selectedStock ? `${title} — ${selectedStock}` : title} iconName={iconName}>
           <div className="h-full overflow-hidden p-3">
             {selectedStock ? (
-              <StockDetail symbol={selectedStock} refreshInterval={refreshInterval} />
+              <StockDetail symbol={selectedStock} refreshInterval={refreshInterval} onSymbolChange={onSelectStock} />
             ) : (
               <div className="flex items-center justify-center h-full text-xs text-muted-foreground font-mono">
                 Select a stock from the watchlist
