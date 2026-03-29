@@ -62,6 +62,20 @@ const CATEGORIES = {
 
     ],
   },
+  currency: {
+    label: 'Currency',
+    items: [
+      { symbol: 'EUR=X',  name: 'USD/EUR'    },
+      { symbol: 'GBP=X',  name: 'USD/GBP'    },
+      { symbol: 'JPY=X',  name: 'USD/JPY'    },
+      { symbol: 'CHF=X',  name: 'USD/CHF'    },
+      { symbol: 'CAD=X',  name: 'USD/CAD'    },
+      { symbol: 'AUD=X',  name: 'USD/AUD'    },
+      { symbol: 'NZD=X',  name: 'USD/NZD'    },
+      { symbol: 'CNY=X',  name: 'USD/CNY'    },
+
+    ],
+  },
   sectors: {
     label: 'Sectors',
     items: [
