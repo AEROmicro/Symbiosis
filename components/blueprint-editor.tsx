@@ -194,10 +194,10 @@ export function BlueprintEditor({ open, onClose, layout, onLayoutChange }: Bluep
         {/* Body */}
         <div className="flex flex-1 min-h-0">
           {/* ── Grid area ────────────────────────────────────────────────── */}
-          <div className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden bg-background/50 p-3">
+          <div className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden bg-background/50">
             <div
               ref={containerRef}
-              className="min-h-full relative"
+              className="relative w-full p-3"             
               style={{
                 backgroundImage: `
                   linear-gradient(var(--border) 1px, transparent 1px),
@@ -212,14 +212,14 @@ export function BlueprintEditor({ open, onClose, layout, onLayoutChange }: Bluep
                 gridConfig={{
                   cols: 12,
                   rowHeight: 40,
-                  margin: [8, 8],
-                  containerPadding: [4, 4],
+                  margin: [4, 4],
+                  containerPadding: [0, 0],
                 }}
                 dragConfig={{ enabled: true }}
                 // Resizing disabled — widgets use exact fixed heights to eliminate internal scrolling
                 resizeConfig={{ enabled: false }}
                 onLayoutChange={handleLayoutChange}
-                className="min-h-[600px]"
+                className="min-h-0"
               >
                 {draft.map(config => {
                   const meta  = WIDGET_CATALOG.find(m => m.type === config.type)
