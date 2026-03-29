@@ -3,7 +3,6 @@ export type WidgetType =
   | 'terminal-sm'
   | 'terminal-lg'
   | 'watchlist'
-  | 'watchlist-sm'
   | 'stock-detail'
   | 'quick-actions'
   | 'system-status'
@@ -111,18 +110,6 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     defaultH: 8,
     minW: 4,
     minH: 8,
-    category: 'recommended',
-    color: 'bg-blue-500/20',
-  },
-  {
-    type: 'watchlist-sm',
-    name: 'Watchlist (S)',
-    description: 'Live stock cards for all symbols in your watchlist in a smaller form factor',
-    iconName: 'LayoutGrid',
-    defaultW: 4,
-    defaultH: 6,
-    minW: 4,
-    minH: 6,
     category: 'recommended',
     color: 'bg-blue-500/20',
   },
