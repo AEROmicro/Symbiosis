@@ -115,11 +115,6 @@ export default function SymbiosisApp() {
     onSelectStock: handleSelectStock,
     marketState,
     refreshInterval,
-    widgetLayout,
-    onLoadProfile: (layout) => {
-      setWidgetLayout(layout)
-      try { localStorage.setItem(WIDGET_LAYOUT_KEY, JSON.stringify(layout)) } catch { /* ignore */ }
-    },
   }
 
   // RGL layout (static — not draggable by user on main screen)
@@ -179,29 +174,27 @@ export default function SymbiosisApp() {
       ) : (
         <>
           {/* ── Desktop widget grid ──────────────────────────── */}
-          <main className="py-6 overflow-x-auto">
-            <div className="px-4">
-              <div ref={containerRef} className="min-w-[900px]">
-                <GridLayout
-                  width={gridWidth}
-                  layout={rglLayout}
-                  gridConfig={{ cols: 12, rowHeight: 40, margin: [16, 16], containerPadding: [0, 0] }}
-                  dragConfig={{ enabled: false }}
-                  resizeConfig={{ enabled: false }}
-                >
-                  {widgetLayout.map(config => (
-                    <div key={config.id}>
-                      <WidgetRenderer config={config} appProps={appProps} />
-                    </div>
-                  ))}
-                </GridLayout>
-              </div>
+          <main className="container mx-auto px-4 py-6 max-w-7xl">
+            <div ref={containerRef}>
+              <GridLayout
+                width={gridWidth}
+                layout={rglLayout}
+                gridConfig={{ cols: 12, rowHeight: 40, margin: [16, 16], containerPadding: [0, 0] }}
+                dragConfig={{ enabled: false }}
+                resizeConfig={{ enabled: false }}
+              >
+                {widgetLayout.map(config => (
+                  <div key={config.id}>
+                    <WidgetRenderer config={config} appProps={appProps} />
+                  </div>
+                ))}
+              </GridLayout>
             </div>
           </main>
 
           {/* Footer */}
-          <footer className="border-t border-border py-4 mt-8 relative z-10 overflow-x-auto">
-            <div className="px-4 min-w-[900px]">
+          <footer className="border-t border-border py-4 mt-8 relative z-10">
+            <div className="container mx-auto px-4 max-w-7xl">
               <div className="flex items-center justify-between text-xs text-muted-foreground font-mono">
                 <div className="flex items-center gap-2">
                   <span className="text-primary">{'>'}_</span>
