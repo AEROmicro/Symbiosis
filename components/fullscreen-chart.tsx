@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { getCurrencySymbol } from '@/lib/utils'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -32,6 +33,7 @@ interface ChartResponse {
 
 export interface FullscreenChartProps {
   symbol: string
+  open: boolean
   onClose: () => void
 }
 
@@ -119,7 +121,7 @@ const fetcher = (url: string) => fetch(url).then(r => r.json())
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export function FullscreenChart({ symbol, onClose }: FullscreenChartProps) {
+export function FullscreenChart({ symbol, open, onClose }: FullscreenChartProps) {
   const [range, setRange] = useState('1d')
   const [chartType, setChartType] = useState<ChartType>('area')
   const [showMA50, setShowMA50] = useState(true)
@@ -144,13 +146,6 @@ export function FullscreenChart({ symbol, onClose }: FullscreenChartProps) {
       revalidateOnFocus: false,
     }
   )
-
-  // Keyboard shortcut to collapse back to basic chart
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
-    document.addEventListener('keydown', handleKey)
-    return () => { document.removeEventListener('keydown', handleKey) }
-  }, [onClose])
 
   // ── Data derivation ────────────────────────────────────────────────────────
 
@@ -289,7 +284,8 @@ export function FullscreenChart({ symbol, onClose }: FullscreenChartProps) {
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="h-full w-full flex flex-col overflow-hidden bg-background">
+    <Dialog open={open} onOpenChange={v => !v && onClose()}>
+      <DialogContent className="!top-0 !left-0 !translate-x-0 !translate-y-0 !max-w-none !rounded-none w-screen h-screen flex flex-col font-mono p-0 gap-0 overflow-hidden" showCloseButton={false}>
 
       {/* ── HEADER ── */}
       <div className="flex-none border-b border-border bg-card/60 backdrop-blur-sm px-4 py-2 flex items-center gap-3 flex-wrap">
@@ -797,6 +793,7 @@ export function FullscreenChart({ symbol, onClose }: FullscreenChartProps) {
           </div>
         </div>
       </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }
