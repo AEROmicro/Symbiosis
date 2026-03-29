@@ -6,7 +6,7 @@ import {
   Terminal, LayoutGrid, TrendingUp, Zap, Server, Newspaper,
   Briefcase, Clock, Globe, Activity, Map, Bitcoin, DollarSign,
   CalendarDays, HelpCircle, X, Plus, Search, RotateCcw, Save,
-  LayoutDashboard,
+  LayoutDashboard, Landmark, Gem, Target, Coins,
 } from 'lucide-react'
 import {
   Dialog,
@@ -28,7 +28,7 @@ import {
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Terminal, LayoutGrid, TrendingUp, Zap, Server, Newspaper,
   Briefcase, Clock, Globe, Activity, Map, Bitcoin, DollarSign,
-  CalendarDays, HelpCircle,
+  CalendarDays, HelpCircle, Landmark, Gem, Target, Coins,
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -282,7 +282,7 @@ export function BlueprintEditor({ open, onClose, layout, onLayoutChange }: Bluep
           </div>
 
           {/* ── Right sidebar ─────────────────────────────────────────────── */}
-          <div className="w-64 shrink-0 border-l border-border flex flex-col overflow-hidden">
+          <div className="w-96 shrink-0 border-l border-border flex flex-col overflow-hidden">
             <div className="px-3 py-2 border-b border-border shrink-0">
               <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Add Widgets</div>
               <div className="relative">

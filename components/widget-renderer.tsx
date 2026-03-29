@@ -5,6 +5,7 @@ import {
   Terminal, LayoutGrid, TrendingUp, Zap, Server, Newspaper,
   Briefcase, Clock, Globe, Activity, Map, Bitcoin, DollarSign,
   CalendarDays, HelpCircle, Calculator, ListTodo, Rss,
+  Landmark, Gem, Target, Coins,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { WidgetConfig } from '@/lib/widget-types'
@@ -44,6 +45,10 @@ import { HelpWidget }             from '@/components/widgets/help-widget'
 import { FearGreedWidget }        from '@/components/widgets/fear-greed-widget'
 import { NotesWidget }            from '@/components/widgets/notes-widget'
 import { SpacerWidget }           from '@/components/widgets/spacer-widget'
+import { BondsWidget }            from '@/components/widgets/bonds-widget'
+import { CommoditiesWidget }      from '@/components/widgets/commodities-widget'
+import { PositionSizerWidget }    from '@/components/widgets/position-sizer-widget'
+import { DividendsWidget }        from '@/components/widgets/dividends-widget'
 
 // ── Props passed from the main app to stateful widgets ─────────────────────
 export interface WidgetAppProps {
@@ -64,6 +69,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Terminal, LayoutGrid, TrendingUp, Zap, Server, Newspaper,
   Briefcase, Clock, Globe, Activity, Map, Bitcoin, DollarSign,
   CalendarDays, HelpCircle, Calculator, ListTodo, Rss,
+  Landmark, Gem, Target, Coins,
 }
 
 // ── WidgetFrame ─────────────────────────────────────────────────────────────
@@ -419,6 +425,38 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
     case 'spacer-md':
     case 'spacer-lg':
       return <SpacerWidget />
+
+    // ── Treasury Yields ──────────────────────────────────────────────────────
+    case 'bonds':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <BondsWidget />
+        </WidgetFrame>
+      )
+
+    // ── Commodities ──────────────────────────────────────────────────────────
+    case 'commodities':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <CommoditiesWidget />
+        </WidgetFrame>
+      )
+
+    // ── Position Sizer ────────────────────────────────────────────────────────
+    case 'position-sizer':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <PositionSizerWidget />
+        </WidgetFrame>
+      )
+
+    // ── Dividends ─────────────────────────────────────────────────────────────
+    case 'dividends':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <DividendsWidget />
+        </WidgetFrame>
+      )
 
     default:
       return (
