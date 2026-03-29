@@ -36,7 +36,7 @@ export function NewsWidget() {
       const res = await fetch(url)
       if (!res.ok) return
       const data = await res.json()
-      setArticles((data.articles ?? []).slice(0, 5))
+      setArticles((data.articles ?? []).slice(0, 10))
     } catch {
       // silent
     } finally {
