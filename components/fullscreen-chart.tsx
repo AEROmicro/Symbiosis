@@ -5,7 +5,7 @@ import useSWR from 'swr'
 import { useStockData } from '@/hooks/use-stock-data'
 import {
   X, TrendingUp, TrendingDown, Activity, BarChart3, DollarSign,
-  Clock, Target, Calendar, Zap, Percent,
+  Clock, Target, Calendar, Zap, Percent, Search, ZoomIn,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { getCurrencySymbol } from '@/lib/utils'
@@ -35,6 +35,7 @@ export interface FullscreenChartProps {
   symbol: string
   open: boolean
   onClose: () => void
+  onSymbolChange?: (symbol: string) => void
 }
 
 type ChartType = 'area' | 'candlestick' | 'line'
@@ -121,7 +122,7 @@ const fetcher = (url: string) => fetch(url).then(r => r.json())
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export function FullscreenChart({ symbol, open, onClose }: FullscreenChartProps) {
+export function FullscreenChart({ symbol, open, onClose, onSymbolChange }: FullscreenChartProps) {
   const [range, setRange] = useState('1d')
   const [chartType, setChartType] = useState<ChartType>('area')
   const [showMA50, setShowMA50] = useState(true)
@@ -131,7 +132,29 @@ export function FullscreenChart({ symbol, open, onClose }: FullscreenChartProps)
   const [hoveredX, setHoveredX] = useState<number | null>(null)
   const chartRef = useRef<HTMLDivElement>(null)
 
-  const { stock } = useStockData(symbol, 30000)
+  // Active symbol for in-chart search
+  const [activeSymbol, setActiveSymbol] = useState(symbol)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<Array<{ symbol: string; name: string; exchange: string }>>([])
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchLoading, setSearchLoading] = useState(false)
+  const searchRef = useRef<HTMLDivElement>(null)
+  const searchInputRef = useRef<HTMLInputElement>(null)
+
+  // Zoom state: [startIndex, endIndex] into chartData, null = show all
+  const [zoomRange, setZoomRange] = useState<[number, number] | null>(null)
+
+  // Sync activeSymbol when the parent symbol prop changes
+  useEffect(() => {
+    setActiveSymbol(symbol)
+  }, [symbol])
+
+  // Reset zoom when range or activeSymbol changes
+  useEffect(() => {
+    setZoomRange(null)
+  }, [range, activeSymbol])
+
+  const { stock } = useStockData(activeSymbol, 30000)
 
   const isMarketOpen =
     stock?.marketState === 'REGULAR' ||
@@ -139,7 +162,7 @@ export function FullscreenChart({ symbol, open, onClose }: FullscreenChartProps)
     stock?.marketState === 'POST'
 
   const { data, isLoading: chartLoading } = useSWR<ChartResponse>(
-    `/api/stock/${symbol}/chart?range=${range}`,
+    `/api/stock/${activeSymbol}/chart?range=${range}`,
     fetcher,
     {
       refreshInterval: range === '1d' && isMarketOpen ? 30000 : 0,
@@ -158,25 +181,35 @@ export function FullscreenChart({ symbol, open, onClose }: FullscreenChartProps)
   const ma200 = calculateMA(closes, 200)
   const rsiValues = calculateRSI(closes, 14)
 
-  const allPrices = chartData.flatMap(d => [d.high ?? d.close, d.low ?? d.close])
-  if (previousClose > 0) allPrices.push(previousClose)
+  // ── Zoom / visible slice ───────────────────────────────────────────────────
+  // Clamp zoomRange to valid chartData bounds to handle dataset size changes
+  const safeZoom: [number, number] | null = zoomRange && chartData.length > 0
+    ? [Math.min(zoomRange[0], chartData.length - 1), Math.min(zoomRange[1], chartData.length - 1)]
+    : null
 
-  const minPrice = allPrices.length ? Math.min(...allPrices) : 0
-  const maxPrice = allPrices.length ? Math.max(...allPrices) : 100
-  const priceRange = maxPrice - minPrice || 1
-  const pad = priceRange * 0.08
-  const adjMin = minPrice - pad
-  const adjMax = maxPrice + pad
-  const adjRange = adjMax - adjMin || 1
+  const visibleData = safeZoom
+    ? chartData.slice(safeZoom[0], Math.min(safeZoom[1] + 1, chartData.length))
+    : chartData
 
-  const toY = (price: number) => 100 - ((price - adjMin) / adjRange) * 100
-  const toX = (i: number) => chartData.length <= 1 ? 50 : (i / (chartData.length - 1)) * 100
+  const toY = (price: number) => {
+    const visiblePrices = visibleData.flatMap(d => [d.high ?? d.close, d.low ?? d.close])
+    if (previousClose > 0) visiblePrices.push(previousClose)
+    const vMin = visiblePrices.length ? Math.min(...visiblePrices) : 0
+    const vMax = visiblePrices.length ? Math.max(...visiblePrices) : 100
+    const vRange = vMax - vMin || 1
+    const vPad = vRange * 0.08
+    const adjMin = vMin - vPad
+    const adjMax = vMax + vPad
+    const adjRange = adjMax - adjMin || 1
+    return 100 - ((price - adjMin) / adjRange) * 100
+  }
+  const toX = (i: number) => visibleData.length <= 1 ? 50 : (i / (visibleData.length - 1)) * 100
 
-  const lastPrice = chartData.length > 0 ? chartData[chartData.length - 1].close : previousClose
-  const refPrice = chartData.length > 0 ? (chartData[0].open || chartData[0].close) : previousClose
+  const lastPrice = visibleData.length > 0 ? visibleData[visibleData.length - 1].close : previousClose
+  const refPrice = visibleData.length > 0 ? (visibleData[0].open || visibleData[0].close) : previousClose
   const isPositive = lastPrice >= refPrice
 
-  const hoveredPoint = hoveredIndex !== null ? chartData[hoveredIndex] : null
+  const hoveredPoint = hoveredIndex !== null ? visibleData[hoveredIndex] : null
   const displayPrice = hoveredPoint?.close ?? lastPrice
   const displayChange = refPrice > 0 ? displayPrice - refPrice : 0
   const displayChangePct = refPrice > 0 ? (displayChange / refPrice) * 100 : 0
@@ -189,28 +222,90 @@ export function FullscreenChart({ symbol, open, onClose }: FullscreenChartProps)
   // ── Mouse interaction ──────────────────────────────────────────────────────
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!chartRef.current || chartData.length === 0) return
+    if (!chartRef.current || visibleData.length === 0) return
     const rect = chartRef.current.getBoundingClientRect()
     const pct = (e.clientX - rect.left) / rect.width
-    const idx = Math.min(Math.max(0, Math.round(pct * (chartData.length - 1))), chartData.length - 1)
+    const idx = Math.min(Math.max(0, Math.round(pct * (visibleData.length - 1))), visibleData.length - 1)
     setHoveredIndex(idx)
     setHoveredX(pct * 100)
-  }, [chartData.length])
+  }, [visibleData.length])
 
   const handleMouseLeave = useCallback(() => {
     setHoveredIndex(null)
     setHoveredX(null)
   }, [])
 
+  // ── Mouse-wheel zoom ───────────────────────────────────────────────────────
+  useEffect(() => {
+    const el = chartRef.current
+    if (!el) return
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault()
+      if (chartData.length < 2) return
+      const rect = el.getBoundingClientRect()
+      const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width))
+      const curStart = zoomRange?.[0] ?? 0
+      const curEnd   = zoomRange?.[1] ?? chartData.length - 1
+      const curLen   = curEnd - curStart + 1
+      const factor   = e.deltaY > 0 ? 1.25 : 0.8
+      const newLen   = Math.max(10, Math.min(chartData.length, Math.round(curLen * factor)))
+      const pivot    = curStart + Math.round(pct * (curLen - 1))
+      const newStart = Math.max(0, Math.min(chartData.length - newLen, Math.round(pivot - pct * (newLen - 1))))
+      const newEnd   = Math.min(chartData.length - 1, newStart + newLen - 1)
+      if (newStart === 0 && newEnd === chartData.length - 1) {
+        setZoomRange(null)
+      } else {
+        setZoomRange([newStart, newEnd])
+      }
+    }
+    el.addEventListener('wheel', handleWheel, { passive: false })
+    return () => el.removeEventListener('wheel', handleWheel)
+  }, [chartData.length, zoomRange])
+
+  // ── Symbol search ──────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!searchQuery.trim()) { setSearchResults([]); setSearchOpen(false); return }
+    const t = setTimeout(async () => {
+      setSearchLoading(true)
+      try {
+        const res = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}`)
+        const json = await res.json()
+        setSearchResults((json.results ?? []).slice(0, 6))
+        setSearchOpen(true)
+      } catch { setSearchResults([]) }
+      finally { setSearchLoading(false) }
+    }, 300)
+    return () => clearTimeout(t)
+  }, [searchQuery])
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setSearchOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  const handleClose = useCallback(() => {
+    if (activeSymbol !== symbol) onSymbolChange?.(activeSymbol)
+    onClose()
+  }, [activeSymbol, symbol, onSymbolChange, onClose])
+
   // ── SVG path builders ──────────────────────────────────────────────────────
 
+  const visibleMA50  = ma50.slice(zoomRange?.[0]  ?? 0, (zoomRange?.[1]  ?? chartData.length - 1) + 1)
+  const visibleMA200 = ma200.slice(zoomRange?.[0] ?? 0, (zoomRange?.[1]  ?? chartData.length - 1) + 1)
+  const visibleRSI   = rsiValues.slice(zoomRange?.[0] ?? 0, (zoomRange?.[1] ?? chartData.length - 1) + 1)
+
   const getLinePath = () =>
-    chartData.map((d, i) => `${i === 0 ? 'M' : 'L'} ${toX(i)} ${toY(d.close)}`).join(' ')
+    visibleData.map((d, i) => `${i === 0 ? 'M' : 'L'} ${toX(i)} ${toY(d.close)}`).join(' ')
 
   const getAreaPath = () => {
     const line = getLinePath()
     return line
-      ? `${line} L ${toX(chartData.length - 1)} 100 L 0 100 Z`
+      ? `${line} L ${toX(visibleData.length - 1)} 100 L 0 100 Z`
       : ''
   }
 
@@ -227,27 +322,35 @@ export function FullscreenChart({ symbol, open, onClose }: FullscreenChartProps)
 
   // ── Axis labels ────────────────────────────────────────────────────────────
 
-  // Y-axis: 6 price labels evenly spaced across the visible range
+  // Y-axis: 6 price labels computed from visibleData
+  const visiblePricesForAxis = visibleData.flatMap(d => [d.high ?? d.close, d.low ?? d.close])
+  if (previousClose > 0) visiblePricesForAxis.push(previousClose)
+  const vMin = visiblePricesForAxis.length ? Math.min(...visiblePricesForAxis) : 0
+  const vMax = visiblePricesForAxis.length ? Math.max(...visiblePricesForAxis) : 100
+  const vRange = vMax - vMin || 1
+  const vPad = vRange * 0.08
+  const axisAdjMin = vMin - vPad
+  const axisAdjMax = vMax + vPad
+  const axisAdjRange = axisAdjMax - axisAdjMin || 1
   const priceLabels = Array.from({ length: 6 }, (_, i) => {
-    const price = adjMin + (i / 5) * adjRange
+    const price = axisAdjMin + (i / 5) * axisAdjRange
     return { y: toY(price), price }
   })
 
-  // X-axis: ~6 time labels sampled evenly
+  // X-axis: ~6 time labels sampled evenly from visibleData
   const timeLabels: { x: number; label: string }[] = []
-  if (chartData.length > 1) {
-    const step = Math.max(1, Math.floor(chartData.length / 6))
-    for (let i = 0; i < chartData.length; i += step) {
-      timeLabels.push({ x: toX(i), label: formatTime(chartData[i].time, range) })
+  if (visibleData.length > 1) {
+    const step = Math.max(1, Math.floor(visibleData.length / 6))
+    for (let i = 0; i < visibleData.length; i += step) {
+      timeLabels.push({ x: toX(i), label: formatTime(visibleData[i].time, range) })
     }
   }
 
-  const maxVol = Math.max(...chartData.map(d => d.volume || 0)) || 1
+  const maxVol = Math.max(...visibleData.map(d => d.volume || 0)) || 1
   const color = isPositive ? 'var(--primary)' : 'var(--destructive)'
 
-  // Candlestick width based on data density
   // Candlestick body width: use 90% of the per-bar slot, leaving 10% spacing between candles
-  const candleWidth = chartData.length > 0 ? Math.max(0.4, 90 / chartData.length) : 1
+  const candleWidth = visibleData.length > 0 ? Math.max(0.4, 90 / visibleData.length) : 1
 
   // RSI y-coordinate (RSI is 0–100, map to SVG 0–100 top-down)
   const rsiToY = (val: number) => 100 - val
@@ -284,15 +387,15 @@ export function FullscreenChart({ symbol, open, onClose }: FullscreenChartProps)
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="!top-0 !left-0 !translate-x-0 !translate-y-0 !max-w-none !rounded-none w-screen h-screen flex flex-col font-mono p-0 gap-0 overflow-hidden" showCloseButton={false}>
+    <Dialog open={open} onOpenChange={v => !v && handleClose()}>
+      <DialogContent className="!top-0 !left-0 !translate-x-0 !translate-y-0 !max-w-none !rounded-none w-screen h-screen flex flex-col font-mono p-0 gap-0 overflow-hidden" animationless showCloseButton={false}>
 
       {/* ── HEADER ── */}
       <div className="flex-none border-b border-border bg-card/60 backdrop-blur-sm px-4 py-2 flex items-center gap-3 flex-wrap">
 
         {/* Symbol + badge + name */}
         <div className="flex items-center gap-2 flex-none">
-          <span className="text-base font-bold font-mono text-foreground">{symbol}</span>
+          <span className="text-base font-bold font-mono text-foreground">{activeSymbol}</span>
           {stock && (
             <span className={cn(
               'px-1.5 py-0.5 text-[9px] font-bold tracking-wider border rounded font-mono',
@@ -324,6 +427,46 @@ export function FullscreenChart({ symbol, open, onClose }: FullscreenChartProps)
           <span className={cn('text-sm tabular-nums font-mono', displayIsPos ? 'text-primary' : 'text-destructive')}>
             {displayIsPos ? '+' : ''}{displayChange.toFixed(2)} ({displayIsPos ? '+' : ''}{displayChangePct.toFixed(2)}%)
           </span>
+        </div>
+
+        {/* Symbol search bar */}
+        <div ref={searchRef} className="relative flex-none">
+          <div className="flex items-center gap-1 border border-border rounded px-2 py-1 bg-muted/20 hover:border-primary/40 transition-colors focus-within:border-primary/50">
+            <Search className="w-3 h-3 text-muted-foreground flex-none" />
+            <input
+              ref={searchInputRef}
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              onFocus={() => searchResults.length > 0 && setSearchOpen(true)}
+              placeholder={activeSymbol}
+              className="w-24 bg-transparent text-xs font-mono text-foreground placeholder:text-muted-foreground focus:outline-none"
+            />
+            {searchLoading && <span className="text-[9px] text-muted-foreground animate-pulse">…</span>}
+          </div>
+          {searchOpen && searchResults.length > 0 && (
+            <div className="absolute top-full left-0 mt-1 w-64 bg-popover border border-border rounded shadow-lg z-50 overflow-hidden">
+              {searchResults.map(r => (
+                <button
+                  key={r.symbol}
+                  onClick={() => {
+                    setActiveSymbol(r.symbol)
+                    setSearchQuery('')
+                    setSearchResults([])
+                    setSearchOpen(false)
+                    setRange('1d')
+                  }}
+                  className="w-full flex items-center justify-between px-3 py-1.5 hover:bg-muted transition-colors text-left"
+                >
+                  <div className="flex flex-col">
+                    <span className="text-xs font-mono font-semibold text-foreground">{r.symbol}</span>
+                    <span className="text-[10px] text-muted-foreground truncate max-w-[160px]">{r.name}</span>
+                  </div>
+                  <span className="text-[9px] text-muted-foreground font-mono">{r.exchange}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* OHLCV + indicator values on hover */}
@@ -359,12 +502,20 @@ export function FullscreenChart({ symbol, open, onClose }: FullscreenChartProps)
               LIVE
             </div>
           )}
-          <span className="hidden sm:inline text-[10px] font-mono text-muted-foreground">
-            Press <kbd className="px-1 border border-border rounded text-[9px]">Esc</kbd> to collapse
-          </span>
+          {zoomRange && (
+            <button
+              onClick={() => setZoomRange(null)}
+              className="px-2 py-0.5 text-[10px] font-mono border border-primary/30 text-primary rounded hover:bg-primary/10 transition-colors"
+              title="Reset zoom"
+            >
+              <ZoomIn className="w-3 h-3 inline mr-1" />
+              Reset
+            </button>
+          )}
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+            title="Close (Esc)"
             aria-label="Close fullscreen chart"
           >
             <X className="w-4 h-4" />
@@ -494,6 +645,7 @@ export function FullscreenChart({ symbol, open, onClose }: FullscreenChartProps)
                 </button>
               ))}
             </div>
+            <span className="ml-auto text-[9px] font-mono text-muted-foreground/50 hidden lg:inline">scroll to zoom · dbl-click to reset</span>
           </div>
 
           {/* Chart panels */}
@@ -508,6 +660,7 @@ export function FullscreenChart({ symbol, open, onClose }: FullscreenChartProps)
               )}
               onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
+              onDoubleClick={() => setZoomRange(null)}
             >
               {chartLoading ? (
                 <div className="absolute inset-0 flex items-center justify-center">
@@ -578,7 +731,7 @@ export function FullscreenChart({ symbol, open, onClose }: FullscreenChartProps)
                       />
                     )}
 
-                    {chartType === 'candlestick' && chartData.map((d, i) => {
+                    {chartType === 'candlestick' && visibleData.map((d, i) => {
                       const x = toX(i)
                       const openY  = toY(d.open ?? d.close)
                       const closeY = toY(d.close)
@@ -607,16 +760,16 @@ export function FullscreenChart({ symbol, open, onClose }: FullscreenChartProps)
                     })}
 
                     {/* ── Moving averages ── */}
-                    {showMA50 && getMaPath(ma50) && (
+                    {showMA50 && getMaPath(visibleMA50) && (
                       <path
-                        d={getMaPath(ma50)} fill="none"
+                        d={getMaPath(visibleMA50)} fill="none"
                         stroke="#60a5fa" strokeWidth="0.8" strokeDasharray="3,2"
                         vectorEffect="non-scaling-stroke" clipPath="url(#fsc-clip)"
                       />
                     )}
-                    {showMA200 && getMaPath(ma200) && (
+                    {showMA200 && getMaPath(visibleMA200) && (
                       <path
-                        d={getMaPath(ma200)} fill="none"
+                        d={getMaPath(visibleMA200)} fill="none"
                         stroke="#fb923c" strokeWidth="0.8" strokeDasharray="3,2"
                         vectorEffect="non-scaling-stroke" clipPath="url(#fsc-clip)"
                       />
@@ -704,11 +857,11 @@ export function FullscreenChart({ symbol, open, onClose }: FullscreenChartProps)
                 VOL
               </span>
               <div className="flex items-end h-full gap-[0.5px] px-0.5 pb-0.5 pt-4">
-                {chartData.map((d, i) => {
+                {visibleData.map((d, i) => {
                   const volH = (d.volume / maxVol) * 100
                   const isPos = i === 0
                     ? d.close >= previousClose
-                    : d.close >= chartData[i - 1].close
+                    : d.close >= visibleData[i - 1].close
                   return (
                     <div
                       key={i}
@@ -755,7 +908,7 @@ export function FullscreenChart({ symbol, open, onClose }: FullscreenChartProps)
                   {(() => {
                     let path = ''
                     let first = true
-                    rsiValues.forEach((val, i) => {
+                    visibleRSI.forEach((val, i) => {
                       if (val === null) return
                       path += first
                         ? `M ${toX(i)} ${rsiToY(val)}`
