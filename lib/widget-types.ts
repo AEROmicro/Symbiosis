@@ -3,7 +3,7 @@ export type WidgetType =
   | 'terminal-sm'
   | 'terminal-lg'
   | 'watchlist'
-  | 'watchlist-sq'
+  | 'watchlist-sm'
   | 'stock-detail'
   | 'quick-actions'
   | 'system-status'
