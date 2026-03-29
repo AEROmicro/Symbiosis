@@ -134,21 +134,21 @@ export function StockDetail({ symbol, refreshInterval = 15000 }: StockDetailProp
         </div>
       </div>
 
-      {/* Chart area — swaps between basic and advanced chart */}
+      {/* Chart area */}
       <div className="flex-1 min-h-0 w-full relative bg-card border border-border rounded-md overflow-hidden">
-        {fullscreenOpen ? (
-          <FullscreenChart
-            symbol={symbol}
-            onClose={() => setFullscreenOpen(false)}
-          />
-        ) : (
-          <PriceChart
-            symbol={symbol}
-            currency={stock.currency}
-            onExpand={() => setFullscreenOpen(true)}
-          />
-        )}
+        <PriceChart
+          symbol={symbol}
+          currency={stock.currency}
+          onExpand={() => setFullscreenOpen(true)}
+        />
       </div>
+
+      {/* Advanced chart — fullscreen via Dialog portal (same as blueprint) */}
+      <FullscreenChart
+        symbol={symbol}
+        open={fullscreenOpen}
+        onClose={() => setFullscreenOpen(false)}
+      />
     </div>
   )
 }

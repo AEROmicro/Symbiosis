@@ -188,6 +188,9 @@ export function BlueprintEditor({ open, onClose, layout, onLayoutChange }: Bluep
             <span className="text-muted-foreground font-normal text-xs tracking-normal ml-1">
               — drag to reposition · X to remove
             </span>
+            <span className="ml-auto text-[10px] font-mono text-muted-foreground normal-case tracking-normal">
+              Press <kbd className="px-1 border border-border rounded text-[9px]">Esc</kbd> to close
+            </span>
           </DialogTitle>
         </DialogHeader>
 
