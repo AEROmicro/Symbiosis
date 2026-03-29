@@ -1,20 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { cn } from '@/lib/utils'
-
-interface TickerItem {
-  symbol: string
-  price: number
-  change: number
-}
-
-interface MarketData {
-  indices: TickerItem[]
-  marketState: string
-  lastUpdated: string
-}
+import { useMarketData } from '@/hooks/use-market-data'
 
 // Forex pair labels — items whose symbol contains '/' are FX pairs
 const isFXPair = (symbol: string) => symbol.includes('/')
@@ -31,38 +20,14 @@ function formatTickerPrice(symbol: string, price: number): string {
 }
 
 export function MarketTicker({ onMarketStateChange }: { onMarketStateChange?: (state: string) => void }) {
-  const [items, setItems] = useState<TickerItem[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(false)
+  const { indices, marketState, isLoading, isError, refresh } = useMarketData()
 
-  const fetchMarketData = async () => {
-    try {
-      const response = await fetch('/api/market')
-      if (!response.ok) throw new Error('Failed to fetch')
-      
-      const data: MarketData = await response.json()
-      setItems(data.indices)
-      setError(false)
-      
-      if (onMarketStateChange) {
-        onMarketStateChange(data.marketState)
-      }
-    } catch {
-      setError(true)
-    } finally {
-      setLoading(false)
-    }
-  }
-
+  // Notify parent whenever the market state changes
   useEffect(() => {
-    fetchMarketData()
+    if (onMarketStateChange) onMarketStateChange(marketState)
+  }, [marketState, onMarketStateChange])
 
-    // Refresh every 15 seconds for more frequent market state updates
-    const interval = setInterval(fetchMarketData, 15000)
-    return () => clearInterval(interval)
-  }, [])
-
-  if (loading) {
+  if (isLoading && indices.length === 0) {
     return (
       <div className="border-b border-border bg-card/30 py-2 px-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -73,13 +38,13 @@ export function MarketTicker({ onMarketStateChange }: { onMarketStateChange?: (s
     )
   }
 
-  if (error || items.length === 0) {
+  if (isError || indices.length === 0) {
     return (
       <div className="border-b border-border bg-card/30 py-2 px-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span>Market data temporarily unavailable</span>
           <button 
-            onClick={fetchMarketData}
+            onClick={() => refresh()}
             className="text-primary hover:text-primary/80 underline"
           >
             Retry
@@ -90,9 +55,9 @@ export function MarketTicker({ onMarketStateChange }: { onMarketStateChange?: (s
   }
 
   // 2 copies for a seamless -50% translateX loop
-  const tickerItems = [...items, ...items]
+  const tickerItems = [...indices, ...indices]
   // Scale duration so pixel speed stays consistent regardless of item count (~5s per item)
-  const duration = Math.max(40, items.length * 5)
+  const duration = Math.max(40, indices.length * 5)
 
   return (
     <div className="border-b border-border bg-card/50 overflow-hidden">
@@ -134,3 +99,4 @@ export function MarketTicker({ onMarketStateChange }: { onMarketStateChange?: (s
     </div>
   )
 }
+

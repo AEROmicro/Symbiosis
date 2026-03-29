@@ -73,5 +73,9 @@ export async function GET() {
     indices: marketData,
     marketState,
     lastUpdated: new Date()
+  }, {
+    headers: {
+      'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+    },
   })
 }

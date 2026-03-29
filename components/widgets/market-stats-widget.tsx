@@ -1,72 +1,41 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { TrendingUp, TrendingDown, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-
-interface MarketIndex {
-  symbol: string
-  price: number
-  change: number
-}
-
-interface MarketStats {
-  indices: MarketIndex[]
-  marketState: string
-  lastUpdated: string
-}
+import { useMarketData } from '@/hooks/use-market-data'
 
 export function MarketStatsWidget() {
-  const [stats, setStats] = useState<MarketStats | null>(null)
-  const [loading, setLoading] = useState(false)
-
-  const fetchStats = async () => {
-    setLoading(true)
-    try {
-      const res = await fetch('/api/market')
-      if (res.ok) setStats(await res.json())
-    } catch {
-      // silent
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchStats()
-    const id = setInterval(fetchStats, 30_000)
-    return () => clearInterval(id)
-  }, [])
+  const { marketData, isLoading, refresh } = useMarketData()
 
   return (
     <div className="p-4 flex flex-col gap-3 h-full">
       {/* Status bar */}
-      {stats && (
+      {marketData && (
         <div className="flex items-center justify-between text-xs shrink-0">
           <span className={cn(
             'font-semibold',
-            stats.marketState === 'REGULAR' ? 'text-primary' :
-            stats.marketState === 'PRE'     ? 'text-yellow-500' :
-            stats.marketState === 'POST'    ? 'text-orange-500' : 'text-muted-foreground',
+            marketData.marketState === 'REGULAR' ? 'text-primary' :
+            marketData.marketState === 'PRE'     ? 'text-yellow-500' :
+            marketData.marketState === 'POST'    ? 'text-orange-500' : 'text-muted-foreground',
           )}>
-            {stats.marketState === 'REGULAR' ? 'OPEN' :
-             stats.marketState === 'PRE'     ? 'PRE-MARKET' :
-             stats.marketState === 'POST'    ? 'AFTER-HOURS' : 'CLOSED'}
+            {marketData.marketState === 'REGULAR' ? 'OPEN' :
+             marketData.marketState === 'PRE'     ? 'PRE-MARKET' :
+             marketData.marketState === 'POST'    ? 'AFTER-HOURS' : 'CLOSED'}
           </span>
-          <span className="text-muted-foreground">{new Date(stats.lastUpdated).toLocaleTimeString()}</span>
+          <span className="text-muted-foreground">{new Date(marketData.lastUpdated).toLocaleTimeString()}</span>
         </div>
       )}
 
       {/* Index grid */}
       <div className="flex-1 overflow-y-auto">
-        {loading && !stats ? (
+        {isLoading && !marketData ? (
           <div className="grid grid-cols-2 gap-2">
             {[...Array(6)].map((_, i) => <div key={i} className="h-16 bg-muted rounded animate-pulse" />)}
           </div>
-        ) : stats ? (
+        ) : marketData ? (
           <div className="grid grid-cols-2 gap-2">
-            {stats.indices.map((idx) => {
+            {marketData.indices.map((idx) => {
               const pos = idx.change >= 0
               return (
                 <div
@@ -93,7 +62,7 @@ export function MarketStatsWidget() {
         )}
       </div>
 
-      <Button variant="outline" size="sm" className="w-full text-xs font-mono shrink-0" onClick={fetchStats} disabled={loading}>
+      <Button variant="outline" size="sm" className="w-full text-xs font-mono shrink-0" onClick={() => refresh()} disabled={isLoading}>
         <RefreshCw className="w-3 h-3" />
         Refresh
       </Button>
