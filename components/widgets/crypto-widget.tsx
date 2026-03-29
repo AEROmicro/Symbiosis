@@ -49,7 +49,7 @@ export function CryptoWidget() {
 
   useEffect(() => {
     fetchPrices()
-    const id = setInterval(fetchPrices, 30_000)
+    const id = setInterval(fetchPrices, 120_000)
     return () => clearInterval(id)
   }, [])
 

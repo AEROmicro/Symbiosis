@@ -24,6 +24,7 @@ export async function GET(request: Request) {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         'Accept': 'application/json',
       },
+      next: { revalidate: 300 },
     })
 
     if (!response.ok) {
@@ -53,7 +54,11 @@ export async function GET(request: Request) {
       }
     })
 
-    return NextResponse.json({ articles, symbol: symbol ?? null })
+    return NextResponse.json({ articles, symbol: symbol ?? null }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+      },
+    })
   } catch {
     return NextResponse.json({ error: 'Failed to fetch news' }, { status: 500 })
   }

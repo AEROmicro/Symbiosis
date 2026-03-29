@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { cn } from '@/lib/utils'
+import { useMultipleStocks } from '@/hooks/use-stock-data'
 
 const SECTORS = [
   { name: 'Technology',    ticker: 'XLK'  },
@@ -16,11 +17,7 @@ const SECTORS = [
   { name: 'Communication', ticker: 'XLC'  },
 ]
 
-interface SectorData {
-  name: string
-  ticker: string
-  change: number | null
-}
+const TICKERS = SECTORS.map(s => s.ticker)
 
 function changeColor(change: number | null): string {
   if (change === null) return 'bg-muted'
@@ -31,35 +28,14 @@ function changeColor(change: number | null): string {
 }
 
 export function HeatmapWidget() {
-  const [sectors, setSectors] = useState<SectorData[]>(
-    SECTORS.map(s => ({ ...s, change: null })),
-  )
-  const [loading, setLoading] = useState(false)
+  // Sector ETFs trade during regular NYSE hours — useMultipleStocks will
+  // automatically stop polling when all markets are closed.
+  const { stocks, isLoading } = useMultipleStocks(TICKERS, 120_000)
 
-  useEffect(() => {
-    const fetchAll = async () => {
-      setLoading(true)
-      const updated = await Promise.all(
-        SECTORS.map(async (s) => {
-          try {
-            const res = await fetch(`/api/stock/${s.ticker}`)
-            if (res.ok) {
-              const data = await res.json()
-              return { ...s, change: data.changePercent ?? null }
-            }
-          } catch {
-            // silent
-          }
-          return { ...s, change: null }
-        }),
-      )
-      setSectors(updated)
-      setLoading(false)
-    }
-    fetchAll()
-    const id = setInterval(fetchAll, 60_000)
-    return () => clearInterval(id)
-  }, [])
+  const sectors = SECTORS.map(s => {
+    const stock = stocks.find(d => d.symbol === s.ticker)
+    return { ...s, change: stock?.changePercent ?? null }
+  })
 
   return (
     <div className="p-4 h-full flex flex-col">
@@ -69,7 +45,7 @@ export function HeatmapWidget() {
             key={s.ticker}
             className={cn(
               'flex flex-col items-center justify-center p-3 rounded border border-border/50 text-xs font-mono',
-              loading ? 'animate-pulse' : '',
+              isLoading ? 'animate-pulse' : '',
               changeColor(s.change),
             )}
           >
@@ -89,3 +65,4 @@ export function HeatmapWidget() {
     </div>
   )
 }
+
