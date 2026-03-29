@@ -143,13 +143,12 @@ export function StockDetail({ symbol, refreshInterval = 15000 }: StockDetailProp
         />
       </div>
 
-      {/* Fullscreen chart overlay */}
-      {fullscreenOpen && (
-        <FullscreenChart
-          symbol={symbol}
-          onClose={() => setFullscreenOpen(false)}
-        />
-      )}
+      {/* Advanced chart — fullscreen via Dialog portal (same as blueprint) */}
+      <FullscreenChart
+        symbol={symbol}
+        open={fullscreenOpen}
+        onClose={() => setFullscreenOpen(false)}
+      />
     </div>
   )
 }
