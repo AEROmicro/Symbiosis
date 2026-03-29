@@ -35,6 +35,8 @@ export type WidgetType =
   | 'commodities'
   | 'position-sizer'
   | 'dividends'
+  | 'dictionary'
+  | 'dictionary-lg'
 
 export interface WidgetConfig {
   id: string

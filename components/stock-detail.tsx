@@ -10,9 +10,10 @@ import { cn, getCurrencySymbol } from '@/lib/utils'
 interface StockDetailProps {
   symbol: string
   refreshInterval?: number
+  onSymbolChange?: (symbol: string) => void
 }
 
-export function StockDetail({ symbol, refreshInterval = 15000 }: StockDetailProps) {
+export function StockDetail({ symbol, refreshInterval = 15000, onSymbolChange }: StockDetailProps) {
   const { stock, isLoading } = useStockData(symbol, refreshInterval)
   const [fullscreenOpen, setFullscreenOpen] = useState(false)
 
@@ -148,6 +149,7 @@ export function StockDetail({ symbol, refreshInterval = 15000 }: StockDetailProp
         symbol={symbol}
         open={fullscreenOpen}
         onClose={() => setFullscreenOpen(false)}
+        onSymbolChange={onSymbolChange}
       />
     </div>
   )
