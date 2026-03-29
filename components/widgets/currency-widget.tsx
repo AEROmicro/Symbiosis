@@ -14,9 +14,32 @@ const FX_PAIRS = [
   { from: 'USD', to: 'CAD', symbol: 'USDCAD=X' },
   { from: 'AUD', to: 'USD', symbol: 'AUDUSD=X' },
   { from: 'USD', to: 'CHF', symbol: 'USDCHF=X' },
+  { from: 'NZD', to: 'USD', symbol: 'NZDUSD=X' },
+  { from: 'USD', to: 'CNY', symbol: 'USDCNY=X' },
+  { from: 'USD', to: 'INR', symbol: 'USDINR=X' },
+  { from: 'USD', to: 'MXN', symbol: 'USDMXN=X' },
+  { from: 'USD', to: 'BRL', symbol: 'USDBRL=X' },
+  { from: 'USD', to: 'KRW', symbol: 'USDKRW=X' },
+  { from: 'USD', to: 'SGD', symbol: 'USDSGD=X' },
+  { from: 'USD', to: 'HKD', symbol: 'USDHKD=X' },
+  { from: 'USD', to: 'NOK', symbol: 'USDNOK=X' },
+  { from: 'USD', to: 'SEK', symbol: 'USDSEK=X' },
+  { from: 'USD', to: 'TRY', symbol: 'USDTRY=X' },
+  { from: 'USD', to: 'ZAR', symbol: 'USDZAR=X' },
 ]
 
-const CURRENCIES = ['USD','EUR','GBP','JPY','CAD','AUD','CHF','CNY','INR','MXN']
+const CURRENCIES = [
+  // Major
+  'USD', 'EUR', 'GBP', 'JPY', 'CHF', 'CAD', 'AUD', 'NZD',
+  // Asia-Pacific
+  'CNY', 'HKD', 'SGD', 'KRW', 'INR', 'TWD', 'MYR', 'IDR', 'PHP', 'THB', 'VND',
+  // Americas
+  'MXN', 'BRL', 'ARS', 'CLP', 'COP', 'PEN',
+  // Europe
+  'NOK', 'SEK', 'DKK', 'PLN', 'CZK', 'HUF', 'RON', 'TRY', 'RUB', 'UAH',
+  // Middle East & Africa
+  'SAR', 'AED', 'QAR', 'KWD', 'ILS', 'EGP', 'NGN', 'ZAR', 'MAD',
+]
 
 interface Rate { symbol: string; from: string; to: string; price: number; change: number }
 
