@@ -3,12 +3,14 @@ export type WidgetType =
   | 'terminal-sm'
   | 'terminal-lg'
   | 'watchlist'
+  | 'watchlist-sq'
   | 'stock-detail'
   | 'quick-actions'
   | 'system-status'
   | 'news'
   | 'news-lg'
   | 'portfolio'
+  | 'portfolio-lg'
   | 'clock'
   | 'analog-clock'
   | 'market-hours'
@@ -113,6 +115,18 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     color: 'bg-blue-500/20',
   },
   {
+    type: 'watchlist-sq',
+    name: 'Watchlist (SQ)',
+    description: 'Live stock cards for all symbols in your watchlist in a smaller form factor',
+    iconName: 'LayoutGrid',
+    defaultW: 4,
+    defaultH: 6,
+    minW: 4,
+    minH: 6,
+    category: 'recommended',
+    color: 'bg-blue-500/20',
+  },
+  {
     type: 'stock-detail',
     name: 'Stock Detail',
     description: 'Deep metrics and price chart for the selected stock',
@@ -176,13 +190,25 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
   },
   {
     type: 'portfolio',
-    name: 'Portfolio',
+    name: 'Portfolio (S)',
     description: 'Live portfolio positions with P&L tracking',
     iconName: 'Briefcase',
     defaultW: 4,
     defaultH: 9,
     minW: 4,
     minH: 9,
+    category: 'recommended',
+    color: 'bg-emerald-500/20',
+  },
+  {
+    type: 'portfolio-lg',
+    name: 'Portfolio (L)',
+    description: 'Live portfolio positions with P&L tracking for the real investors',
+    iconName: 'Briefcase',
+    defaultW: 8,
+    defaultH: 12,
+    minW: 8,
+    minH: 12,
     category: 'recommended',
     color: 'bg-emerald-500/20',
   },
