@@ -115,8 +115,8 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     color: 'bg-blue-500/20',
   },
   {
-    type: 'watchlist-sq',
-    name: 'Watchlist (SQ)',
+    type: 'watchlist-sm',
+    name: 'Watchlist (S)',
     description: 'Live stock cards for all symbols in your watchlist in a smaller form factor',
     iconName: 'LayoutGrid',
     defaultW: 4,
