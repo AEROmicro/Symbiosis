@@ -436,7 +436,6 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     color: 'bg-muted/40',
   },
 ]
-news-ticker
 export const DEFAULT_WIDGET_LAYOUT: WidgetConfig[] = [
   { id: 'news-ticker-1',   type: 'news-ticker',   x: 0, y: 0,  w: 12, h: 1, minW: 12, minH: 1  },
   { id: 'clock-1',         type: 'clock',         x: 0, y: 1,  w: 4, h: 5,  minW: 4, minH: 5  },
