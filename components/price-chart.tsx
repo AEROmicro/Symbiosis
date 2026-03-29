@@ -2,7 +2,9 @@
 
 import { useState, useRef } from 'react'
 import useSWR from 'swr'
+import { Maximize2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { getCurrencySymbol } from '@/lib/utils'
 
 interface ChartData {
   time: number
@@ -23,6 +25,8 @@ interface ChartResponse {
 
 interface PriceChartProps {
   symbol: string
+  currency?: string
+  onExpand?: () => void
 }
 
 const fetcher = (url: string) => fetch(url).then(r => r.json())
@@ -37,11 +41,13 @@ const ranges = [
   { label: '5Y', value: '5y' },
 ]
 
-export function PriceChart({ symbol }: PriceChartProps) {
+export function PriceChart({ symbol, currency, onExpand }: PriceChartProps) {
   const [range, setRange] = useState('1d')
   const [hoveredPoint, setHoveredPoint] = useState<ChartData | null>(null)
   const [hoveredX, setHoveredX] = useState<number | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+
+  const sym = getCurrencySymbol(currency)
   
   const { data, isLoading } = useSWR<ChartResponse>(
     `/api/stock/${symbol}/chart?range=${range}`,
@@ -62,8 +68,6 @@ export function PriceChart({ symbol }: PriceChartProps) {
   const adjustedMax = maxPrice + padding
   const adjustedRange = adjustedMax - adjustedMin
 
-  const maxLineY = 100 - ((maxPrice - adjustedMin) / adjustedRange) * 100
-  const minLineY = 100 - ((minPrice - adjustedMin) / adjustedRange) * 100
   const prevCloseY = 100 - ((previousClose - adjustedMin) / adjustedRange) * 100
 
   const lastPrice = chartData.length > 0 ? chartData[chartData.length - 1].close : previousClose
@@ -113,32 +117,45 @@ export function PriceChart({ symbol }: PriceChartProps) {
       <div className="p-3 border-b border-border flex items-center justify-between flex-none bg-background/50">
         <div>
           <div className="text-xl font-bold tabular-nums">
-            ${displayPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {sym}{displayPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <div className={cn("text-xs tabular-nums font-mono", displayIsPositive ? "text-primary" : "text-destructive")}>
             {displayIsPositive ? '+' : ''}{displayChange.toFixed(2)} ({displayIsPositive ? '+' : ''}{displayChangePercent.toFixed(2)}%)
           </div>
         </div>
         
-        <div className="flex gap-1">
-          {ranges.map((r) => (
+        <div className="flex items-center gap-1">
+          <div className="flex gap-1">
+            {ranges.map((r) => (
+              <button
+                key={r.value}
+                onClick={() => setRange(r.value)}
+                className={cn(
+                  "px-2 py-1 text-[10px] font-mono rounded transition-colors border",
+                  range === r.value 
+                    ? "bg-primary border-primary text-primary-foreground" 
+                    : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted"
+                )}
+              >
+                {r.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Expand to fullscreen */}
+          {onExpand && (
             <button
-              key={r.value}
-              onClick={() => setRange(r.value)}
-              className={cn(
-                "px-2 py-1 text-[10px] font-mono rounded transition-colors border",
-                range === r.value 
-                  ? "bg-primary border-primary text-primary-foreground" 
-                  : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted"
-              )}
+              onClick={onExpand}
+              title="Open fullscreen chart"
+              className="ml-1 p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors border border-transparent hover:border-border"
             >
-              {r.label}
+              <Maximize2 className="w-3.5 h-3.5" />
             </button>
-          ))}
+          )}
         </div>
       </div>
 
-      {/* Main Chart: Uses flex-1 and min-h-0 to expand to fill widget */}
+      {/* Main Chart */}
       <div 
         ref={containerRef}
         className="relative flex-1 min-h-0 w-full cursor-crosshair group"
@@ -174,12 +191,12 @@ export function PriceChart({ symbol }: PriceChartProps) {
 
         {/* Floating Price Labels */}
         <div className="absolute right-2 top-2 bottom-2 flex flex-col justify-between text-[10px] font-mono pointer-events-none opacity-50">
-          <span className="text-primary">${maxPrice.toFixed(2)}</span>
-          <span className="text-destructive">${minPrice.toFixed(2)}</span>
+          <span className="text-primary">{sym}{maxPrice.toFixed(2)}</span>
+          <span className="text-destructive">{sym}{minPrice.toFixed(2)}</span>
         </div>
       </div>
 
-      {/* Volume: flex-none small bar at bottom */}
+      {/* Volume */}
       <div className="h-10 w-full px-2 pb-1 flex-none border-t border-border/30">
         <div className="flex items-end h-full gap-[1px]">
           {chartData.map((d, i) => {
