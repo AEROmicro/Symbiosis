@@ -49,6 +49,7 @@ import { BondsWidget }            from '@/components/widgets/bonds-widget'
 import { CommoditiesWidget }      from '@/components/widgets/commodities-widget'
 import { PositionSizerWidget }    from '@/components/widgets/position-sizer-widget'
 import { DividendsWidget }        from '@/components/widgets/dividends-widget'
+import { DictionaryWidget }       from '@components/widgets/dictionary-widget'
 
 // ── Props passed from the main app to stateful widgets ─────────────────────
 export interface WidgetAppProps {
@@ -455,6 +456,14 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
       return (
         <WidgetFrame title={title} iconName={iconName}>
           <DividendsWidget />
+        </WidgetFrame>
+      )
+
+    // ── Dictionary ─────────────────────────────────────────────────────────────
+    case 'dictionary':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <DictionaryWidget />
         </WidgetFrame>
       )
 
