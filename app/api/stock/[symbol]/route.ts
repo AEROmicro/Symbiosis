@@ -26,7 +26,7 @@ async function fetchYahooFinanceData(symbol: string) {
 
     const response = await fetch(url, {
       headers: { 'User-Agent': 'Mozilla/5.0' },
-      cache: 'no-store',
+      next: { revalidate: 60 },
     })
 
     if (!response.ok) return fetchChartData(symbol)
@@ -95,7 +95,7 @@ async function fetchChartData(symbol: string) {
 
     const response = await fetch(url, {
       headers: { 'User-Agent': 'Mozilla/5.0' },
-      cache: 'no-store'
+      next: { revalidate: 60 }
     })
 
     const data = await response.json()
@@ -146,5 +146,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ symb
   const { symbol } = await params
   const stockData = await fetchYahooFinanceData(symbol.toUpperCase().trim())
   if (!stockData) return NextResponse.json({ error: 'Not Found' }, { status: 404 })
-  return NextResponse.json(stockData)
+  return NextResponse.json(stockData, {
+    headers: {
+      'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+    },
+  })
 }
