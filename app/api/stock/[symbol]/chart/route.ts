@@ -71,6 +71,12 @@ export async function GET(
       data: chartData,
       previousClose: result.meta.previousClose,
       currentPrice: result.meta.regularMarketPrice
+    }, {
+      headers: {
+        'Cache-Control': range === '1d'
+          ? 'public, s-maxage=60, stale-while-revalidate=300'
+          : 'public, s-maxage=300, stale-while-revalidate=600',
+      },
     })
   } catch (error) {
     console.error('Chart fetch error:', error)

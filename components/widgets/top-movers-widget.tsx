@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { TrendingUp, TrendingDown, RefreshCw } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useMarketData } from '@/hooks/use-market-data'
 
 interface Mover {
   symbol: string
@@ -10,38 +11,12 @@ interface Mover {
   change: number
 }
 
-interface MarketData {
-  indices: Mover[]
-}
-
 export function TopMoversWidget() {
-  const [gainers, setGainers]       = useState<Mover[]>([])
-  const [losers, setLosers]         = useState<Mover[]>([])
-  const [loading, setLoading]       = useState(true)
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+  const { indices, isLoading, refresh } = useMarketData()
 
-  const fetchData = async () => {
-    setLoading(true)
-    try {
-      const res = await fetch('/api/market')
-      if (!res.ok) throw new Error('fetch failed')
-      const data: MarketData = await res.json()
-      const sorted = [...data.indices].sort((a, b) => b.change - a.change)
-      setGainers(sorted.filter(d => d.change > 0).slice(0, 4))
-      setLosers([...sorted].reverse().filter(d => d.change < 0).slice(0, 4))
-      setLastUpdated(new Date())
-    } catch {
-      // silent fail — stale data remains
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchData()
-    const id = setInterval(fetchData, 30_000)
-    return () => clearInterval(id)
-  }, [])
+  const sorted   = [...indices].sort((a, b) => b.change - a.change)
+  const gainers  = sorted.filter(d => d.change > 0).slice(0, 4)
+  const losers   = [...sorted].reverse().filter(d => d.change < 0).slice(0, 4)
 
   const MoverRow = ({ item, positive }: { item: Mover; positive: boolean }) => (
     <div className={cn(
@@ -67,7 +42,7 @@ export function TopMoversWidget() {
     </div>
   )
 
-  if (loading && gainers.length === 0) {
+  if (isLoading && indices.length === 0) {
     return (
       <div className="flex items-center justify-center h-full">
         <RefreshCw className="w-4 h-4 animate-spin text-muted-foreground" />
@@ -106,19 +81,17 @@ export function TopMoversWidget() {
       </div>
 
       {/* Footer */}
-      {lastUpdated && (
-        <div className="mt-auto flex items-center justify-between text-[10px] text-muted-foreground font-mono pt-1 border-t border-border shrink-0">          
-          <span>Updated {lastUpdated.toLocaleTimeString()}</span>
-          <button
-            onClick={fetchData}
-            disabled={loading}
-            className="hover:text-foreground transition-colors"
-            aria-label="Refresh top movers"
-          >
-            <RefreshCw className={cn('w-3 h-3', loading && 'animate-spin')} />
-          </button>
-        </div>
-      )}
+      <div className="mt-auto flex items-center justify-end pt-1 border-t border-border shrink-0">
+        <button
+          onClick={() => refresh()}
+          disabled={isLoading}
+          className="text-muted-foreground hover:text-foreground transition-colors"
+          aria-label="Refresh top movers"
+        >
+          <RefreshCw className={cn('w-3 h-3', isLoading && 'animate-spin')} />
+        </button>
+      </div>
     </div>
   )
 }
+
