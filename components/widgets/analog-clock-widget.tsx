@@ -74,24 +74,7 @@ export function AnalogClockWidget() {
               />
             )
           })}
-
-          {/* Hour numbers */}
-          {([12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] as const).map((n, i) => {
-            const p = pt(i * 30, 36)
-            return (
-              <text
-                key={n}
-                x={p.x} y={p.y}
-                textAnchor="middle"
-                dominantBaseline="middle"
-                fontSize="7"
-                fill="var(--muted-foreground)"
-                fontFamily="monospace"
-              >
-                {n}
-              </text>
-            )
-          })}
+          
 
           {/* Hour hand */}
           <line x1={cx} y1={cy} x2={hourPt.x} y2={hourPt.y}
