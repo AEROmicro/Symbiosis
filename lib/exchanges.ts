@@ -52,10 +52,12 @@ export const EXCHANGES: ExchangeDef[] = [
   { id: 'NZX',     name: 'Auckland (NZX)',       region: 'Auckland',      country: 'NZ',  timezone: 'Pacific/Auckland',    openHour: 10, openMinute: 0,  closeHour: 16, closeMinute: 45, hoursLabel: '10:00 – 16:45', flag: '🇳🇿' },
 ]
 
-/** Returns true if the given exchange is currently open for regular trading.
- *  Note: exchanges with lunch breaks (e.g. SSE, SZSE, TWSE) are handled below.
+/**
+ * Core helper: resolves the current local time parts for an exchange.
+ * Returns { cur, open, close, isWeekend, isLunch } where cur/open/close are
+ * minutes-since-midnight in the exchange's own timezone.
  */
-export function isExchangeOpen(ex: ExchangeDef): boolean {
+function exchangeTimeParts(ex: ExchangeDef) {
   const now = new Date()
   const parts = new Intl.DateTimeFormat('en-US', {
     timeZone: ex.timezone,
@@ -65,25 +67,55 @@ export function isExchangeOpen(ex: ExchangeDef): boolean {
     weekday: 'short',
   }).formatToParts(now)
 
-  const hour    = parseInt(parts.find(p => p.type === 'hour')?.value    ?? '0')
-  const minute  = parseInt(parts.find(p => p.type === 'minute')?.value  ?? '0')
+  const hour    = parseInt(parts.find(p => p.type === 'hour')?.value   ?? '0')
+  const minute  = parseInt(parts.find(p => p.type === 'minute')?.value ?? '0')
   const weekday = parts.find(p => p.type === 'weekday')?.value ?? 'Mon'
 
-  if (weekday === 'Sat' || weekday === 'Sun') return false
+  const cur       = hour * 60 + minute
+  const open      = ex.openHour  * 60 + ex.openMinute
+  const close     = ex.closeHour * 60 + ex.closeMinute
+  const isWeekend = weekday === 'Sat' || weekday === 'Sun'
 
-  const cur   = hour * 60 + minute
-  const open  = ex.openHour * 60 + ex.openMinute
-  const close = ex.closeHour * 60 + ex.closeMinute
-
-  // Exchanges with a midday lunch break (11:30–13:00 local time)
   const LUNCH_BREAK_IDS = new Set(['SSE', 'SZSE', 'HKEX', 'TWSE'])
-  if (LUNCH_BREAK_IDS.has(ex.id)) {
-    const lunchStart = 11 * 60 + 30
-    const lunchEnd   = 13 * 60 + 0
-    if (cur >= lunchStart && cur < lunchEnd) return false
+  const isLunch = LUNCH_BREAK_IDS.has(ex.id) && cur >= 11 * 60 + 30 && cur < 13 * 60
+
+  return { cur, open, close, isWeekend, isLunch }
+}
+
+/**
+ * Returns the full trading-session state for an exchange based on the current
+ * local time in the exchange's own timezone.
+ *
+ * US (NYSE/NASDAQ) and Canadian (TSX) exchanges support three sessions:
+ *   PRE     04:00 – 09:30  local
+ *   REGULAR 09:30 – 16:00  local
+ *   POST    16:00 – 20:00  local
+ *
+ * All other exchanges return REGULAR during standard hours, CLOSED otherwise.
+ * This is the authoritative local-time fallback used when the Yahoo Finance API
+ * returns an incorrect or stale marketState.
+ */
+export function getMarketState(ex: ExchangeDef): 'PRE' | 'REGULAR' | 'POST' | 'CLOSED' {
+  const { cur, open, close, isWeekend, isLunch } = exchangeTimeParts(ex)
+  if (isWeekend || isLunch) return 'CLOSED'
+
+  // US and Canadian exchanges have official extended-hours sessions
+  if (ex.id === 'NYSE' || ex.id === 'TSX') {
+    const preStart = 4  * 60  // 04:00 local
+    const postEnd  = 20 * 60  // 20:00 local
+    if (cur >= open     && cur < close)   return 'REGULAR'
+    if (cur >= preStart && cur < open)    return 'PRE'
+    if (cur >= close    && cur < postEnd) return 'POST'
+    return 'CLOSED'
   }
 
-  return cur >= open && cur < close
+  // All other exchanges: regular session only
+  return cur >= open && cur < close ? 'REGULAR' : 'CLOSED'
+}
+
+/** Returns true if the given exchange is currently open for regular trading. */
+export function isExchangeOpen(ex: ExchangeDef): boolean {
+  return getMarketState(ex) === 'REGULAR'
 }
 
 /** Look up an exchange by id, falling back to NYSE. */

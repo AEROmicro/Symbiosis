@@ -1,8 +1,10 @@
 'use client'
 
+import { useMemo, useState, useEffect } from 'react'
 import { useStockData } from '@/hooks/use-stock-data'
 import { TrendingUp, TrendingDown, X, RefreshCw } from 'lucide-react'
 import { cn, getCurrencySymbol } from '@/lib/utils'
+import { resolveExchange, getMarketState } from '@/lib/exchanges'
 
 interface StockCardProps {
   symbol: string
@@ -15,21 +17,43 @@ interface StockCardProps {
 export function StockCard({ symbol, onRemove, onClick, isSelected, refreshInterval = 3000 }: StockCardProps) {
   const { stock, isLoading, isError, refresh } = useStockData(symbol, refreshInterval)
 
-  // Determine the effective "current" price/change based on market state so
-  // the values shown here always match what the Stock Detail widget displays.
+  // Tick every 60 s so the session badge reflects local time even between polls
+  const [tick, setTick] = useState(0)
+  useEffect(() => {
+    const id = setInterval(() => setTick(t => t + 1), 60_000)
+    return () => clearInterval(id)
+  }, [])
+
+  // Resolve the exchange once per stock load
+  const resolvedEx = useMemo(() => (stock ? resolveExchange(stock.exchange) : null), [stock])
+
+  // Effective market state:
+  //   Trust Yahoo for PRE/POST/REGULAR.
+  //   If Yahoo says CLOSED, compute from the exchange's local clock so we
+  //   correctly show PRE / POST when applicable (e.g. US stocks 4–9:30 AM ET).
+  const effectiveMarketState = useMemo(() => {
+    if (!stock) return null
+    if (stock.marketState === 'REGULAR' || stock.marketState === 'PRE' || stock.marketState === 'POST')
+      return stock.marketState
+    if (resolvedEx) return getMarketState(resolvedEx)
+    return 'CLOSED'
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stock, resolvedEx, tick])
+
+  // Effective price/change — uses pre/post market data when that session is active
   const effectivePrice =
-    stock?.marketState === 'PRE'  && stock.preMarketPrice  != null ? stock.preMarketPrice  :
-    stock?.marketState === 'POST' && stock.postMarketPrice != null ? stock.postMarketPrice :
+    effectiveMarketState === 'PRE'  && (stock?.preMarketPrice  ?? null) != null ? stock!.preMarketPrice!  :
+    effectiveMarketState === 'POST' && (stock?.postMarketPrice ?? null) != null ? stock!.postMarketPrice! :
     stock?.price ?? 0
 
   const effectiveChange =
-    stock?.marketState === 'PRE'  && stock.preMarketChange  != null ? stock.preMarketChange  :
-    stock?.marketState === 'POST' && stock.postMarketChange != null ? stock.postMarketChange :
+    effectiveMarketState === 'PRE'  && (stock?.preMarketChange  ?? null) != null ? stock!.preMarketChange!  :
+    effectiveMarketState === 'POST' && (stock?.postMarketChange ?? null) != null ? stock!.postMarketChange! :
     stock?.change ?? 0
 
   const effectiveChangePercent =
-    stock?.marketState === 'PRE'  && stock.preMarketChangePercent  != null ? stock.preMarketChangePercent  :
-    stock?.marketState === 'POST' && stock.postMarketChangePercent != null ? stock.postMarketChangePercent :
+    effectiveMarketState === 'PRE'  && (stock?.preMarketChangePercent  ?? null) != null ? stock!.preMarketChangePercent!  :
+    effectiveMarketState === 'POST' && (stock?.postMarketChangePercent ?? null) != null ? stock!.postMarketChangePercent! :
     stock?.changePercent ?? 0
 
   if (isLoading) {
@@ -98,15 +122,13 @@ export function StockCard({ symbol, onRemove, onClick, isSelected, refreshInterv
           )}>
             {stock.symbol}
           </span>
-          {stock.marketState === 'PRE' && (
+          {stock.marketState === 'PRE' || effectiveMarketState === 'PRE' ? (
             <span className="text-[8px] font-bold uppercase tracking-wider text-yellow-500 border border-yellow-500/30 bg-yellow-500/10 px-1 rounded">PRE</span>
-          )}
-          {stock.marketState === 'POST' && (
+          ) : stock.marketState === 'POST' || effectiveMarketState === 'POST' ? (
             <span className="text-[8px] font-bold uppercase tracking-wider text-orange-400 border border-orange-400/30 bg-orange-400/10 px-1 rounded">AH</span>
-          )}
-          {stock.marketState === 'REGULAR' && (
+          ) : effectiveMarketState === 'REGULAR' ? (
             <span className="text-[8px] font-bold uppercase tracking-wider text-primary border border-primary/30 bg-primary/10 px-1 rounded">LIVE</span>
-          )}
+          ) : null}
         </div>
         <span className="text-[10px] text-muted-foreground uppercase tracking-[0.12em] font-mono truncate max-w-[140px]">
           {stock.name}

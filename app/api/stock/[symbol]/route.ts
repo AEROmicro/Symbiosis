@@ -28,7 +28,7 @@ async function fetchV7Quote(symbol: string) {
     'postMarketPrice','postMarketChange','postMarketChangePercent',
   ].join(',')
   const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(symbol)}&fields=${fields}`
-  const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, next: { revalidate: 60 } })
+  const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, cache: 'no-store' })
   if (!res.ok) return null
   const data = await res.json()
   return data.quoteResponse?.result?.[0] ?? null
@@ -202,7 +202,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ symb
   if (!stockData) return NextResponse.json({ error: 'Not Found' }, { status: 404 })
   return NextResponse.json(stockData, {
     headers: {
-      'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+      // No browser/CDN caching — always return to the Next.js edge function
+      // which fetches fresh data directly from Yahoo on every request.
+      'Cache-Control': 'no-store',
     },
   })
 }
