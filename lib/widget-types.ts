@@ -41,6 +41,19 @@ export type WidgetType =
   | 'formulas-lg'
   | 'market-session'
   | 'watchlist-compact'
+  | 'earnings'
+  | 'yield-curve'
+  | 'market-breadth'
+  | 'sector-rotation'
+  | 'macro-indicators'
+  | 'options-flow'
+  | 'insider-activity'
+  | 'stock-screener'
+  | 'correlation-heatmap'
+  | 'risk-metrics'
+  | 'timer'
+  | 'json-viewer'
+  | 'system-monitor'
 
 export interface WidgetConfig {
   id: string
@@ -591,6 +604,166 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     minH: 12,
     category: 'tools',
     color: 'bg-violet-500/20',
+  },
+
+  // ── New market widgets ──────────────────────────────────────────────────────
+  {
+    type: 'earnings',
+    name: 'Earnings Calendar',
+    description: 'Upcoming earnings releases with EPS estimates and announcement times',
+    iconName: 'CalendarDays',
+    defaultW: 4,
+    defaultH: 11,
+    minW: 4,
+    minH: 10,
+    category: 'market',
+    color: 'bg-indigo-500/20',
+  },
+  {
+    type: 'yield-curve',
+    name: 'Yield Curve',
+    description: 'US Treasury yield curve chart with key spread indicators',
+    iconName: 'TrendingUp',
+    defaultW: 4,
+    defaultH: 10,
+    minW: 4,
+    minH: 10,
+    category: 'market',
+    color: 'bg-cyan-500/20',
+  },
+  {
+    type: 'market-breadth',
+    name: 'Market Breadth',
+    description: 'NYSE/NASDAQ advance-decline ratios, new highs/lows, McClellan Oscillator and TRIN',
+    iconName: 'Activity',
+    defaultW: 4,
+    defaultH: 10,
+    minW: 4,
+    minH: 10,
+    category: 'market',
+    color: 'bg-purple-500/20',
+  },
+  {
+    type: 'sector-rotation',
+    name: 'Sector Rotation',
+    description: 'Performance bar chart for all 11 GICS sector ETFs — 1D, 1W, 1M views',
+    iconName: 'Map',
+    defaultW: 4,
+    defaultH: 10,
+    minW: 4,
+    minH: 10,
+    category: 'market',
+    color: 'bg-rose-500/20',
+  },
+  {
+    type: 'macro-indicators',
+    name: 'Macro Indicators',
+    description: 'Key macroeconomic data: GDP, CPI, PCE, unemployment, Fed rate and more',
+    iconName: 'Globe',
+    defaultW: 4,
+    defaultH: 13,
+    minW: 4,
+    minH: 12,
+    category: 'market',
+    color: 'bg-teal-500/20',
+  },
+  {
+    type: 'options-flow',
+    name: 'Options Flow',
+    description: 'Live feed of unusual options activity with bullish/bearish sentiment tags',
+    iconName: 'Activity',
+    defaultW: 4,
+    defaultH: 10,
+    minW: 4,
+    minH: 10,
+    category: 'market',
+    color: 'bg-orange-500/20',
+  },
+  {
+    type: 'insider-activity',
+    name: 'Insider Activity',
+    description: 'Recent SEC Form 4 insider buys and sells across S&P 500 companies',
+    iconName: 'Briefcase',
+    defaultW: 4,
+    defaultH: 11,
+    minW: 4,
+    minH: 10,
+    category: 'market',
+    color: 'bg-yellow-500/20',
+  },
+  {
+    type: 'correlation-heatmap',
+    name: 'Correlation Matrix',
+    description: 'Color-coded correlation matrix for major asset classes — 3M and 1Y views',
+    iconName: 'Map',
+    defaultW: 4,
+    defaultH: 10,
+    minW: 4,
+    minH: 10,
+    category: 'market',
+    color: 'bg-fuchsia-500/20',
+  },
+
+  // ── New tools widgets ───────────────────────────────────────────────────────
+  {
+    type: 'stock-screener',
+    name: 'Stock Screener',
+    description: 'Filter stocks by market cap, sector, P/E ratio and 52-week performance',
+    iconName: 'Search',
+    defaultW: 8,
+    defaultH: 12,
+    minW: 4,
+    minH: 10,
+    category: 'tools',
+    color: 'bg-sky-500/20',
+  },
+  {
+    type: 'risk-metrics',
+    name: 'Risk Metrics',
+    description: 'Portfolio risk dashboard: VaR, Beta, Sharpe, Sortino, Max Drawdown and win rate',
+    iconName: 'Activity',
+    defaultW: 4,
+    defaultH: 12,
+    minW: 4,
+    minH: 10,
+    category: 'tools',
+    color: 'bg-red-500/20',
+  },
+  {
+    type: 'timer',
+    name: 'Timer',
+    description: 'Stopwatch and countdown timer with lap tracking and alarms',
+    iconName: 'Clock',
+    defaultW: 4,
+    defaultH: 10,
+    minW: 4,
+    minH: 10,
+    category: 'tools',
+    color: 'bg-lime-500/20',
+  },
+  {
+    type: 'json-viewer',
+    name: 'JSON Viewer',
+    description: 'Interactive JSON tree viewer with syntax highlighting, search and raw data fetching',
+    iconName: 'Terminal',
+    defaultW: 8,
+    defaultH: 12,
+    minW: 4,
+    minH: 10,
+    category: 'tools',
+    color: 'bg-slate-500/20',
+  },
+  {
+    type: 'system-monitor',
+    name: 'System Monitor',
+    description: 'Real-time CPU, memory, disk and network usage with process list and sparklines',
+    iconName: 'Server',
+    defaultW: 4,
+    defaultH: 12,
+    minW: 4,
+    minH: 10,
+    category: 'tools',
+    color: 'bg-emerald-500/20',
   },
 ]
 

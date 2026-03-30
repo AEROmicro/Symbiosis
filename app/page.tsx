@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from 'react'
 import GridLayout, { type Layout, useContainerWidth } from 'react-grid-layout'
 import { TerminalHeader } from '@/components/terminal-header'
 import { MarketTicker } from '@/components/market-ticker'
-import { SettingsDialog, type AppTheme } from '@/components/settings-dialog'
+import { SettingsDialog, type AppTheme, type ModernTheme } from '@/components/settings-dialog'
 import { WidgetRenderer, type WidgetAppProps } from '@/components/widget-renderer'
 import { BlueprintEditor } from '@/components/blueprint-editor'
 import { MobileLayout } from '@/components/mobile-layout'
@@ -18,6 +18,8 @@ import {
 const STORAGE_KEY = 'symbiosis-watchlist'
 const THEME_KEY   = 'symbiosis-theme'
 const EXCHANGE_KEY = 'symbiosis-exchange'
+const MODERN_ENABLED_KEY = 'symbiosis-modern-enabled'
+const MODERN_THEME_KEY   = 'symbiosis-modern-theme'
 const DEFAULT_STOCKS = ['^IXIC', '^GSPC', '^DJI']
 
 export default function SymbiosisApp() {
@@ -28,6 +30,8 @@ export default function SymbiosisApp() {
   const [scanlineEnabled, setScanlineEnabled] = useState(true)
   const [theme, setTheme]                   = useState<AppTheme>('default')
   const [defaultExchange, setDefaultExchange] = useState<string>('NYSE')
+  const [modernEnabled, setModernEnabled]   = useState(false)
+  const [modernTheme, setModernTheme]       = useState<ModernTheme>('dark')
   const [widgetLayout, setWidgetLayout]     = useState<WidgetConfig[]>(DEFAULT_WIDGET_LAYOUT)
   const [blueprintOpen, setBlueprintOpen]   = useState(false)
   const [isMobile, setIsMobile]             = useState(false)
@@ -51,6 +55,12 @@ export default function SymbiosisApp() {
       const storedExchange = localStorage.getItem(EXCHANGE_KEY)
       if (storedExchange) setDefaultExchange(storedExchange)
 
+      const storedModernEnabled = localStorage.getItem(MODERN_ENABLED_KEY)
+      if (storedModernEnabled === 'true') setModernEnabled(true)
+
+      const storedModernTheme = localStorage.getItem(MODERN_THEME_KEY) as ModernTheme | null
+      if (storedModernTheme) setModernTheme(storedModernTheme)
+
       const storedLayout = localStorage.getItem(WIDGET_LAYOUT_KEY)
       if (storedLayout) {
         const parsedLayout = JSON.parse(storedLayout)
@@ -72,15 +82,23 @@ export default function SymbiosisApp() {
     return () => window.removeEventListener('resize', check)
   }, [])
 
-  // Apply theme
+  // Apply theme + modern style
   useEffect(() => {
     const root = document.documentElement
-    if (theme === 'default') {
+    if (modernEnabled) {
+      root.setAttribute('data-style', 'modern')
+      root.setAttribute('data-modern-theme', modernTheme)
       root.removeAttribute('data-theme')
     } else {
-      root.setAttribute('data-theme', theme)
+      root.removeAttribute('data-style')
+      root.removeAttribute('data-modern-theme')
+      if (theme === 'default') {
+        root.removeAttribute('data-theme')
+      } else {
+        root.setAttribute('data-theme', theme)
+      }
     }
-  }, [theme])
+  }, [theme, modernEnabled, modernTheme])
 
   // Persist watchlist
   useEffect(() => {
@@ -97,6 +115,16 @@ export default function SymbiosisApp() {
   const handleThemeChange = useCallback((newTheme: AppTheme) => {
     setTheme(newTheme)
     try { localStorage.setItem(THEME_KEY, newTheme) } catch { /* ignore */ }
+  }, [])
+
+  const handleModernEnabledChange = useCallback((enabled: boolean) => {
+    setModernEnabled(enabled)
+    try { localStorage.setItem(MODERN_ENABLED_KEY, String(enabled)) } catch { /* ignore */ }
+  }, [])
+
+  const handleModernThemeChange = useCallback((t: ModernTheme) => {
+    setModernTheme(t)
+    try { localStorage.setItem(MODERN_THEME_KEY, t) } catch { /* ignore */ }
   }, [])
 
   const handleExchangeChange = useCallback((exchangeId: string) => {
@@ -184,6 +212,10 @@ export default function SymbiosisApp() {
           onOpenBlueprint={() => setBlueprintOpen(true)}
           defaultExchange={defaultExchange}
           onExchangeChange={handleExchangeChange}
+          modernEnabled={modernEnabled}
+          onModernEnabledChange={handleModernEnabledChange}
+          modernTheme={modernTheme}
+          onModernThemeChange={handleModernThemeChange}
         />
       ) : (
         <>
@@ -228,6 +260,10 @@ export default function SymbiosisApp() {
                     onOpenBlueprint={() => setBlueprintOpen(true)}
                     defaultExchange={defaultExchange}
                     onExchangeChange={handleExchangeChange}
+                    modernEnabled={modernEnabled}
+                    onModernEnabledChange={handleModernEnabledChange}
+                    modernTheme={modernTheme}
+                    onModernThemeChange={handleModernThemeChange}
                   />
                 </div>
               </div>
