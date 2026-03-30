@@ -274,7 +274,7 @@ export function SettingsDialog({
                   <div>
                     <div className="font-semibold text-xs">Modern Visual Style</div>
                     <div className="text-xs text-muted-foreground mt-0.5">
-                      Clean, polished UI inspired by TradingView
+                      Clean and polished UI for perfectionists
                     </div>
                   </div>
                   <div
