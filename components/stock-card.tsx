@@ -15,6 +15,23 @@ interface StockCardProps {
 export function StockCard({ symbol, onRemove, onClick, isSelected, refreshInterval = 3000 }: StockCardProps) {
   const { stock, isLoading, isError, refresh } = useStockData(symbol, refreshInterval)
 
+  // Determine the effective "current" price/change based on market state so
+  // the values shown here always match what the Stock Detail widget displays.
+  const effectivePrice =
+    stock?.marketState === 'PRE'  && stock.preMarketPrice  != null ? stock.preMarketPrice  :
+    stock?.marketState === 'POST' && stock.postMarketPrice != null ? stock.postMarketPrice :
+    stock?.price ?? 0
+
+  const effectiveChange =
+    stock?.marketState === 'PRE'  && stock.preMarketChange  != null ? stock.preMarketChange  :
+    stock?.marketState === 'POST' && stock.postMarketChange != null ? stock.postMarketChange :
+    stock?.change ?? 0
+
+  const effectiveChangePercent =
+    stock?.marketState === 'PRE'  && stock.preMarketChangePercent  != null ? stock.preMarketChangePercent  :
+    stock?.marketState === 'POST' && stock.postMarketChangePercent != null ? stock.postMarketChangePercent :
+    stock?.changePercent ?? 0
+
   if (isLoading) {
     return (
       <div className="group relative border border-border bg-card/40 rounded-xl p-4 animate-pulse">
@@ -48,7 +65,7 @@ export function StockCard({ symbol, onRemove, onClick, isSelected, refreshInterv
     )
   }
 
-  const isPositive = stock.change >= 0
+  const isPositive = effectiveChange >= 0
   const sym = getCurrencySymbol(stock.currency)
 
   return (
@@ -74,12 +91,23 @@ export function StockCard({ symbol, onRemove, onClick, isSelected, refreshInterv
 
       {/* Symbol & Name */}
       <div className="flex flex-col mb-1">
-        <span className={cn(
-          "text-sm font-bold tracking-tighter font-mono",
-          isPositive ? "text-primary" : "text-destructive"
-        )}>
-          {stock.symbol}
-        </span>
+        <div className="flex items-center gap-1.5">
+          <span className={cn(
+            "text-sm font-bold tracking-tighter font-mono",
+            isPositive ? "text-primary" : "text-destructive"
+          )}>
+            {stock.symbol}
+          </span>
+          {stock.marketState === 'PRE' && (
+            <span className="text-[8px] font-bold uppercase tracking-wider text-yellow-500 border border-yellow-500/30 bg-yellow-500/10 px-1 rounded">PRE</span>
+          )}
+          {stock.marketState === 'POST' && (
+            <span className="text-[8px] font-bold uppercase tracking-wider text-orange-400 border border-orange-400/30 bg-orange-400/10 px-1 rounded">AH</span>
+          )}
+          {stock.marketState === 'REGULAR' && (
+            <span className="text-[8px] font-bold uppercase tracking-wider text-primary border border-primary/30 bg-primary/10 px-1 rounded">LIVE</span>
+          )}
+        </div>
         <span className="text-[10px] text-muted-foreground uppercase tracking-[0.12em] font-mono truncate max-w-[140px]">
           {stock.name}
         </span>
@@ -87,19 +115,19 @@ export function StockCard({ symbol, onRemove, onClick, isSelected, refreshInterv
 
       {/* Big Price */}
       <div className="text-2xl font-bold text-foreground tracking-tighter font-mono tabular-nums mb-1">
-        {sym}{stock.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        {sym}{effectivePrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
       </div>
 
-      {/* Fixed Daily Change (Calculated by our API) */}
+      {/* Change row */}
       <div className={cn(
         "flex items-center gap-1.5 text-[11px] font-mono font-medium tracking-tight",
         isPositive ? "text-primary" : "text-destructive"
       )}>
         {isPositive ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
         <span className="tabular-nums">
-          {isPositive ? '+' : ''}{stock.change.toFixed(2)} 
+          {isPositive ? '+' : ''}{effectiveChange.toFixed(2)} 
           <span className="ml-1.5 opacity-60 text-[10px]">
-            ({isPositive ? '+' : ''}{stock.changePercent.toFixed(2)}%)
+            ({isPositive ? '+' : ''}{effectiveChangePercent.toFixed(2)}%)
           </span>
         </span>
       </div>

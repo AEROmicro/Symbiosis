@@ -357,7 +357,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     defaultW: 8,
     defaultH: 6,
     minW: 8,
-    minH: 8,
+    minH: 6,
     maxH: 6,
     category: 'tools',
     color: 'bg-zinc-500/20',
@@ -527,7 +527,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     defaultH: 8,
     minW: 4,
     minH: 8,
-    category: 'market',
+    category: 'info',
     color: 'bg-emerald-500/20',
   },
   {
@@ -539,7 +539,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     defaultH: 12,
     minW: 8,
     minH: 12,
-    category: 'market',
+    category: 'info',
     color: 'bg-emerald-500/20',
   },
   {

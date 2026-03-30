@@ -5,7 +5,7 @@ import {
   Terminal, LayoutGrid, TrendingUp, Zap, Server, Newspaper,
   Briefcase, Clock, Globe, Activity, Map, Bitcoin, DollarSign,
   CalendarDays, HelpCircle, Calculator, ListTodo, Rss,
-  Landmark, Gem, Target, Coins,
+  Landmark, Gem, Target, Coins, Book,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { WidgetConfig } from '@/lib/widget-types'
@@ -64,7 +64,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Terminal, LayoutGrid, TrendingUp, Zap, Server, Newspaper,
   Briefcase, Clock, Globe, Activity, Map, Bitcoin, DollarSign,
   CalendarDays, HelpCircle, Calculator, ListTodo, Rss,
-  Landmark, Gem, Target, Coins,
+  Landmark, Gem, Target, Coins, Book,
 }
 
 // ── WidgetFrame ─────────────────────────────────────────────────────────────
@@ -217,6 +217,7 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
 
     // ── Portfolio ───────────────────────────────────────────────────────────
     case 'portfolio':
+    case 'portfolio-lg':
       return (
         <WidgetFrame title={title} iconName={iconName}>
           <PortfolioWidget />
@@ -313,6 +314,7 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
 
     // ── Notes ────────────────────────────────────────────────────────────────
     case 'notes':
+    case 'notes-md':
     case 'notes-lg':
       return (
         <WidgetFrame title={title} iconName={iconName}>
@@ -381,6 +383,7 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
 
     // ── Dictionary ─────────────────────────────────────────────────────────────
     case 'dictionary':
+    case 'dictionary-lg':
       return (
         <WidgetFrame title={title} iconName={iconName}>
           <DictionaryWidget />
