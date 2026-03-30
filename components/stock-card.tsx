@@ -1,8 +1,10 @@
 'use client'
 
+import { useMemo, useState, useEffect } from 'react'
 import { useStockData } from '@/hooks/use-stock-data'
 import { TrendingUp, TrendingDown, X, RefreshCw } from 'lucide-react'
 import { cn, getCurrencySymbol } from '@/lib/utils'
+import { resolveExchange, getMarketState } from '@/lib/exchanges'
 
 interface StockCardProps {
   symbol: string
@@ -14,6 +16,45 @@ interface StockCardProps {
 
 export function StockCard({ symbol, onRemove, onClick, isSelected, refreshInterval = 3000 }: StockCardProps) {
   const { stock, isLoading, isError, refresh } = useStockData(symbol, refreshInterval)
+
+  // Tick every 60 s so the session badge reflects local time even between polls
+  const [tick, setTick] = useState(0)
+  useEffect(() => {
+    const id = setInterval(() => setTick(t => t + 1), 60_000)
+    return () => clearInterval(id)
+  }, [])
+
+  // Resolve the exchange once per stock load
+  const resolvedEx = useMemo(() => (stock ? resolveExchange(stock.exchange) : null), [stock])
+
+  // Effective market state:
+  //   Trust Yahoo for PRE/POST/REGULAR.
+  //   If Yahoo says CLOSED, compute from the exchange's local clock so we
+  //   correctly show PRE / POST when applicable (e.g. US stocks 4–9:30 AM ET).
+  const effectiveMarketState = useMemo(() => {
+    if (!stock) return null
+    if (stock.marketState === 'REGULAR' || stock.marketState === 'PRE' || stock.marketState === 'POST')
+      return stock.marketState
+    if (resolvedEx) return getMarketState(resolvedEx)
+    return 'CLOSED'
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stock, resolvedEx, tick])
+
+  // Effective price/change — uses pre/post market data when that session is active
+  const effectivePrice =
+    effectiveMarketState === 'PRE'  && (stock?.preMarketPrice  ?? null) != null ? stock!.preMarketPrice!  :
+    effectiveMarketState === 'POST' && (stock?.postMarketPrice ?? null) != null ? stock!.postMarketPrice! :
+    stock?.price ?? 0
+
+  const effectiveChange =
+    effectiveMarketState === 'PRE'  && (stock?.preMarketChange  ?? null) != null ? stock!.preMarketChange!  :
+    effectiveMarketState === 'POST' && (stock?.postMarketChange ?? null) != null ? stock!.postMarketChange! :
+    stock?.change ?? 0
+
+  const effectiveChangePercent =
+    effectiveMarketState === 'PRE'  && (stock?.preMarketChangePercent  ?? null) != null ? stock!.preMarketChangePercent!  :
+    effectiveMarketState === 'POST' && (stock?.postMarketChangePercent ?? null) != null ? stock!.postMarketChangePercent! :
+    stock?.changePercent ?? 0
 
   if (isLoading) {
     return (
@@ -48,7 +89,7 @@ export function StockCard({ symbol, onRemove, onClick, isSelected, refreshInterv
     )
   }
 
-  const isPositive = stock.change >= 0
+  const isPositive = effectiveChange >= 0
   const sym = getCurrencySymbol(stock.currency)
 
   return (
@@ -74,12 +115,21 @@ export function StockCard({ symbol, onRemove, onClick, isSelected, refreshInterv
 
       {/* Symbol & Name */}
       <div className="flex flex-col mb-1">
-        <span className={cn(
-          "text-sm font-bold tracking-tighter font-mono",
-          isPositive ? "text-primary" : "text-destructive"
-        )}>
-          {stock.symbol}
-        </span>
+        <div className="flex items-center gap-1.5">
+          <span className={cn(
+            "text-sm font-bold tracking-tighter font-mono",
+            isPositive ? "text-primary" : "text-destructive"
+          )}>
+            {stock.symbol}
+          </span>
+          {effectiveMarketState === 'PRE' ? (
+            <span className="text-[8px] font-bold uppercase tracking-wider text-yellow-500 border border-yellow-500/30 bg-yellow-500/10 px-1 rounded">PRE</span>
+          ) : effectiveMarketState === 'POST' ? (
+            <span className="text-[8px] font-bold uppercase tracking-wider text-orange-400 border border-orange-400/30 bg-orange-400/10 px-1 rounded">AH</span>
+          ) : effectiveMarketState === 'REGULAR' ? (
+            <span className="text-[8px] font-bold uppercase tracking-wider text-primary border border-primary/30 bg-primary/10 px-1 rounded">LIVE</span>
+          ) : null}
+        </div>
         <span className="text-[10px] text-muted-foreground uppercase tracking-[0.12em] font-mono truncate max-w-[140px]">
           {stock.name}
         </span>
@@ -87,19 +137,19 @@ export function StockCard({ symbol, onRemove, onClick, isSelected, refreshInterv
 
       {/* Big Price */}
       <div className="text-2xl font-bold text-foreground tracking-tighter font-mono tabular-nums mb-1">
-        {sym}{stock.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        {sym}{effectivePrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
       </div>
 
-      {/* Fixed Daily Change (Calculated by our API) */}
+      {/* Change row */}
       <div className={cn(
         "flex items-center gap-1.5 text-[11px] font-mono font-medium tracking-tight",
         isPositive ? "text-primary" : "text-destructive"
       )}>
         {isPositive ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
         <span className="tabular-nums">
-          {isPositive ? '+' : ''}{stock.change.toFixed(2)} 
+          {isPositive ? '+' : ''}{effectiveChange.toFixed(2)} 
           <span className="ml-1.5 opacity-60 text-[10px]">
-            ({isPositive ? '+' : ''}{stock.changePercent.toFixed(2)}%)
+            ({isPositive ? '+' : ''}{effectiveChangePercent.toFixed(2)}%)
           </span>
         </span>
       </div>

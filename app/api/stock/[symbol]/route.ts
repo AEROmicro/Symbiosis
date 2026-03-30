@@ -28,7 +28,10 @@ async function fetchV7Quote(symbol: string) {
     'postMarketPrice','postMarketChange','postMarketChangePercent',
   ].join(',')
   const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(symbol)}&fields=${fields}`
-  const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, next: { revalidate: 60 } })
+  // 2-second server-side cache: all concurrent client polls share one Yahoo fetch.
+  // Yahoo real-time data updates ~every 15 s so 2 s gives good freshness without
+  // hammering their unofficial API and risking a 429.
+  const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, next: { revalidate: 2 } })
   if (!res.ok) return null
   const data = await res.json()
   return data.quoteResponse?.result?.[0] ?? null
@@ -202,7 +205,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ symb
   if (!stockData) return NextResponse.json({ error: 'Not Found' }, { status: 404 })
   return NextResponse.json(stockData, {
     headers: {
-      'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+      // Browsers / CDN: always ask our API (no client caching).
+      // Our API: caches the upstream Yahoo fetch for 2 s (see revalidate above),
+      // so all concurrent polls share one Yahoo round-trip per symbol.
+      'Cache-Control': 'no-store',
     },
   })
 }

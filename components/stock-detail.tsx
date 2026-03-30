@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useStockData } from '@/hooks/use-stock-data'
 import { PriceChart } from '@/components/price-chart'
 import { FullscreenChart } from '@/components/fullscreen-chart'
 import { TrendingUp, TrendingDown, Activity, BarChart3, DollarSign, Clock, Moon, Sunrise } from 'lucide-react'
 import { cn, getCurrencySymbol } from '@/lib/utils'
-import { resolveExchange, isExchangeOpen } from '@/lib/exchanges'
+import { resolveExchange, getMarketState, EXCHANGES } from '@/lib/exchanges'
 
 interface StockDetailProps {
   symbol: string
@@ -18,25 +18,37 @@ export function StockDetail({ symbol, refreshInterval = 15000, onSymbolChange }:
   const { stock, isLoading } = useStockData(symbol, refreshInterval)
   const [fullscreenOpen, setFullscreenOpen] = useState(false)
 
-  // Resolve the exchange and compute effective market state from real trading hours
+  // Tick every 60 s so the locally-computed market state badge stays accurate
+  // even when SWR is polling slowly (e.g. closed market, 15-min interval).
+  const [tick, setTick] = useState(0)
+  useEffect(() => {
+    const id = setInterval(() => setTick(t => t + 1), 60_000)
+    return () => clearInterval(id)
+  }, [])
+
   const resolvedExchange = useMemo(
     () => (stock ? resolveExchange(stock.exchange) : null),
     [stock]
   )
-  const exchangeIsOpen = useMemo(
-    () => (resolvedExchange ? isExchangeOpen(resolvedExchange) : false),
-    [resolvedExchange]
-  )
-  // Effective market state: trust Yahoo for PRE/POST/REGULAR; if Yahoo says CLOSED
-  // but the exchange's local clock says it's open, treat it as REGULAR (open).
+
+  // Effective market state:
+  //  1. Trust Yahoo's PRE / POST / REGULAR signals directly.
+  //  2. If Yahoo says CLOSED, fall back to local-clock calculation for the
+  //     stock's actual exchange — this catches PRE, POST, and mis-reported CLOSED.
+  //  3. If no stock data at all, use NYSE as a best-guess default.
+  // The `tick` dependency ensures this recomputes every 60 s without an API call.
   const effectiveMarketState = useMemo(() => {
-    if (!stock) return 'CLOSED'
+    if (!stock) {
+      const defaultEx = EXCHANGES[0] // NYSE
+      return getMarketState(defaultEx)
+    }
     if (stock.marketState === 'REGULAR' || stock.marketState === 'PRE' || stock.marketState === 'POST')
       return stock.marketState
-    // Yahoo returned CLOSED — cross-check against real exchange hours
-    if (exchangeIsOpen) return 'REGULAR'
-    return 'CLOSED'
-  }, [stock, exchangeIsOpen])
+    // Yahoo returned CLOSED — derive from local exchange clock
+    const ex = resolvedExchange ?? EXCHANGES[0]
+    return getMarketState(ex)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stock, resolvedExchange, tick])
 
   if (isLoading) {
     return (
@@ -58,21 +70,43 @@ export function StockDetail({ symbol, refreshInterval = 15000, onSymbolChange }:
     )
   }
 
-  const isPositive = stock.change >= 0
   const sym = getCurrencySymbol(stock.currency)
 
-  // Determine which extended-session data to surface
-  const showPreMarket =
+  // Determine which extended-session data is available
+  const hasPreMarket =
     stock.preMarketPrice != null &&
     stock.preMarketChange != null &&
     stock.preMarketChangePercent != null
-  const showPostMarket =
+  const hasPostMarket =
     stock.postMarketPrice != null &&
     stock.postMarketChange != null &&
     stock.postMarketChangePercent != null
 
-  const prePos  = (stock.preMarketChange  ?? 0) >= 0
-  const postPos = (stock.postMarketChange ?? 0) >= 0
+  // Effective "current" price — matches what the watchlist card displays:
+  //   PRE  + pre-market data  → pre-market price
+  //   POST + post-market data → post-market price
+  //   otherwise               → regular session price
+  const effectivePrice =
+    effectiveMarketState === 'PRE'  && hasPreMarket  ? stock.preMarketPrice!  :
+    effectiveMarketState === 'POST' && hasPostMarket ? stock.postMarketPrice! :
+    stock.price
+  const effectiveChange =
+    effectiveMarketState === 'PRE'  && hasPreMarket  ? stock.preMarketChange!  :
+    effectiveMarketState === 'POST' && hasPostMarket ? stock.postMarketChange! :
+    stock.change
+  const effectiveChangePercent =
+    effectiveMarketState === 'PRE'  && hasPreMarket  ? stock.preMarketChangePercent!  :
+    effectiveMarketState === 'POST' && hasPostMarket ? stock.postMarketChangePercent! :
+    stock.changePercent
+
+  const isPositive = effectiveChange >= 0
+
+  // Show the regular-session row as secondary when pre/post market is the primary
+  const showRegularAsSecondary =
+    (effectiveMarketState === 'PRE'  && hasPreMarket) ||
+    (effectiveMarketState === 'POST' && hasPostMarket)
+
+  const regularPos = stock.change >= 0
 
   const coreStats = [
     { label: 'Open',      value: `${sym}${stock.open.toFixed(2)}`,         icon: Clock },
@@ -125,10 +159,10 @@ export function StockDetail({ symbol, refreshInterval = 15000, onSymbolChange }:
           </div>
           <p className="text-xs text-muted-foreground mb-2">{stock.name}</p>
 
-          {/* Main price row */}
+          {/* Main price row — always shows the effective current price */}
           <div className="flex items-end gap-3 flex-wrap">
             <span className="text-3xl font-bold text-foreground tabular-nums leading-none">
-              {sym}{stock.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {sym}{effectivePrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </span>
             <div className={cn(
               "flex items-center gap-1 text-sm font-medium",
@@ -136,42 +170,38 @@ export function StockDetail({ symbol, refreshInterval = 15000, onSymbolChange }:
             )}>
               {isPositive ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
               <span className="tabular-nums">
-                {isPositive ? '+' : ''}{stock.change.toFixed(2)} ({isPositive ? '+' : ''}{stock.changePercent.toFixed(2)}%)
+                {isPositive ? '+' : ''}{effectiveChange.toFixed(2)} ({isPositive ? '+' : ''}{effectiveChangePercent.toFixed(2)}%)
               </span>
             </div>
-            <span className="text-[10px] text-muted-foreground uppercase tracking-wider self-end pb-0.5">Regular Close</span>
+            {/* Only show "Regular Close" label when the market is closed and no extended-hours data is the primary */}
+            {effectiveMarketState === 'CLOSED' && !showRegularAsSecondary && (
+              <span className="text-[10px] text-muted-foreground uppercase tracking-wider self-end pb-0.5">Regular Close</span>
+            )}
+            {effectiveMarketState === 'PRE' && (
+              <span className="text-[10px] text-yellow-500 uppercase tracking-wider self-end pb-0.5 flex items-center gap-1">
+                <Sunrise className="w-3 h-3" /> Pre-Market
+              </span>
+            )}
+            {effectiveMarketState === 'POST' && (
+              <span className="text-[10px] text-orange-400 uppercase tracking-wider self-end pb-0.5 flex items-center gap-1">
+                <Moon className="w-3 h-3" /> After Hours
+              </span>
+            )}
           </div>
 
-          {/* Pre-market price row */}
-          {showPreMarket && (
+          {/* Secondary row: regular session close — shown only when pre/post market is the primary */}
+          {showRegularAsSecondary && (
             <div className="mt-2 flex items-center gap-2 flex-wrap">
-              <Sunrise className="w-3 h-3 text-yellow-500 shrink-0" />
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-yellow-500">Pre-Market</span>
-              <span className="text-sm font-semibold tabular-nums text-foreground">
-                {sym}{stock.preMarketPrice!.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              <DollarSign className="w-3 h-3 text-muted-foreground shrink-0" />
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Regular Close</span>
+              <span className="text-sm font-semibold tabular-nums text-muted-foreground">
+                {sym}{stock.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
               <span className={cn(
                 "text-xs font-medium tabular-nums",
-                prePos ? "text-primary" : "text-destructive"
+                regularPos ? "text-primary/70" : "text-destructive/70"
               )}>
-                {prePos ? '+' : ''}{stock.preMarketChange!.toFixed(2)} ({prePos ? '+' : ''}{stock.preMarketChangePercent!.toFixed(2)}%)
-              </span>
-            </div>
-          )}
-
-          {/* After-hours price row */}
-          {showPostMarket && (
-            <div className="mt-2 flex items-center gap-2 flex-wrap">
-              <Moon className="w-3 h-3 text-orange-400 shrink-0" />
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-orange-400">After Hours</span>
-              <span className="text-sm font-semibold tabular-nums text-foreground">
-                {sym}{stock.postMarketPrice!.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </span>
-              <span className={cn(
-                "text-xs font-medium tabular-nums",
-                postPos ? "text-primary" : "text-destructive"
-              )}>
-                {postPos ? '+' : ''}{stock.postMarketChange!.toFixed(2)} ({postPos ? '+' : ''}{stock.postMarketChangePercent!.toFixed(2)}%)
+                {regularPos ? '+' : ''}{stock.change.toFixed(2)} ({regularPos ? '+' : ''}{stock.changePercent.toFixed(2)}%)
               </span>
             </div>
           )}

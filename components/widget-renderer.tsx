@@ -5,7 +5,7 @@ import {
   Terminal, LayoutGrid, TrendingUp, Zap, Server, Newspaper,
   Briefcase, Clock, Globe, Activity, Map, Bitcoin, DollarSign,
   CalendarDays, HelpCircle, Calculator, ListTodo, Rss,
-  Landmark, Gem, Target, Coins,
+  Landmark, Gem, Target, Coins, Book,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { WidgetConfig } from '@/lib/widget-types'
@@ -43,6 +43,8 @@ import { DividendsWidget }        from '@/components/widgets/dividends-widget'
 import { SystemStatusWidget }  from '@/components/widgets/system-status-widget'
 import { FormulasWidget }         from '@/components/widgets/formulas-widget'
 import { DictionaryWidget }       from '@/components/widgets/dictionary-widget'
+import { MarketSessionWidget }    from '@/components/widgets/market-session-widget'
+import { WatchlistCompactWidget } from '@/components/widgets/watchlist-compact-widget'
 
 // ── Props passed from the main app to stateful widgets ─────────────────────
 export interface WidgetAppProps {
@@ -64,7 +66,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Terminal, LayoutGrid, TrendingUp, Zap, Server, Newspaper,
   Briefcase, Clock, Globe, Activity, Map, Bitcoin, DollarSign,
   CalendarDays, HelpCircle, Calculator, ListTodo, Rss,
-  Landmark, Gem, Target, Coins,
+  Landmark, Gem, Target, Coins, Book,
 }
 
 // ── WidgetFrame ─────────────────────────────────────────────────────────────
@@ -217,6 +219,7 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
 
     // ── Portfolio ───────────────────────────────────────────────────────────
     case 'portfolio':
+    case 'portfolio-lg':
       return (
         <WidgetFrame title={title} iconName={iconName}>
           <PortfolioWidget />
@@ -260,6 +263,27 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
       return (
         <WidgetFrame title={title} iconName={iconName}>
           <HeatmapWidget />
+        </WidgetFrame>
+      )
+
+    // ── Market Sessions ──────────────────────────────────────────────────────
+    case 'market-session':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <MarketSessionWidget />
+        </WidgetFrame>
+      )
+
+    // ── Watchlist Compact ────────────────────────────────────────────────────
+    case 'watchlist-compact':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <WatchlistCompactWidget
+            watchedStocks={watchedStocks}
+            selectedStock={selectedStock}
+            onSelectStock={onSelectStock}
+            refreshInterval={refreshInterval}
+          />
         </WidgetFrame>
       )
 
@@ -313,6 +337,7 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
 
     // ── Notes ────────────────────────────────────────────────────────────────
     case 'notes':
+    case 'notes-md':
     case 'notes-lg':
       return (
         <WidgetFrame title={title} iconName={iconName}>
@@ -381,6 +406,7 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
 
     // ── Dictionary ─────────────────────────────────────────────────────────────
     case 'dictionary':
+    case 'dictionary-lg':
       return (
         <WidgetFrame title={title} iconName={iconName}>
           <DictionaryWidget />

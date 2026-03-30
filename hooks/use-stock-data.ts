@@ -1,8 +1,6 @@
-'use client'
-
 import useSWR from 'swr'
 import type { StockData } from '@/lib/stock-types'
-import { resolveExchange, isExchangeOpen } from '@/lib/exchanges'
+import { resolveExchange, getMarketState } from '@/lib/exchanges'
 
 const fetcher = async (url: string) => {
   const res = await fetch(url)
@@ -14,22 +12,32 @@ const fetcher = async (url: string) => {
 }
 
 /**
- * Returns the polling interval for a single stock based on its market state.
- *   REGULAR  → openInterval (default 60 s)
- *   PRE/POST → 3 × openInterval (slower during extended hours)
- *   CLOSED   → check real exchange hours; if open, use openInterval; else 0
+ * Returns the SWR polling interval for a stock based on its current session.
+ *
+ *   REGULAR            → openInterval          (user-configured, default 1 s)
+ *   PRE / POST         → openInterval × 5      (extended hours, less volatile)
+ *   CLOSED (API)       → re-derive from local exchange clock:
+ *       if manually PRE/POST  → openInterval × 5
+ *       if manually REGULAR   → openInterval
+ *       if genuinely CLOSED   → 15 min  (keeps SWR alive so session transitions
+ *                                        are picked up without a page refresh)
+ *
+ * We never return 0: stopping SWR entirely would mean the app stays stale
+ * forever when the market reopens while the tab is already open.
  */
 function stockRefreshInterval(data: StockData | undefined, openInterval: number): number {
   if (!data) return openInterval
   switch (data.marketState) {
     case 'REGULAR': return openInterval
     case 'PRE':
-    case 'POST':    return openInterval * 3
+    case 'POST':    return openInterval * 5
     default: {
-      // Yahoo says CLOSED — verify against the actual exchange trading hours
       const ex = resolveExchange(data.exchange)
-      if (ex && isExchangeOpen(ex)) return openInterval
-      return 0  // market genuinely closed — stop polling
+      if (!ex) return 15 * 60_000
+      const state = getMarketState(ex)
+      if (state === 'REGULAR')               return openInterval
+      if (state === 'PRE' || state === 'POST') return openInterval * 5
+      return 15 * 60_000   // genuinely closed — re-check every 15 min
     }
   }
 }
@@ -39,9 +47,11 @@ export function useStockData(symbol: string | null, openInterval = 60_000) {
     symbol ? `/api/stock/${symbol}` : null,
     fetcher,
     {
-      refreshInterval: (data) => stockRefreshInterval(data, openInterval),
+      refreshInterval:   (data) => stockRefreshInterval(data, openInterval),
       revalidateOnFocus: false,
-      dedupingInterval: 30_000,
+      // Keep deduping short so rapid re-renders don't pile up requests but
+      // the 1-second refresh interval still produces real fetches.
+      dedupingInterval:  2_000,
       isPaused: () => typeof document !== 'undefined' && document.hidden,
     }
   )
@@ -70,19 +80,20 @@ export function useMultipleStocks(symbols: string[], openInterval = 60_000) {
     {
       refreshInterval: (data) => {
         if (!data || data.length === 0) return openInterval
-        // Use the most active market state across all stocks in the batch
         const states = data.map((s) => s.marketState)
-        if (states.includes('REGULAR')) return openInterval
-        if (states.some((s) => s === 'PRE' || s === 'POST')) return openInterval * 3
-        // All Yahoo states are CLOSED — check real exchange hours for any stock
-        const anyOpen = data.some((s) => {
+        if (states.includes('REGULAR'))                          return openInterval
+        if (states.some((s) => s === 'PRE' || s === 'POST'))    return openInterval * 5
+        // All Yahoo states CLOSED — consult local exchange clocks
+        const manualStates = data.map((s) => {
           const ex = resolveExchange(s.exchange)
-          return ex ? isExchangeOpen(ex) : false
+          return ex ? getMarketState(ex) : 'CLOSED'
         })
-        return anyOpen ? openInterval : 0
+        if (manualStates.includes('REGULAR'))                           return openInterval
+        if (manualStates.some((s) => s === 'PRE' || s === 'POST'))     return openInterval * 5
+        return 15 * 60_000
       },
       revalidateOnFocus: false,
-      dedupingInterval: 30_000,
+      dedupingInterval:  2_000,
       isPaused: () => typeof document !== 'undefined' && document.hidden,
     }
   )
