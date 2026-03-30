@@ -69,7 +69,7 @@ export function SystemStatusWidget({
         <div className="flex items-center justify-between">
           <span className="text-muted-foreground">Exchange</span>
           <span className="text-foreground truncate max-w-[130px] text-right" title={exchange.name}>
-            {exchange.flag} {exchange.id}
+            {exchange.id}
           </span>
         </div>
 
