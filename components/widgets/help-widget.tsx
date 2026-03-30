@@ -20,8 +20,6 @@ export function HelpWidget() {
     { cmd: 'compare AAPL MSFT',           desc: 'Compare two stocks' },
     { cmd: 'system',                      desc: 'Show system information' },
     { cmd: 'export watchlist 30',         desc: 'Export watchlist to .CSV' },
-    { cmd: 'export portfolio 30',         desc: 'Export portfolio to .CSV' },
-    { cmd: 'export AAPL 30',              desc: 'Export symbol to .CSV' },
     { cmd: 'clear',                       desc: 'Clear terminal' },
     { cmd: 'clearall',                    desc: 'Clear watchlist' },
     { cmd: 'popular',                     desc: 'See trending stocks' },
