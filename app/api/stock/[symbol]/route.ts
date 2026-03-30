@@ -24,6 +24,8 @@ async function fetchV7Quote(symbol: string) {
     'trailingPE','forwardPE','epsTrailingTwelveMonths','beta',
     'trailingAnnualDividendYield','trailingAnnualDividendRate',
     'dividendDate','earningsTimestamp','targetMeanPrice',
+    'preMarketPrice','preMarketChange','preMarketChangePercent',
+    'postMarketPrice','postMarketChange','postMarketChangePercent',
   ].join(',')
   const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(symbol)}&fields=${fields}`
   const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, next: { revalidate: 60 } })
@@ -121,6 +123,12 @@ async function fetchYahooFinanceData(symbol: string) {
       exDividendDate: exDivDate,
       earningsDate,
       targetPrice,
+      preMarketPrice:          q.preMarketPrice          != null ? n(q.preMarketPrice)          : null,
+      preMarketChange:         q.preMarketChange         != null ? n(q.preMarketChange)         : null,
+      preMarketChangePercent:  q.preMarketChangePercent  != null ? n(q.preMarketChangePercent)  : null,
+      postMarketPrice:         q.postMarketPrice         != null ? n(q.postMarketPrice)         : null,
+      postMarketChange:        q.postMarketChange        != null ? n(q.postMarketChange)        : null,
+      postMarketChangePercent: q.postMarketChangePercent != null ? n(q.postMarketChangePercent) : null,
       lastUpdated: new Date(),
     }
   } catch {
@@ -175,6 +183,12 @@ async function fetchChartData(symbol: string) {
       exDividendDate: null,
       earningsDate: null,
       targetPrice: null,
+      preMarketPrice: null,
+      preMarketChange: null,
+      preMarketChangePercent: null,
+      postMarketPrice: null,
+      postMarketChange: null,
+      postMarketChangePercent: null,
       lastUpdated: new Date(),
     }
   } catch {
