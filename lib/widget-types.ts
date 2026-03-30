@@ -37,6 +37,8 @@ export type WidgetType =
   | 'dividends'
   | 'dictionary'
   | 'dictionary-lg'
+  | 'formulas'
+  | 'formulas-lg'
 
 export interface WidgetConfig {
   id: string
@@ -540,7 +542,32 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     category: 'market',
     color: 'bg-emerald-500/20',
   },
+  {
+    type: 'formulas',
+    name: 'Formulas (S)',
+    description: '50+ finance & accounting mathematical formulas with explanations',
+    iconName: 'Calculator',
+    defaultW: 4,
+    defaultH: 10,
+    minW: 4,
+    minH: 10,
+    category: 'tools',
+    color: 'bg-violet-500/20',
+  },
+  {
+    type: 'formulas-lg',
+    name: 'Formulas (L)',
+    description: '50+ finance & accounting mathematical formulas — larger view',
+    iconName: 'Calculator',
+    defaultW: 8,
+    defaultH: 12,
+    minW: 8,
+    minH: 12,
+    category: 'tools',
+    color: 'bg-violet-500/20',
+  },
 ]
+
 export const DEFAULT_WIDGET_LAYOUT: WidgetConfig[] = [
   { id: 'news-ticker-1',   type: 'news-ticker',   x: 0, y: 0,  w: 12, h: 1, minW: 12, minH: 1  },
   { id: 'clock-1',         type: 'clock',         x: 0, y: 1,  w: 4, h: 5,  minW: 4, minH: 5  },

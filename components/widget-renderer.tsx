@@ -16,15 +16,6 @@ import { TerminalCLI }   from '@/components/terminal-cli'
 import { StockCard }     from '@/components/stock-card'
 import { StockDetail }   from '@/components/stock-detail'
 import { QuickActions }  from '@/components/quick-actions'
-import { HelpDialog }         from '@/components/help-dialog'
-import { KeyboardShortcuts }  from '@/components/keyboard-shortcuts'
-import { MarketHoursDialog }  from '@/components/market-hours-dialog'
-import { NewsDialog }         from '@/components/news-dialog'
-import { MarketStatsDialog }  from '@/components/market-stats-dialog'
-import { CurrencyConverter }  from '@/components/currency-converter'
-import { PortfolioDialog }    from '@/components/portfolio-dialog'
-import { CalculatorDialog }   from '@/components/calculator-dialog'
-import { LayoutProfilesDialog } from '@/components/layout-profiles-dialog'
 import { CalculatorWidget }   from '@/components/widgets/calculator-widget'
 import { TodoWidget }         from '@/components/widgets/todo-widget'
 import { NewsTickerWidget }   from '@/components/widgets/news-ticker-widget'
@@ -49,6 +40,8 @@ import { BondsWidget }            from '@/components/widgets/bonds-widget'
 import { CommoditiesWidget }      from '@/components/widgets/commodities-widget'
 import { PositionSizerWidget }    from '@/components/widgets/position-sizer-widget'
 import { DividendsWidget }        from '@/components/widgets/dividends-widget'
+import { SystemStatusWidget }  from '@/components/widgets/system-status-widget'
+import { FormulasWidget }         from '@/components/widgets/formulas-widget'
 import { DictionaryWidget }       from '@/components/widgets/dictionary-widget'
 
 // ── Props passed from the main app to stateful widgets ─────────────────────
@@ -61,6 +54,7 @@ export interface WidgetAppProps {
   onSelectStock: (symbol: string) => void
   marketState: string
   refreshInterval: number
+  defaultExchange?: string
   widgetLayout?: import('@/lib/widget-types').WidgetConfig[]
   onLoadProfile?: (layout: import('@/lib/widget-types').WidgetConfig[]) => void
 }
@@ -115,6 +109,7 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
     watchedStocks, selectedStock,
     onAddStock, onRemoveStock, onClearAll, onSelectStock,
     refreshInterval,
+    defaultExchange,
     widgetLayout, onLoadProfile,
   } = appProps
 
@@ -198,93 +193,18 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
       )
 
     // ── System Status ───────────────────────────────────────────────────────
-    case 'system-status': {
-      const sessionLabel =
-        appProps.marketState === 'REGULAR' ? 'Regular Hours' :
-        appProps.marketState === 'PRE'     ? 'Pre-Market'    :
-        appProps.marketState === 'POST'    ? 'After-Hours'   : 'Market Closed'
-      const sessionColor =
-        appProps.marketState === 'REGULAR' ? 'text-primary'           :
-        appProps.marketState === 'PRE'     ? 'text-yellow-500'        :
-        appProps.marketState === 'POST'    ? 'text-orange-500'        : 'text-muted-foreground'
-
+    case 'system-status':
       return (
         <WidgetFrame title={title} iconName={iconName}>
-          <div className="h-full p-2 flex flex-col justify-between overflow-hidden">
-
-            {/* ── Status rows ── */}
-            <div className="space-y-2 font-mono text-xs">
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Connection</span>
-                <span className="flex items-center gap-1.5 text-primary">
-                  <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                  Active
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Data Feed</span>
-                <span className="text-primary">Real-time</span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Refresh Rate</span>
-                <span className="text-foreground">1s</span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Watching</span>
-                <span className="text-foreground">{watchedStocks.length} stocks</span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Session</span>
-                <span className={cn('flex items-center gap-1.5', sessionColor)}>
-                  {appProps.marketState !== 'CLOSED' && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
-                  )}
-                  {sessionLabel}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Exchange</span>
-                <span className="text-foreground">NYSE / NASDAQ</span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Hours (ET)</span>
-                <span className="text-foreground">09:30 – 16:00</span>
-              </div>
-            </div>
-
-            {/* ── Divider + Tools ── */}
-            <div className="flex flex-col gap-2">
-              <div className="border-t border-border" />
-
-              {/* ── Tools — 2-column grid, no scroll ── */}
-              <div className="grid grid-cols-2 gap-1.5">
-                <HelpDialog />
-                <KeyboardShortcuts />
-                <MarketStatsDialog />
-                <MarketHoursDialog />
-                <NewsDialog />
-                <CurrencyConverter onAddToWatchlist={onAddStock} watchedStocks={watchedStocks} />
-                <PortfolioDialog />
-                <CalculatorDialog />
-                {widgetLayout !== undefined && onLoadProfile !== undefined && (
-                  <LayoutProfilesDialog
-                    currentLayout={widgetLayout}
-                    onLoadProfile={onLoadProfile}
-                  />
-                )}
-              </div>
-            </div>
-
-          </div>
+          <SystemStatusWidget
+            defaultExchange={defaultExchange}
+            watchedStocks={watchedStocks}
+            onAddStock={onAddStock}
+            widgetLayout={widgetLayout}
+            onLoadProfile={onLoadProfile}
+          />
         </WidgetFrame>
       )
-    }
 
     // ── News ────────────────────────────────────────────────────────────────
     case 'news':
@@ -464,6 +384,15 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
       return (
         <WidgetFrame title={title} iconName={iconName}>
           <DictionaryWidget />
+        </WidgetFrame>
+      )
+
+    // ── Formulas ────────────────────────────────────────────────────────────
+    case 'formulas':
+    case 'formulas-lg':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <FormulasWidget />
         </WidgetFrame>
       )
 

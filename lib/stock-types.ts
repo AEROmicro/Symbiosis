@@ -30,7 +30,15 @@ export interface StockData {
   exDividendDate: string | null
   earningsDate: string | null
   targetPrice: number | null
-  
+
+  // Pre-market / after-hours extended session data
+  preMarketPrice: number | null
+  preMarketChange: number | null
+  preMarketChangePercent: number | null
+  postMarketPrice: number | null
+  postMarketChange: number | null
+  postMarketChangePercent: number | null
+
   lastUpdated: Date
 }
 
