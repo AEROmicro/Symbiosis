@@ -17,6 +17,7 @@ import {
 
 const STORAGE_KEY = 'symbiosis-watchlist'
 const THEME_KEY   = 'symbiosis-theme'
+const EXCHANGE_KEY = 'symbiosis-exchange'
 const DEFAULT_STOCKS = ['^IXIC', '^GSPC', '^DJI']
 
 export default function SymbiosisApp() {
@@ -26,6 +27,7 @@ export default function SymbiosisApp() {
   const [hydrated,      setHydrated]        = useState(false)
   const [scanlineEnabled, setScanlineEnabled] = useState(true)
   const [theme, setTheme]                   = useState<AppTheme>('default')
+  const [defaultExchange, setDefaultExchange] = useState<string>('NYSE')
   const [widgetLayout, setWidgetLayout]     = useState<WidgetConfig[]>(DEFAULT_WIDGET_LAYOUT)
   const [blueprintOpen, setBlueprintOpen]   = useState(false)
   const [isMobile, setIsMobile]             = useState(false)
@@ -45,6 +47,9 @@ export default function SymbiosisApp() {
       }
       const storedTheme = localStorage.getItem(THEME_KEY) as AppTheme | null
       if (storedTheme) setTheme(storedTheme)
+
+      const storedExchange = localStorage.getItem(EXCHANGE_KEY)
+      if (storedExchange) setDefaultExchange(storedExchange)
 
       const storedLayout = localStorage.getItem(WIDGET_LAYOUT_KEY)
       if (storedLayout) {
@@ -94,6 +99,11 @@ export default function SymbiosisApp() {
     try { localStorage.setItem(THEME_KEY, newTheme) } catch { /* ignore */ }
   }, [])
 
+  const handleExchangeChange = useCallback((exchangeId: string) => {
+    setDefaultExchange(exchangeId)
+    try { localStorage.setItem(EXCHANGE_KEY, exchangeId) } catch { /* ignore */ }
+  }, [])
+
   const handleAddStock = useCallback((symbol: string) => {
     setWatchedStocks(prev => prev.includes(symbol) ? prev : [...prev, symbol])
   }, [])
@@ -115,6 +125,7 @@ export default function SymbiosisApp() {
     onSelectStock: handleSelectStock,
     marketState,
     refreshInterval,
+    defaultExchange,
   }
 
   // RGL layout (static — not draggable by user on main screen)
@@ -171,6 +182,8 @@ export default function SymbiosisApp() {
           scanlineEnabled={scanlineEnabled}
           onScanlineChange={setScanlineEnabled}
           onOpenBlueprint={() => setBlueprintOpen(true)}
+          defaultExchange={defaultExchange}
+          onExchangeChange={handleExchangeChange}
         />
       ) : (
         <>
@@ -213,6 +226,8 @@ export default function SymbiosisApp() {
                     scanlineEnabled={scanlineEnabled}
                     onScanlineChange={setScanlineEnabled}
                     onOpenBlueprint={() => setBlueprintOpen(true)}
+                    defaultExchange={defaultExchange}
+                    onExchangeChange={handleExchangeChange}
                   />
                 </div>
               </div>

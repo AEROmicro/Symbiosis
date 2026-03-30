@@ -1,10 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { Settings, LayoutDashboard } from 'lucide-react'
+import { Settings, LayoutDashboard, ChevronDown } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { EXCHANGES } from '@/lib/exchanges'
 
 export type AppTheme = 'default' | 'red' | 'mutualism-light' | 'mutualism-dark'
 
@@ -14,6 +15,8 @@ interface SettingsDialogProps {
   scanlineEnabled: boolean
   onScanlineChange: (enabled: boolean) => void
   onOpenBlueprint?: () => void
+  defaultExchange: string
+  onExchangeChange: (exchangeId: string) => void
 }
 
 const themes: {
@@ -48,8 +51,12 @@ const themes: {
   },
 ]
 
-export function SettingsDialog({ currentTheme, onThemeChange, scanlineEnabled, onScanlineChange, onOpenBlueprint }: SettingsDialogProps) {
+export function SettingsDialog({ currentTheme, onThemeChange, scanlineEnabled, onScanlineChange, onOpenBlueprint, defaultExchange, onExchangeChange }: SettingsDialogProps) {
   const [open, setOpen] = useState(false)
+  const [exchangeOpen, setExchangeOpen] = useState(false)
+
+  const selected = EXCHANGES.find(e => e.id === defaultExchange) ?? EXCHANGES[0]
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -62,7 +69,7 @@ export function SettingsDialog({ currentTheme, onThemeChange, scanlineEnabled, o
           <Settings className="w-3.5 h-3.5" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md font-mono">
+      <DialogContent className="max-w-md font-mono max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-mono text-sm tracking-wider uppercase">
             {'>'}_&nbsp;Settings
@@ -117,6 +124,54 @@ export function SettingsDialog({ currentTheme, onThemeChange, scanlineEnabled, o
                   </button>
                 )
               })}
+            </div>
+          </div>
+
+          {/* Default Exchange */}
+          <div className="border-t border-border pt-4">
+            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
+              Default Exchange
+            </p>
+            <p className="text-[10px] text-muted-foreground mb-3">
+              Determines the market session shown in the System Status widget
+            </p>
+            <div className="relative">
+              <button
+                onClick={() => setExchangeOpen(prev => !prev)}
+                className={cn(
+                  'w-full flex items-center justify-between px-3 py-2.5 rounded-md border text-left transition-all text-sm',
+                  exchangeOpen
+                    ? 'border-primary/40 bg-primary/5'
+                    : 'border-border hover:border-primary/30 hover:bg-muted/30',
+                )}
+              >
+                <span className="flex items-center gap-2">
+                  <span>{selected.flag}</span>
+                  <span className="font-semibold text-xs">{selected.id}</span>
+                  <span className="text-muted-foreground text-xs">{selected.name}</span>
+                </span>
+                <ChevronDown className={cn('w-4 h-4 text-muted-foreground transition-transform shrink-0', exchangeOpen && 'rotate-180')} />
+              </button>
+
+              {exchangeOpen && (
+                <div className="absolute z-50 mt-1 w-full rounded-md border border-border bg-card shadow-lg max-h-56 overflow-y-auto">
+                  {EXCHANGES.map((ex) => (
+                    <button
+                      key={ex.id}
+                      onClick={() => { onExchangeChange(ex.id); setExchangeOpen(false) }}
+                      className={cn(
+                        'w-full flex items-center gap-2 px-3 py-2 text-xs text-left hover:bg-muted/40 transition-colors',
+                        ex.id === defaultExchange && 'bg-primary/10 text-primary',
+                      )}
+                    >
+                      <span className="shrink-0">{ex.flag}</span>
+                      <span className="font-semibold w-16 shrink-0">{ex.id}</span>
+                      <span className="text-muted-foreground truncate">{ex.name}</span>
+                      <span className="ml-auto shrink-0 text-muted-foreground tabular-nums">{ex.hoursLabel}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 

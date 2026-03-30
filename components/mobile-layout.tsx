@@ -40,6 +40,8 @@ interface MobileLayoutProps {
   scanlineEnabled: boolean
   onScanlineChange: (v: boolean) => void
   onOpenBlueprint: () => void
+  defaultExchange?: string
+  onExchangeChange?: (id: string) => void
 }
 
 export function MobileLayout({
@@ -49,6 +51,8 @@ export function MobileLayout({
   scanlineEnabled,
   onScanlineChange,
   onOpenBlueprint,
+  defaultExchange = 'NYSE',
+  onExchangeChange,
 }: MobileLayoutProps) {
   const [activeTab, setActiveTab] = useState<MobileTab>('market')
 
@@ -199,6 +203,8 @@ export function MobileLayout({
                 scanlineEnabled={scanlineEnabled}
                 onScanlineChange={onScanlineChange}
                 onOpenBlueprint={onOpenBlueprint}
+                defaultExchange={defaultExchange}
+                onExchangeChange={onExchangeChange ?? (() => {})}
               />
             </section>
 
