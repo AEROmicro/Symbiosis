@@ -43,6 +43,8 @@ import { DividendsWidget }        from '@/components/widgets/dividends-widget'
 import { SystemStatusWidget }  from '@/components/widgets/system-status-widget'
 import { FormulasWidget }         from '@/components/widgets/formulas-widget'
 import { DictionaryWidget }       from '@/components/widgets/dictionary-widget'
+import { MarketSessionWidget }    from '@/components/widgets/market-session-widget'
+import { WatchlistCompactWidget } from '@/components/widgets/watchlist-compact-widget'
 
 // ── Props passed from the main app to stateful widgets ─────────────────────
 export interface WidgetAppProps {
@@ -261,6 +263,27 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
       return (
         <WidgetFrame title={title} iconName={iconName}>
           <HeatmapWidget />
+        </WidgetFrame>
+      )
+
+    // ── Market Sessions ──────────────────────────────────────────────────────
+    case 'market-session':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <MarketSessionWidget />
+        </WidgetFrame>
+      )
+
+    // ── Watchlist Compact ────────────────────────────────────────────────────
+    case 'watchlist-compact':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <WatchlistCompactWidget
+            watchedStocks={watchedStocks}
+            selectedStock={selectedStock}
+            onSelectStock={onSelectStock}
+            refreshInterval={refreshInterval}
+          />
         </WidgetFrame>
       )
 

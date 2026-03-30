@@ -122,9 +122,9 @@ export function StockCard({ symbol, onRemove, onClick, isSelected, refreshInterv
           )}>
             {stock.symbol}
           </span>
-          {stock.marketState === 'PRE' || effectiveMarketState === 'PRE' ? (
+          {effectiveMarketState === 'PRE' ? (
             <span className="text-[8px] font-bold uppercase tracking-wider text-yellow-500 border border-yellow-500/30 bg-yellow-500/10 px-1 rounded">PRE</span>
-          ) : stock.marketState === 'POST' || effectiveMarketState === 'POST' ? (
+          ) : effectiveMarketState === 'POST' ? (
             <span className="text-[8px] font-bold uppercase tracking-wider text-orange-400 border border-orange-400/30 bg-orange-400/10 px-1 rounded">AH</span>
           ) : effectiveMarketState === 'REGULAR' ? (
             <span className="text-[8px] font-bold uppercase tracking-wider text-primary border border-primary/30 bg-primary/10 px-1 rounded">LIVE</span>
