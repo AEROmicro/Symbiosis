@@ -139,9 +139,6 @@ export function StockDetail({ symbol, refreshInterval = 15000, onSymbolChange }:
               </span>
               {/* Exchange badge */}
               <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                {resolvedExchange && (
-                  <span className="text-sm leading-none">{resolvedExchange.flag}</span>
-                )}
                 <span className="truncate max-w-[140px]" title={stock.exchange}>
                   {resolvedExchange ? resolvedExchange.name : stock.exchange}
                 </span>
