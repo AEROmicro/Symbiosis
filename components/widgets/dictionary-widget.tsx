@@ -598,6 +598,13 @@ export function DictionaryWidget() {
     })
   }, [query, activeCategory])
 
+  // Reset expanded entry whenever the category filter changes so a term from
+  // one category cannot appear "open" when browsing a different category.
+  const handleCategory = (cat: Category | 'all') => {
+    setActiveCategory(cat)
+    setExpanded(null)
+  }
+
   return (
     <div className="flex flex-col h-full font-mono text-xs">
       {/* Search bar */}
@@ -626,7 +633,7 @@ export function DictionaryWidget() {
           {ALL_CATEGORIES.map(cat => (
             <button
               key={cat}
-              onClick={() => setActiveCategory(cat)}
+              onClick={() => handleCategory(cat)}
               className={cn(
                 'px-2 py-0.5 rounded border text-[9px] uppercase tracking-wider transition-colors',
                 activeCategory === cat
@@ -650,14 +657,17 @@ export function DictionaryWidget() {
           </div>
         ) : (
           filtered.map(t => {
-            const isOpen = expanded === t.term
+            // Use category+term as the unique key so duplicate term names across
+            // categories don't collide in React's reconciler or in expanded state.
+            const uid = `${t.category}:${t.term}`
+            const isOpen = expanded === uid
             return (
               <div
-                key={t.term}
+                key={uid}
                 className="border border-border/60 rounded bg-card/30 overflow-hidden"
               >
                 <button
-                  onClick={() => setExpanded(isOpen ? null : t.term)}
+                  onClick={() => setExpanded(isOpen ? null : uid)}
                   className="w-full flex items-center justify-between px-2.5 py-1.5 hover:bg-muted/20 transition-colors text-left gap-2"
                 >
                   <div className="flex items-center gap-2 min-w-0">
