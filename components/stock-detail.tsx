@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useStockData } from '@/hooks/use-stock-data'
 import { PriceChart } from '@/components/price-chart'
 import { FullscreenChart } from '@/components/fullscreen-chart'
 import { TrendingUp, TrendingDown, Activity, BarChart3, DollarSign, Clock, Moon, Sunrise } from 'lucide-react'
 import { cn, getCurrencySymbol } from '@/lib/utils'
-import { resolveExchange, isExchangeOpen } from '@/lib/exchanges'
+import { resolveExchange, getMarketState, EXCHANGES } from '@/lib/exchanges'
 
 interface StockDetailProps {
   symbol: string
@@ -18,25 +18,37 @@ export function StockDetail({ symbol, refreshInterval = 15000, onSymbolChange }:
   const { stock, isLoading } = useStockData(symbol, refreshInterval)
   const [fullscreenOpen, setFullscreenOpen] = useState(false)
 
-  // Resolve the exchange and compute effective market state from real trading hours
+  // Tick every 60 s so the locally-computed market state badge stays accurate
+  // even when SWR is polling slowly (e.g. closed market, 15-min interval).
+  const [tick, setTick] = useState(0)
+  useEffect(() => {
+    const id = setInterval(() => setTick(t => t + 1), 60_000)
+    return () => clearInterval(id)
+  }, [])
+
   const resolvedExchange = useMemo(
     () => (stock ? resolveExchange(stock.exchange) : null),
     [stock]
   )
-  const exchangeIsOpen = useMemo(
-    () => (resolvedExchange ? isExchangeOpen(resolvedExchange) : false),
-    [resolvedExchange]
-  )
-  // Effective market state: trust Yahoo for PRE/POST/REGULAR; if Yahoo says CLOSED
-  // but the exchange's local clock says it's open, treat it as REGULAR (open).
+
+  // Effective market state:
+  //  1. Trust Yahoo's PRE / POST / REGULAR signals directly.
+  //  2. If Yahoo says CLOSED, fall back to local-clock calculation for the
+  //     stock's actual exchange — this catches PRE, POST, and mis-reported CLOSED.
+  //  3. If no stock data at all, use NYSE as a best-guess default.
+  // The `tick` dependency ensures this recomputes every 60 s without an API call.
   const effectiveMarketState = useMemo(() => {
-    if (!stock) return 'CLOSED'
+    if (!stock) {
+      const defaultEx = EXCHANGES[0] // NYSE
+      return getMarketState(defaultEx)
+    }
     if (stock.marketState === 'REGULAR' || stock.marketState === 'PRE' || stock.marketState === 'POST')
       return stock.marketState
-    // Yahoo returned CLOSED — cross-check against real exchange hours
-    if (exchangeIsOpen) return 'REGULAR'
-    return 'CLOSED'
-  }, [stock, exchangeIsOpen])
+    // Yahoo returned CLOSED — derive from local exchange clock
+    const ex = resolvedExchange ?? EXCHANGES[0]
+    return getMarketState(ex)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stock, resolvedExchange, tick])
 
   if (isLoading) {
     return (

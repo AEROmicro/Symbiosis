@@ -30,7 +30,7 @@ function changeColor(change: number | null): string {
 export function HeatmapWidget() {
   // Sector ETFs trade during regular NYSE hours — useMultipleStocks will
   // automatically stop polling when all markets are closed.
-  const { stocks, isLoading } = useMultipleStocks(TICKERS, 120_000)
+  const { stocks, isLoading } = useMultipleStocks(TICKERS, 30_000)
 
   const sectors = SECTORS.map(s => {
     const stock = stocks.find(d => d.symbol === s.ticker)
