@@ -446,6 +446,123 @@ const FORMULAS: Formula[] = [
     description: 'Market\'s implied expected volatility; derived by inverting Black-Scholes.',
     variables: 'C = market option price, S = spot price, T = time to expiry',
   },
+
+  // ── NEW TECHNICAL ────────────────────────────────────────────────────────────
+  {
+    name: 'Ichimoku Cloud',
+    category: 'technical',
+    formula: 'Tenkan-sen = (H₉ + L₉) / 2\nKijun-sen = (H₂₆ + L₂₆) / 2\nSenkou A = (Tenkan + Kijun) / 2\nSenkou B = (H₅₂ + L₅₂) / 2',
+    description: 'Multi-component Japanese indicator showing support, resistance, momentum and trend direction.',
+    variables: 'H/L = highest/lowest over n periods, values plotted 26 periods ahead',
+  },
+  {
+    name: 'Chaikin Money Flow (CMF)',
+    category: 'technical',
+    formula: 'MFV = [(C − L) − (H − C)] / (H − L) × V\nCMF = Σ(MFV, n) / Σ(V, n)',
+    description: 'Volume-weighted measure of buying and selling pressure over n periods. Positive = accumulation.',
+    variables: 'C=close, H=high, L=low, V=volume, n=20 typical',
+  },
+  {
+    name: 'Donchian Channel',
+    category: 'technical',
+    formula: 'Upper = Highest High over n periods\nLower = Lowest Low over n periods\nMid = (Upper + Lower) / 2',
+    description: 'Breakout channel showing n-period price extremes. Breakout above upper = bullish signal.',
+    variables: 'n = 20 periods typical',
+  },
+
+  // ── NEW VALUATION ────────────────────────────────────────────────────────────
+  {
+    name: 'Price-to-Free-Cash-Flow (P/FCF)',
+    category: 'valuation',
+    formula: 'P/FCF = Market Cap / Free Cash Flow\nFCF = Operating CF − CapEx',
+    description: 'Values the company based on actual cash generation rather than accounting earnings.',
+  },
+  {
+    name: 'Graham Number',
+    category: 'valuation',
+    formula: 'Graham Number = √(22.5 × EPS × BVPS)',
+    description: 'Benjamin Graham\'s estimate of a stock\'s intrinsic value. Price below this may indicate undervaluation.',
+    variables: 'EPS = earnings per share, BVPS = book value per share',
+  },
+  {
+    name: 'Revenue Growth Rate',
+    category: 'valuation',
+    formula: 'Growth = (Revenue_current − Revenue_prior) / Revenue_prior × 100',
+    description: 'Year-over-year or quarter-over-quarter revenue growth; key metric for growth stock valuation.',
+  },
+
+  // ── NEW RISK ─────────────────────────────────────────────────────────────────
+  {
+    name: 'Treynor Ratio',
+    category: 'risk',
+    formula: 'Treynor = (Rₚ − Rᶠ) / β',
+    description: 'Risk-adjusted return using beta (systematic risk) instead of total volatility.',
+    variables: 'Rₚ = portfolio return, Rᶠ = risk-free rate, β = portfolio beta',
+  },
+  {
+    name: 'Omega Ratio',
+    category: 'risk',
+    formula: 'Ω(L) = ∫_L^∞ [1 − F(r)] dr / ∫_{-∞}^L F(r) dr',
+    description: 'Ratio of probability-weighted gains above threshold L to probability-weighted losses below L.',
+    variables: 'F(r) = return CDF, L = minimum acceptable return threshold',
+  },
+  {
+    name: 'Conditional VaR (CVaR)',
+    category: 'risk',
+    formula: 'CVaR(α) = E[Loss | Loss > VaR(α)]\nCVaR(95%) ≈ μ − σ × φ(1.645) / 0.05',
+    description: 'Expected loss given that the loss exceeds the VaR threshold. Also called Expected Shortfall.',
+    variables: 'φ = standard normal PDF, α = confidence level',
+  },
+
+  // ── NEW PORTFOLIO ─────────────────────────────────────────────────────────────
+  {
+    name: 'Rebalancing Drift',
+    category: 'portfolio',
+    formula: 'Drift = |Current Weight − Target Weight|\nRebalance when Drift > threshold (e.g., 5%)',
+    description: 'Measures how far portfolio weights have moved from targets; triggers rebalancing.',
+  },
+  {
+    name: 'Annualised Volatility',
+    category: 'portfolio',
+    formula: 'σ_annual = σ_daily × √252\nσ_daily = std(daily log returns)',
+    description: 'Scales daily return standard deviation to an annual figure assuming 252 trading days.',
+  },
+  {
+    name: 'Tracking Error',
+    category: 'portfolio',
+    formula: 'TE = σ(Rₚ − Rᵦ)\nTE_annual = TE_daily × √252',
+    description: 'Standard deviation of the difference between portfolio and benchmark returns.',
+    variables: 'Rᵦ = benchmark return',
+  },
+
+  // ── NEW ACCOUNTING ────────────────────────────────────────────────────────────
+  {
+    name: 'Net Debt',
+    category: 'accounting',
+    formula: 'Net Debt = Total Debt − Cash & Cash Equivalents',
+    description: 'Measures financial leverage net of liquid assets; negative net debt = net cash position.',
+  },
+  {
+    name: 'Days Sales Outstanding (DSO)',
+    category: 'accounting',
+    formula: 'DSO = (Accounts Receivable / Revenue) × Days\nDays = 365 (annual) or 90 (quarterly)',
+    description: 'Average days to collect payment after a sale. Lower DSO indicates faster cash collection.',
+  },
+
+  // ── NEW OPTIONS ───────────────────────────────────────────────────────────────
+  {
+    name: 'Rho (ρ)',
+    category: 'options',
+    formula: 'ρ_call = K × T × e^(−rT) × N(d₂)\nρ_put = −K × T × e^(−rT) × N(−d₂)',
+    description: 'Sensitivity of option price to a 1% change in the risk-free interest rate.',
+  },
+  {
+    name: 'Max Pain (Options)',
+    category: 'options',
+    formula: 'Max Pain = Strike where total $ loss to option buyers is maximised\nΣ_calls = Σ max(S − Kᵢ, 0) × OI_call\nΣ_puts = Σ max(Kᵢ − S, 0) × OI_put',
+    description: 'The price at which the most options expire worthless, often a price magnet near expiry.',
+    variables: 'Kᵢ = strike price, OI = open interest, S = settlement price',
+  },
 ]
 
 const CATEGORY_LABELS: Record<FormulaCategory, string> = {
