@@ -52,6 +52,10 @@ export const EXCHANGES: ExchangeDef[] = [
   { id: 'NZX',     name: 'Auckland (NZX)',       region: 'Auckland',      country: 'NZ',  timezone: 'Pacific/Auckland',    openHour: 10, openMinute: 0,  closeHour: 16, closeMinute: 45, hoursLabel: '10:00 – 16:45', flag: '🇳🇿' },
 ]
 
+// Exchanges with a midday lunch break (11:30–13:00 local time) — defined once
+// at module level so it is not recreated on every exchangeTimeParts() call.
+const LUNCH_BREAK_IDS = new Set(['SSE', 'SZSE', 'HKEX', 'TWSE'])
+
 /**
  * Core helper: resolves the current local time parts for an exchange.
  * Returns { cur, open, close, isWeekend, isLunch } where cur/open/close are
@@ -76,7 +80,6 @@ function exchangeTimeParts(ex: ExchangeDef) {
   const close     = ex.closeHour * 60 + ex.closeMinute
   const isWeekend = weekday === 'Sat' || weekday === 'Sun'
 
-  const LUNCH_BREAK_IDS = new Set(['SSE', 'SZSE', 'HKEX', 'TWSE'])
   const isLunch = LUNCH_BREAK_IDS.has(ex.id) && cur >= 11 * 60 + 30 && cur < 13 * 60
 
   return { cur, open, close, isWeekend, isLunch }

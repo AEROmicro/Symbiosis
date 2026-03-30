@@ -39,6 +39,8 @@ export type WidgetType =
   | 'dictionary-lg'
   | 'formulas'
   | 'formulas-lg'
+  | 'market-session'
+  | 'watchlist-compact'
 
 export interface WidgetConfig {
   id: string
@@ -262,6 +264,30 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     minH: 9,
     category: 'market',
     color: 'bg-rose-500/20',
+  },
+  {
+    type: 'market-session',
+    name: 'Market Sessions',
+    description: 'Live PRE / REGULAR / POST / CLOSED status for 8 global exchanges — no API required',
+    iconName: 'Globe',
+    defaultW: 4,
+    defaultH: 10,
+    minW: 3,
+    minH: 8,
+    category: 'market',
+    color: 'bg-teal-500/20',
+  },
+  {
+    type: 'watchlist-compact',
+    name: 'Watchlist (Compact)',
+    description: 'Compact table view of your watchlist — symbol, price and % change in a tight list',
+    iconName: 'LayoutGrid',
+    defaultW: 3,
+    defaultH: 8,
+    minW: 2,
+    minH: 5,
+    category: 'recommended',
+    color: 'bg-blue-500/20',
   },
   {
     type: 'top-movers',
