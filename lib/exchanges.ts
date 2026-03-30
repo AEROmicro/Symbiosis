@@ -52,7 +52,9 @@ export const EXCHANGES: ExchangeDef[] = [
   { id: 'NZX',     name: 'Auckland (NZX)',       region: 'Auckland',      country: 'NZ',  timezone: 'Pacific/Auckland',    openHour: 10, openMinute: 0,  closeHour: 16, closeMinute: 45, hoursLabel: '10:00 – 16:45', flag: '🇳🇿' },
 ]
 
-/** Returns true if the given exchange is currently open for regular trading. */
+/** Returns true if the given exchange is currently open for regular trading.
+ *  Note: exchanges with lunch breaks (e.g. SSE, SZSE, TWSE) are handled below.
+ */
 export function isExchangeOpen(ex: ExchangeDef): boolean {
   const now = new Date()
   const parts = new Intl.DateTimeFormat('en-US', {
@@ -72,6 +74,15 @@ export function isExchangeOpen(ex: ExchangeDef): boolean {
   const cur   = hour * 60 + minute
   const open  = ex.openHour * 60 + ex.openMinute
   const close = ex.closeHour * 60 + ex.closeMinute
+
+  // Exchanges with a midday lunch break (11:30–13:00 local time)
+  const LUNCH_BREAK_IDS = new Set(['SSE', 'SZSE', 'HKEX', 'TWSE'])
+  if (LUNCH_BREAK_IDS.has(ex.id)) {
+    const lunchStart = 11 * 60 + 30
+    const lunchEnd   = 13 * 60 + 0
+    if (cur >= lunchStart && cur < lunchEnd) return false
+  }
+
   return cur >= open && cur < close
 }
 

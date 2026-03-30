@@ -110,7 +110,7 @@ export function StockDetail({ symbol, refreshInterval = 15000, onSymbolChange }:
                 {isPositive ? '+' : ''}{stock.change.toFixed(2)} ({isPositive ? '+' : ''}{stock.changePercent.toFixed(2)}%)
               </span>
             </div>
-            <span className="text-[10px] text-muted-foreground uppercase tracking-wider self-end pb-0.5">Last Close</span>
+            <span className="text-[10px] text-muted-foreground uppercase tracking-wider self-end pb-0.5">Regular Close</span>
           </div>
 
           {/* Pre-market price row */}
