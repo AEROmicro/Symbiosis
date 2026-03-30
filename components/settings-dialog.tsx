@@ -146,7 +146,6 @@ export function SettingsDialog({ currentTheme, onThemeChange, scanlineEnabled, o
                 )}
               >
                 <span className="flex items-center gap-2">
-                  <span>{selected.flag}</span>
                   <span className="font-semibold text-xs">{selected.id}</span>
                   <span className="text-muted-foreground text-xs">{selected.name}</span>
                 </span>
