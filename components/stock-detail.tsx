@@ -161,9 +161,9 @@ export function StockDetail({ symbol, refreshInterval = 15000, onSymbolChange }:
                 {isPositive ? '+' : ''}{effectiveChange.toFixed(2)} ({isPositive ? '+' : ''}{effectiveChangePercent.toFixed(2)}%)
               </span>
             </div>
-            {/* Only show "Last Close" label when the market is closed and no extended-hours data is the primary */}
+            {/* Only show "Regular Close" label when the market is closed and no extended-hours data is the primary */}
             {effectiveMarketState === 'CLOSED' && !showRegularAsSecondary && (
-              <span className="text-[10px] text-muted-foreground uppercase tracking-wider self-end pb-0.5">Last Close</span>
+              <span className="text-[10px] text-muted-foreground uppercase tracking-wider self-end pb-0.5">Regular Close</span>
             )}
             {effectiveMarketState === 'PRE' && (
               <span className="text-[10px] text-yellow-500 uppercase tracking-wider self-end pb-0.5 flex items-center gap-1">
