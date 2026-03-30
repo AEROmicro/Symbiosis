@@ -17,7 +17,7 @@ import { KeyboardShortcuts }    from '@/components/keyboard-shortcuts'
 import { MarketHoursDialog }    from '@/components/market-hours-dialog'
 import { CurrencyConverter }    from '@/components/currency-converter'
 import { PortfolioDialog }      from '@/components/portfolio-dialog'
-import { SettingsDialog, type AppTheme } from '@/components/settings-dialog'
+import { SettingsDialog, type AppTheme, type ModernTheme } from '@/components/settings-dialog'
 import type { WidgetAppProps }  from '@/components/widget-renderer'
 
 const QUICK_SYMBOLS = [
@@ -42,6 +42,10 @@ interface MobileLayoutProps {
   onOpenBlueprint: () => void
   defaultExchange?: string
   onExchangeChange?: (id: string) => void
+  modernEnabled?: boolean
+  onModernEnabledChange?: (enabled: boolean) => void
+  modernTheme?: ModernTheme
+  onModernThemeChange?: (t: ModernTheme) => void
 }
 
 export function MobileLayout({
@@ -53,6 +57,10 @@ export function MobileLayout({
   onOpenBlueprint,
   defaultExchange = 'NYSE',
   onExchangeChange,
+  modernEnabled = false,
+  onModernEnabledChange,
+  modernTheme = 'dark',
+  onModernThemeChange,
 }: MobileLayoutProps) {
   const [activeTab, setActiveTab] = useState<MobileTab>('market')
 
@@ -205,6 +213,10 @@ export function MobileLayout({
                 onOpenBlueprint={onOpenBlueprint}
                 defaultExchange={defaultExchange}
                 onExchangeChange={onExchangeChange ?? (() => {})}
+                modernEnabled={modernEnabled}
+                onModernEnabledChange={onModernEnabledChange ?? (() => {})}
+                modernTheme={modernTheme}
+                onModernThemeChange={onModernThemeChange ?? (() => {})}
               />
             </section>
 

@@ -1,13 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { Settings, LayoutDashboard, ChevronDown } from 'lucide-react'
+import { Settings, LayoutDashboard, ChevronDown, FlaskConical } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { EXCHANGES } from '@/lib/exchanges'
 
 export type AppTheme = 'default' | 'red' | 'mutualism-light' | 'mutualism-dark'
+export type ModernTheme = 'light' | 'dark'
 
 interface SettingsDialogProps {
   currentTheme: AppTheme
@@ -17,6 +18,10 @@ interface SettingsDialogProps {
   onOpenBlueprint?: () => void
   defaultExchange: string
   onExchangeChange: (exchangeId: string) => void
+  modernEnabled: boolean
+  onModernEnabledChange: (enabled: boolean) => void
+  modernTheme: ModernTheme
+  onModernThemeChange: (theme: ModernTheme) => void
 }
 
 const themes: {
@@ -51,9 +56,37 @@ const themes: {
   },
 ]
 
-export function SettingsDialog({ currentTheme, onThemeChange, scanlineEnabled, onScanlineChange, onOpenBlueprint, defaultExchange, onExchangeChange }: SettingsDialogProps) {
+const modernThemes: {
+  id: ModernTheme
+  name: string
+  description: string
+  preview: { bg: string; text: string; accent: string }
+}[] = [
+  {
+    id: 'light',
+    name: 'Aether Light',
+    description: 'Clean white, inspired by TradingView',
+    preview: { bg: '#f8f9fb', text: '#1a1d2e', accent: '#4a6cf7' },
+  },
+  {
+    id: 'dark',
+    name: 'Aether Dark',
+    description: 'Refined dark, inspired by TradingView',
+    preview: { bg: '#1e2130', text: '#edf0f7', accent: '#6b8eff' },
+  },
+]
+
+export function SettingsDialog({
+  currentTheme, onThemeChange,
+  scanlineEnabled, onScanlineChange,
+  onOpenBlueprint,
+  defaultExchange, onExchangeChange,
+  modernEnabled, onModernEnabledChange,
+  modernTheme, onModernThemeChange,
+}: SettingsDialogProps) {
   const [open, setOpen] = useState(false)
   const [exchangeOpen, setExchangeOpen] = useState(false)
+  const [showExperimental, setShowExperimental] = useState(false)
 
   const selected = EXCHANGES.find(e => e.id === defaultExchange) ?? EXCHANGES[0]
 
@@ -83,11 +116,11 @@ export function SettingsDialog({ currentTheme, onThemeChange, scanlineEnabled, o
             </p>
             <div className="grid grid-cols-2 gap-3">
               {themes.map((theme) => {
-                const isActive = currentTheme === theme.id
+                const isActive = currentTheme === theme.id && !modernEnabled
                 return (
                   <button
                     key={theme.id}
-                    onClick={() => onThemeChange(theme.id)}
+                    onClick={() => { onThemeChange(theme.id); onModernEnabledChange(false) }}
                     className={cn(
                       'relative p-3 rounded-md border text-left transition-all',
                       isActive
@@ -210,6 +243,107 @@ export function SettingsDialog({ currentTheme, onThemeChange, scanlineEnabled, o
             </button>
           </div>
 
+          {/* ── Experimental Modern Style ──────────────────────────────── */}
+          <div className="border-t border-border pt-4">
+            <button
+              onClick={() => setShowExperimental(p => !p)}
+              className="w-full flex items-center gap-2 mb-3"
+            >
+              <FlaskConical className="w-3.5 h-3.5 text-primary shrink-0" />
+              <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                Experimental
+              </p>
+              <span className="ml-auto text-[10px] text-primary/60 border border-primary/30 bg-primary/10 rounded px-1.5 py-px">
+                BETA
+              </span>
+              <ChevronDown className={cn('w-3.5 h-3.5 text-muted-foreground transition-transform shrink-0', showExperimental && 'rotate-180')} />
+            </button>
+
+            {showExperimental && (
+              <div className="space-y-3 pl-1">
+                {/* Enable toggle */}
+                <button
+                  onClick={() => onModernEnabledChange(!modernEnabled)}
+                  className={cn(
+                    'w-full flex items-center justify-between px-3 py-2.5 rounded-md border text-left transition-all text-sm',
+                    modernEnabled
+                      ? 'border-primary/40 bg-primary/5'
+                      : 'border-border hover:border-primary/30 hover:bg-muted/30',
+                  )}
+                >
+                  <div>
+                    <div className="font-semibold text-xs">Modern Visual Style</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">
+                      Clean, polished UI inspired by TradingView
+                    </div>
+                  </div>
+                  <div
+                    className={cn(
+                      'relative w-9 h-5 rounded-full border transition-colors shrink-0',
+                      modernEnabled ? 'bg-primary border-primary' : 'bg-muted border-border',
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        'absolute top-0.5 w-4 h-4 rounded-full bg-background transition-transform',
+                        modernEnabled ? 'translate-x-4' : 'translate-x-0.5',
+                      )}
+                    />
+                  </div>
+                </button>
+
+                {/* Theme picker — only shown when modern is enabled */}
+                {modernEnabled && (
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">
+                      Aether Theme
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {modernThemes.map(mt => {
+                        const isActive = modernTheme === mt.id
+                        return (
+                          <button
+                            key={mt.id}
+                            onClick={() => onModernThemeChange(mt.id)}
+                            className={cn(
+                              'relative p-2.5 rounded-md border text-left transition-all',
+                              isActive
+                                ? 'border-primary ring-1 ring-primary bg-primary/5'
+                                : 'border-border hover:border-primary/50 hover:bg-muted/30',
+                            )}
+                          >
+                            <div
+                              className="h-8 rounded mb-1.5 border border-white/10 flex items-center justify-center gap-1.5"
+                              style={{ backgroundColor: mt.preview.bg }}
+                            >
+                              <span
+                                className="w-2 h-2 rounded-sm"
+                                style={{ backgroundColor: mt.preview.accent }}
+                              />
+                              <span style={{ color: mt.preview.text, fontSize: '8px', fontFamily: 'system-ui' }}>
+                                Aα
+                              </span>
+                            </div>
+                            <div className="text-[10px] font-semibold leading-tight">{mt.name}</div>
+                            <div className="text-[9px] text-muted-foreground mt-0.5 leading-tight">
+                              {mt.description}
+                            </div>
+                            {isActive && (
+                              <div className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary" />
+                            )}
+                          </button>
+                        )
+                      })}
+                    </div>
+                    <p className="text-[9px] text-muted-foreground/60 mt-2 leading-relaxed">
+                      Modern style overrides fonts, colors and card styles. Other terminal themes are disabled while active.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
           {/* Blueprint button */}
           {onOpenBlueprint && (
             <div className="border-t border-border pt-4">
@@ -234,3 +368,5 @@ export function SettingsDialog({ currentTheme, onThemeChange, scanlineEnabled, o
     </Dialog>
   )
 }
+
+

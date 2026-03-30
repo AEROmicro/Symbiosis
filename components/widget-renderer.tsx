@@ -5,7 +5,7 @@ import {
   Terminal, LayoutGrid, TrendingUp, Zap, Server, Newspaper,
   Briefcase, Clock, Globe, Activity, Map, Bitcoin, DollarSign,
   CalendarDays, HelpCircle, Calculator, ListTodo, Rss,
-  Landmark, Gem, Target, Coins, Book,
+  Landmark, Gem, Target, Coins, Book, Search,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { WidgetConfig } from '@/lib/widget-types'
@@ -45,6 +45,19 @@ import { FormulasWidget }         from '@/components/widgets/formulas-widget'
 import { DictionaryWidget }       from '@/components/widgets/dictionary-widget'
 import { MarketSessionWidget }    from '@/components/widgets/market-session-widget'
 import { WatchlistCompactWidget } from '@/components/widgets/watchlist-compact-widget'
+import { EarningsWidget }         from '@/components/widgets/earnings-widget'
+import { YieldCurveWidget }       from '@/components/widgets/yield-curve-widget'
+import { MarketBreadthWidget }    from '@/components/widgets/market-breadth-widget'
+import { SectorRotationWidget }   from '@/components/widgets/sector-rotation-widget'
+import { MacroIndicatorsWidget }  from '@/components/widgets/macro-indicators-widget'
+import { OptionsFlowWidget }      from '@/components/widgets/options-flow-widget'
+import { InsiderActivityWidget }  from '@/components/widgets/insider-activity-widget'
+import { CorrelationHeatmapWidget } from '@/components/widgets/correlation-heatmap-widget'
+import { StockScreenerWidget }    from '@/components/widgets/stock-screener-widget'
+import { RiskMetricsWidget }      from '@/components/widgets/risk-metrics-widget'
+import { TimerWidget }            from '@/components/widgets/timer-widget'
+import { JsonViewerWidget }       from '@/components/widgets/json-viewer-widget'
+import { SystemMonitorWidget }    from '@/components/widgets/system-monitor-widget'
 
 // ── Props passed from the main app to stateful widgets ─────────────────────
 export interface WidgetAppProps {
@@ -66,7 +79,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Terminal, LayoutGrid, TrendingUp, Zap, Server, Newspaper,
   Briefcase, Clock, Globe, Activity, Map, Bitcoin, DollarSign,
   CalendarDays, HelpCircle, Calculator, ListTodo, Rss,
-  Landmark, Gem, Target, Coins, Book,
+  Landmark, Gem, Target, Coins, Book, Search,
 }
 
 // ── WidgetFrame ─────────────────────────────────────────────────────────────
@@ -419,6 +432,99 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
       return (
         <WidgetFrame title={title} iconName={iconName}>
           <FormulasWidget />
+        </WidgetFrame>
+      )
+
+    // ── New Market widgets ───────────────────────────────────────────────────
+    case 'earnings':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <EarningsWidget />
+        </WidgetFrame>
+      )
+
+    case 'yield-curve':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <YieldCurveWidget />
+        </WidgetFrame>
+      )
+
+    case 'market-breadth':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <MarketBreadthWidget />
+        </WidgetFrame>
+      )
+
+    case 'sector-rotation':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <SectorRotationWidget />
+        </WidgetFrame>
+      )
+
+    case 'macro-indicators':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <MacroIndicatorsWidget />
+        </WidgetFrame>
+      )
+
+    case 'options-flow':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <OptionsFlowWidget />
+        </WidgetFrame>
+      )
+
+    case 'insider-activity':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <InsiderActivityWidget />
+        </WidgetFrame>
+      )
+
+    case 'correlation-heatmap':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <CorrelationHeatmapWidget />
+        </WidgetFrame>
+      )
+
+    // ── New Tools widgets ────────────────────────────────────────────────────
+    case 'stock-screener':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <StockScreenerWidget />
+        </WidgetFrame>
+      )
+
+    case 'risk-metrics':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <RiskMetricsWidget />
+        </WidgetFrame>
+      )
+
+    case 'timer':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <TimerWidget />
+        </WidgetFrame>
+      )
+
+    case 'json-viewer':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <JsonViewerWidget />
+        </WidgetFrame>
+      )
+
+    case 'system-monitor':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <SystemMonitorWidget />
         </WidgetFrame>
       )
 
