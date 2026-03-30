@@ -2,6 +2,7 @@
 
 import useSWR from 'swr'
 import type { StockData } from '@/lib/stock-types'
+import { resolveExchange, isExchangeOpen } from '@/lib/exchanges'
 
 const fetcher = async (url: string) => {
   const res = await fetch(url)
@@ -16,7 +17,7 @@ const fetcher = async (url: string) => {
  * Returns the polling interval for a single stock based on its market state.
  *   REGULAR  → openInterval (default 60 s)
  *   PRE/POST → 3 × openInterval (slower during extended hours)
- *   CLOSED   → 0 (no polling — market is closed for this stock)
+ *   CLOSED   → check real exchange hours; if open, use openInterval; else 0
  */
 function stockRefreshInterval(data: StockData | undefined, openInterval: number): number {
   if (!data) return openInterval
@@ -24,7 +25,12 @@ function stockRefreshInterval(data: StockData | undefined, openInterval: number)
     case 'REGULAR': return openInterval
     case 'PRE':
     case 'POST':    return openInterval * 3
-    default:        return 0  // market closed — stop polling
+    default: {
+      // Yahoo says CLOSED — verify against the actual exchange trading hours
+      const ex = resolveExchange(data.exchange)
+      if (ex && isExchangeOpen(ex)) return openInterval
+      return 0  // market genuinely closed — stop polling
+    }
   }
 }
 
@@ -68,7 +74,12 @@ export function useMultipleStocks(symbols: string[], openInterval = 60_000) {
         const states = data.map((s) => s.marketState)
         if (states.includes('REGULAR')) return openInterval
         if (states.some((s) => s === 'PRE' || s === 'POST')) return openInterval * 3
-        return 0 // all markets closed — stop polling
+        // All Yahoo states are CLOSED — check real exchange hours for any stock
+        const anyOpen = data.some((s) => {
+          const ex = resolveExchange(s.exchange)
+          return ex ? isExchangeOpen(ex) : false
+        })
+        return anyOpen ? openInterval : 0
       },
       revalidateOnFocus: false,
       dedupingInterval: 30_000,

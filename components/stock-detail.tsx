@@ -1,11 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useStockData } from '@/hooks/use-stock-data'
 import { PriceChart } from '@/components/price-chart'
 import { FullscreenChart } from '@/components/fullscreen-chart'
 import { TrendingUp, TrendingDown, Activity, BarChart3, DollarSign, Clock, Moon, Sunrise } from 'lucide-react'
 import { cn, getCurrencySymbol } from '@/lib/utils'
+import { resolveExchange, isExchangeOpen } from '@/lib/exchanges'
 
 interface StockDetailProps {
   symbol: string
@@ -16,6 +17,26 @@ interface StockDetailProps {
 export function StockDetail({ symbol, refreshInterval = 15000, onSymbolChange }: StockDetailProps) {
   const { stock, isLoading } = useStockData(symbol, refreshInterval)
   const [fullscreenOpen, setFullscreenOpen] = useState(false)
+
+  // Resolve the exchange and compute effective market state from real trading hours
+  const resolvedExchange = useMemo(
+    () => (stock ? resolveExchange(stock.exchange) : null),
+    [stock]
+  )
+  const exchangeIsOpen = useMemo(
+    () => (resolvedExchange ? isExchangeOpen(resolvedExchange) : false),
+    [resolvedExchange]
+  )
+  // Effective market state: trust Yahoo for PRE/POST/REGULAR; if Yahoo says CLOSED
+  // but the exchange's local clock says it's open, treat it as REGULAR (open).
+  const effectiveMarketState = useMemo(() => {
+    if (!stock) return 'CLOSED'
+    if (stock.marketState === 'REGULAR' || stock.marketState === 'PRE' || stock.marketState === 'POST')
+      return stock.marketState
+    // Yahoo returned CLOSED — cross-check against real exchange hours
+    if (exchangeIsOpen) return 'REGULAR'
+    return 'CLOSED'
+  }, [stock, exchangeIsOpen])
 
   if (isLoading) {
     return (
@@ -74,24 +95,32 @@ export function StockDetail({ symbol, refreshInterval = 15000, onSymbolChange }:
               <span className="text-xl font-bold text-foreground">{stock.symbol}</span>
               <span className={cn(
                 "px-2 py-0.5 text-[10px] font-bold tracking-wider border rounded",
-                stock.marketState === 'REGULAR' 
+                effectiveMarketState === 'REGULAR' 
                   ? "bg-primary/10 border-primary/30 text-primary" 
-                  : stock.marketState === 'PRE' || stock.marketState === 'POST'
+                  : effectiveMarketState === 'PRE' || effectiveMarketState === 'POST'
                   ? "bg-yellow-500/10 border-yellow-500/30 text-yellow-500"
                   : "bg-muted border-border text-muted-foreground"
               )}>
-                {stock.marketState === 'REGULAR' ? 'LIVE' : stock.marketState === 'PRE' ? 'PRE' : stock.marketState === 'POST' ? 'AH' : 'CLOSED'}
+                {effectiveMarketState === 'REGULAR' ? 'LIVE' : effectiveMarketState === 'PRE' ? 'PRE' : effectiveMarketState === 'POST' ? 'AH' : 'CLOSED'}
               </span>
-              <span className="text-xs text-muted-foreground">{stock.exchange}</span>
+              {/* Exchange badge */}
+              <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                {resolvedExchange && (
+                  <span className="text-sm leading-none">{resolvedExchange.flag}</span>
+                )}
+                <span className="truncate max-w-[140px]" title={stock.exchange}>
+                  {resolvedExchange ? resolvedExchange.name : stock.exchange}
+                </span>
+              </span>
             </div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <span className={cn(
                 "w-1.5 h-1.5 rounded-full",
-                stock.marketState === 'REGULAR' ? "bg-primary animate-pulse" :
-                stock.marketState === 'PRE' || stock.marketState === 'POST' ? "bg-yellow-500 animate-pulse" :
+                effectiveMarketState === 'REGULAR' ? "bg-primary animate-pulse" :
+                effectiveMarketState === 'PRE' || effectiveMarketState === 'POST' ? "bg-yellow-500 animate-pulse" :
                 "bg-muted-foreground"
               )} />
-              {stock.marketState === 'REGULAR' ? 'Market Open' : stock.marketState === 'PRE' ? 'Pre-Market' : stock.marketState === 'POST' ? 'After Hours' : 'Market Closed'}
+              {effectiveMarketState === 'REGULAR' ? 'Market Open' : effectiveMarketState === 'PRE' ? 'Pre-Market' : effectiveMarketState === 'POST' ? 'After Hours' : 'Market Closed'}
             </div>
           </div>
           <p className="text-xs text-muted-foreground mb-2">{stock.name}</p>
