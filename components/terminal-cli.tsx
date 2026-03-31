@@ -29,7 +29,7 @@ const POPULAR_STOCKS = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'META', 'NVDA',
 
 const PORTFOLIO_STORAGE_KEY = 'symbiosis-portfolio'
 
-export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, onSelectStock, watchedStocks, isLoggedIn, watchlistNames, activeListName, onAddStockToList }: TerminalCLIProps) {
+export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, onSelectStock, watchedStocks, watchlistNames, activeListName, onAddStockToList }: TerminalCLIProps) {
   const [input, setInput] = useState('')
   const [logs, setLogs] = useState<TerminalLog[]>([
     {
@@ -558,12 +558,10 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, onSelectSto
 
       case 'add':
         if (!args[0]) {
-          addLog('error', isLoggedIn
-            ? 'Usage: add <SYMBOL> [listname] (e.g., add AAPL or add AAPL tech)'
-            : 'Usage: add <SYMBOL> (e.g., add AAPL)')
+          addLog('error', 'Usage: add <SYMBOL> [listname] (e.g., add AAPL or add AAPL tech)')
           break
         }
-        if (args[1] && isLoggedIn && onAddStockToList) {
+        if (args[1] && onAddStockToList) {
           // add AAPL listname
           await validateAndAddSymbol(args[0], args[1])
         } else {
@@ -572,10 +570,6 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, onSelectSto
         break
 
       case 'lists':
-        if (!isLoggedIn) {
-          addLog('warning', 'Sign in to use multiple watchlists')
-          break
-        }
         addLog('info', '── Watchlists ─────────────────────────')
         ;(watchlistNames ?? []).forEach(n => {
           addLog('info', `  ${n === activeListName ? '▶' : '○'} ${n}`)

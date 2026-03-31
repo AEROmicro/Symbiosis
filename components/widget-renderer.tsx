@@ -93,7 +93,6 @@ export interface WidgetAppProps {
   widgetLayout?: import('@/lib/widget-types').WidgetConfig[]
   onLoadProfile?: (layout: import('@/lib/widget-types').WidgetConfig[]) => void
   // Multi-list watchlists
-  isLoggedIn?: boolean
   watchlistSets?: Record<string, string[]>
   activeListName?: string
   onSwitchList?: (name: string) => void
@@ -156,7 +155,7 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
     refreshInterval,
     defaultExchange,
     widgetLayout, onLoadProfile,
-    isLoggedIn, watchlistSets, activeListName,
+    watchlistSets, activeListName,
     onSwitchList, onCreateList, onDeleteList, onAddStockToList,
   } = appProps
 
@@ -174,7 +173,6 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
               onClearAll={onClearAll}
               onSelectStock={onSelectStock}
               watchedStocks={watchedStocks}
-              isLoggedIn={isLoggedIn}
               watchlistNames={Object.keys(watchlistSets ?? {})}
               activeListName={activeListName}
               onAddStockToList={onAddStockToList}
@@ -193,7 +191,6 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
             onRemoveStock={onRemoveStock}
             onSelectStock={onSelectStock}
             refreshInterval={refreshInterval}
-            isLoggedIn={isLoggedIn}
             watchlistSets={watchlistSets}
             activeListName={activeListName}
             onSwitchList={onSwitchList}
