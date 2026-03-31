@@ -43,7 +43,6 @@ export default function SymbiosisApp() {
   const refreshInterval = 1000
   const { width: gridWidth, containerRef }  = useContainerWidth({ initialWidth: 1280 })
 
-  const { user, loading: authLoading, syncPreferences } = useAuth()
   const prevUserIdRef = useRef<string | null>(null)
   const syncDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
