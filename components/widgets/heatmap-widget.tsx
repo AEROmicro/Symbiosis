@@ -67,11 +67,6 @@ export function HeatmapWidget() {
           </div>
         ))}
       </div>
-      {/* Live indicator */}
-      <div className="flex items-center justify-end gap-1.5 shrink-0 text-[10px] font-mono text-muted-foreground">
-        <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-        {isLoading ? 'updating…' : secAgo !== null ? `updated ${secAgo}s ago` : 'live'}
-      </div>
     </div>
   )
 }
