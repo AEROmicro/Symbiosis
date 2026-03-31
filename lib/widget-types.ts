@@ -54,6 +54,10 @@ export type WidgetType =
   | 'timer'
   | 'json-viewer'
   | 'system-monitor'
+  | 'weather'
+  | 'world-clock'
+  | 'price-alerts'
+  | 'savings-goals'
 
 export interface WidgetConfig {
   id: string
@@ -762,6 +766,54 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     defaultH: 12,
     minW: 4,
     minH: 10,
+    category: 'tools',
+    color: 'bg-emerald-500/20',
+  },
+  {
+    type: 'weather',
+    name: 'Weather',
+    description: 'Real-time weather data for any city — temperature, conditions, wind and humidity',
+    iconName: 'Globe',
+    defaultW: 4,
+    defaultH: 8,
+    minW: 3,
+    minH: 7,
+    category: 'tools',
+    color: 'bg-sky-500/20',
+  },
+  {
+    type: 'world-clock',
+    name: 'World Clock',
+    description: 'Configurable multi-timezone clock grid with market session indicators',
+    iconName: 'Clock',
+    defaultW: 4,
+    defaultH: 10,
+    minW: 4,
+    minH: 8,
+    category: 'tools',
+    color: 'bg-violet-500/20',
+  },
+  {
+    type: 'price-alerts',
+    name: 'Price Alerts',
+    description: 'Set price threshold alerts for stocks — triggers when price crosses target',
+    iconName: 'Zap',
+    defaultW: 4,
+    defaultH: 10,
+    minW: 3,
+    minH: 8,
+    category: 'tools',
+    color: 'bg-amber-500/20',
+  },
+  {
+    type: 'savings-goals',
+    name: 'Savings Goals',
+    description: 'Track personal financial savings goals with progress bars and targets',
+    iconName: 'Target',
+    defaultW: 4,
+    defaultH: 10,
+    minW: 3,
+    minH: 8,
     category: 'tools',
     color: 'bg-emerald-500/20',
   },

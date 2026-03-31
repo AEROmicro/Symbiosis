@@ -1,14 +1,16 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import GridLayout, { type Layout, useContainerWidth } from 'react-grid-layout'
 import { TerminalHeader } from '@/components/terminal-header'
 import { MarketTicker } from '@/components/market-ticker'
 import { SettingsDialog, type AppTheme, type ModernTheme } from '@/components/settings-dialog'
+import { AuthDialog } from '@/components/auth-dialog'
 import { WidgetRenderer, type WidgetAppProps } from '@/components/widget-renderer'
 import { BlueprintEditor } from '@/components/blueprint-editor'
 import { MobileLayout } from '@/components/mobile-layout'
-import { Terminal } from 'lucide-react'
+import { useAuth } from '@/hooks/use-auth'
+import { Terminal, User, LogIn } from 'lucide-react'
 import {
   type WidgetConfig,
   DEFAULT_WIDGET_LAYOUT,
@@ -34,9 +36,14 @@ export default function SymbiosisApp() {
   const [modernTheme, setModernTheme]       = useState<ModernTheme>('dark')
   const [widgetLayout, setWidgetLayout]     = useState<WidgetConfig[]>(DEFAULT_WIDGET_LAYOUT)
   const [blueprintOpen, setBlueprintOpen]   = useState(false)
+  const [authOpen, setAuthOpen]             = useState(false)
   const [isMobile, setIsMobile]             = useState(false)
   const refreshInterval = 1000
   const { width: gridWidth, containerRef }  = useContainerWidth({ initialWidth: 1280 })
+
+  const { user, loading: authLoading, syncPreferences } = useAuth()
+  const prevUserIdRef = useRef<string | null>(null)
+  const syncDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Load from localStorage after mount
   useEffect(() => {
@@ -111,6 +118,52 @@ export default function SymbiosisApp() {
     if (!hydrated) return
     try { localStorage.setItem(WIDGET_LAYOUT_KEY, JSON.stringify(widgetLayout)) } catch { /* ignore */ }
   }, [widgetLayout, hydrated])
+
+  // When user logs in, load their server-side preferences
+  useEffect(() => {
+    if (!user || authLoading) return
+    if (prevUserIdRef.current === user.id) return
+    prevUserIdRef.current = user.id
+
+    const prefs = user.preferences
+    if (prefs.watchlist?.length) {
+      setWatchedStocks(prefs.watchlist)
+      setSelectedStock(prefs.watchlist[0])
+    }
+    if (Array.isArray(prefs.widgetLayout) && prefs.widgetLayout.length > 0) {
+      setWidgetLayout(prefs.widgetLayout as WidgetConfig[])
+    }
+    if (prefs.theme) setTheme(prefs.theme as AppTheme)
+    if (prefs.exchange) setDefaultExchange(prefs.exchange)
+    if (typeof prefs.modernEnabled === 'boolean') setModernEnabled(prefs.modernEnabled)
+    if (prefs.modernTheme) setModernTheme(prefs.modernTheme as ModernTheme)
+    if (typeof prefs.scanlineEnabled === 'boolean') setScanlineEnabled(prefs.scanlineEnabled)
+  }, [user, authLoading])
+
+  // When user logs out, reset prevUserIdRef
+  useEffect(() => {
+    if (!user && !authLoading) {
+      prevUserIdRef.current = null
+    }
+  }, [user, authLoading])
+
+  // Sync preferences to server when they change (debounced)
+  useEffect(() => {
+    if (!hydrated || !user) return
+    if (syncDebounceRef.current) clearTimeout(syncDebounceRef.current)
+    syncDebounceRef.current = setTimeout(() => {
+      syncPreferences({
+        watchlist: watchedStocks,
+        widgetLayout,
+        theme,
+        exchange: defaultExchange,
+        modernEnabled,
+        modernTheme,
+        scanlineEnabled,
+      })
+    }, 500)
+    return () => { if (syncDebounceRef.current) clearTimeout(syncDebounceRef.current) }
+  }, [watchedStocks, widgetLayout, theme, defaultExchange, modernEnabled, modernTheme, scanlineEnabled, hydrated, user, syncPreferences])
 
   const handleThemeChange = useCallback((newTheme: AppTheme) => {
     setTheme(newTheme)
@@ -265,6 +318,22 @@ export default function SymbiosisApp() {
                     modernTheme={modernTheme}
                     onModernThemeChange={handleModernThemeChange}
                   />
+                  <button
+                    onClick={() => setAuthOpen(true)}
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-sm border border-border hover:border-primary/50 hover:text-primary transition-colors text-xs font-mono"
+                  >
+                    {user ? (
+                      <>
+                        <User className="w-3 h-3" />
+                        <span className="max-w-[100px] truncate">{user.displayName}</span>
+                      </>
+                    ) : (
+                      <>
+                        <LogIn className="w-3 h-3" />
+                        Sign In
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
               <div className="mt-3 text-center text-xs text-muted-foreground font-mono space-y-0.5">
@@ -282,6 +351,12 @@ export default function SymbiosisApp() {
         onClose={() => setBlueprintOpen(false)}
         layout={widgetLayout}
         onLayoutChange={setWidgetLayout}
+      />
+
+      {/* Auth Dialog */}
+      <AuthDialog
+        open={authOpen}
+        onClose={() => setAuthOpen(false)}
       />
     </div>
   )

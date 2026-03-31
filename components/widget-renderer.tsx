@@ -58,6 +58,10 @@ import { RiskMetricsWidget }      from '@/components/widgets/risk-metrics-widget
 import { TimerWidget }            from '@/components/widgets/timer-widget'
 import { JsonViewerWidget }       from '@/components/widgets/json-viewer-widget'
 import { SystemMonitorWidget }    from '@/components/widgets/system-monitor-widget'
+import { WeatherWidget }          from '@/components/widgets/weather-widget'
+import { WorldClockWidget }       from '@/components/widgets/world-clock-widget'
+import { PriceAlertsWidget }      from '@/components/widgets/price-alerts-widget'
+import { SavingsGoalsWidget }     from '@/components/widgets/savings-goals-widget'
 
 // ── Props passed from the main app to stateful widgets ─────────────────────
 export interface WidgetAppProps {
@@ -525,6 +529,34 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
       return (
         <WidgetFrame title={title} iconName={iconName}>
           <SystemMonitorWidget />
+        </WidgetFrame>
+      )
+
+    case 'weather':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <WeatherWidget />
+        </WidgetFrame>
+      )
+
+    case 'world-clock':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <WorldClockWidget />
+        </WidgetFrame>
+      )
+
+    case 'price-alerts':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <PriceAlertsWidget />
+        </WidgetFrame>
+      )
+
+    case 'savings-goals':
+      return (
+        <WidgetFrame title={title} iconName={iconName}>
+          <SavingsGoalsWidget />
         </WidgetFrame>
       )
 
