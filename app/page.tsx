@@ -8,7 +8,6 @@ import { SettingsDialog, type AppTheme, type ModernTheme } from '@/components/se
 import { WidgetRenderer, type WidgetAppProps } from '@/components/widget-renderer'
 import { BlueprintEditor } from '@/components/blueprint-editor'
 import { MobileLayout } from '@/components/mobile-layout'
-import { useAuth } from '@/hooks/use-auth'
 import { Terminal, User, LogIn } from 'lucide-react'
 import {
   type WidgetConfig,
@@ -406,22 +405,6 @@ export default function SymbiosisApp() {
                     modernTheme={modernTheme}
                     onModernThemeChange={handleModernThemeChange}
                   />
-                  <button
-                    onClick={() => setAuthOpen(true)}
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-sm border border-border hover:border-primary/50 hover:text-primary transition-colors text-xs font-mono"
-                  >
-                    {user ? (
-                      <>
-                        <User className="w-3 h-3" />
-                        <span className="max-w-[100px] truncate">{user.displayName}</span>
-                      </>
-                    ) : (
-                      <>
-                        <LogIn className="w-3 h-3" />
-                        Sign In
-                      </>
-                    )}
-                  </button>
                 </div>
               </div>
               <div className="mt-3 text-center text-xs text-muted-foreground font-mono space-y-0.5">
