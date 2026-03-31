@@ -31,7 +31,7 @@ const POPULAR_STOCKS = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'META', 'NVDA',
 
 const PORTFOLIO_STORAGE_KEY = 'symbiosis-portfolio'
 
-export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, onSelectStock, watchedStocks, isLoggedIn, watchlistNames, activeListName, onAddStockToList }: TerminalCLIProps) {
+export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, onSelectStock, watchedStocks, watchlistNames, activeListName, onAddStockToList }: TerminalCLIProps) {
   const [input, setInput] = useState('')
   const [logs, setLogs] = useState<TerminalLog[]>([
     {
