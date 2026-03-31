@@ -39,6 +39,10 @@
   --sidebar-border: oklch(0.25 0.05 142);
   --sidebar-ring: oklch(0.75 0.22 142);
   
+  /* Price direction colors — fixed green/red regardless of active theme */
+  --price-up:   oklch(0.72 0.20 142);   /* always green */
+  --price-down: oklch(0.58 0.22 25);    /* always red   */
+
   /* Custom terminal colors */
   --matrix-green: oklch(0.75 0.22 142);
   --matrix-green-dim: oklch(0.5 0.15 142);
@@ -109,6 +113,8 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --color-price-up: var(--price-up);
+  --color-price-down: var(--price-down);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

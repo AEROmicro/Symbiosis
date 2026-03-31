@@ -64,7 +64,7 @@ export function CandlestickWidget({ symbol = 'AAPL' }: CandlestickWidgetProps) {
       if (c.open == null || c.close == null || c.high == null || c.low == null) return null
       const x = PAD_L + i * spacing + spacing / 2
       const isUp = c.close >= c.open
-      const color = isUp ? 'var(--primary)' : 'var(--destructive, #ef4444)'
+      const color = isUp ? 'var(--price-up)' : 'var(--price-down)'
 
       const bodyTop    = toY(Math.max(c.open, c.close))
       const bodyBottom = toY(Math.min(c.open, c.close))

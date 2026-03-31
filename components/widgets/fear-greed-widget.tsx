@@ -138,7 +138,7 @@ export function FearGreedWidget() {
           <span
             className={cn(
               'tabular-nums',
-              (data?.spyChange ?? 0) >= 0 ? 'text-primary' : 'text-destructive',
+              (data?.spyChange ?? 0) >= 0 ? 'text-price-up' : 'text-price-down',
             )}
           >
             {data?.spyChange != null

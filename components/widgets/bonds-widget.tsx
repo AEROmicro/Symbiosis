@@ -67,7 +67,7 @@ export function BondsWidget() {
               {y.rate !== null ? (
                 <>
                   <div className="font-bold tabular-nums">{y.rate.toFixed(3)}%</div>
-                  <div className={cn('text-[10px] tabular-nums', (y.change ?? 0) >= 0 ? 'text-primary' : 'text-destructive')}>
+                  <div className={cn('text-[10px] tabular-nums', (y.change ?? 0) >= 0 ? 'text-price-up' : 'text-price-down')}>
                     {y.change !== null
                       ? `${y.change >= 0 ? '+' : ''}${y.change.toFixed(2)} bps`
                       : '–'}

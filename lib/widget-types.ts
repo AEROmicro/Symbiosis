@@ -67,6 +67,10 @@ export type WidgetType =
   | 'trade-journal'
   | 'volatility-index'
   | 'market-cap-leaderboard'
+  | 'options-chain'
+  | 'technical-analysis'
+  | 'pomodoro'
+  | 'habit-tracker'
   | 'candlestick-mini'
 
 export interface WidgetConfig {
@@ -916,6 +920,42 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     defaultW: 4, defaultH: 10, minW: 4, minH: 8,
     category: 'tools',
     color: 'bg-cyan-500/20',
+  },
+  {
+    type: 'options-chain',
+    name: 'Options Chain',
+    description: 'Live options chain with strikes, bid/ask, volume and implied volatility',
+    iconName: 'Layers',
+    defaultW: 5, defaultH: 12, minW: 5, minH: 10,
+    category: 'market',
+    color: 'bg-indigo-500/20',
+  },
+  {
+    type: 'technical-analysis',
+    name: 'Technical Analysis',
+    description: 'RSI, MACD, EMA, Bollinger Bands — signals computed from real OHLC data',
+    iconName: 'Activity',
+    defaultW: 4, defaultH: 12, minW: 4, minH: 10,
+    category: 'market',
+    color: 'bg-sky-500/20',
+  },
+  {
+    type: 'pomodoro',
+    name: 'Pomodoro Timer',
+    description: '25/5/15 Pomodoro focus timer with session tracking',
+    iconName: 'Timer',
+    defaultW: 3, defaultH: 11, minW: 3, minH: 10,
+    category: 'tools',
+    color: 'bg-red-500/20',
+  },
+  {
+    type: 'habit-tracker',
+    name: 'Habit Tracker',
+    description: 'Track daily habits with streaks and a 7-day calendar view',
+    iconName: 'CheckSquare',
+    defaultW: 5, defaultH: 11, minW: 5, minH: 9,
+    category: 'tools',
+    color: 'bg-emerald-500/20',
   },
 ]
 

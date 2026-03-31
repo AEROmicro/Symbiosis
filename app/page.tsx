@@ -294,9 +294,15 @@ export default function SymbiosisApp() {
           {/* Footer */}
           <footer className="border-t border-border py-4 mt-8 relative z-10">
             <div className="container mx-auto px-4 max-w-7xl">
-              {/* Page tabs */}
-              {pages.length > 1 && (
-                <div className="flex items-center gap-1 mb-3 overflow-x-auto">
+              <div className="grid grid-cols-3 items-center text-xs text-muted-foreground font-mono">
+                {/* Left: branding */}
+                <div className="flex items-center gap-2">
+                  <span className="text-primary">{'>'}_</span>
+                  <span>Symbiosis // Redefine the Limits</span>
+                </div>
+
+                {/* Center: page tabs */}
+                <div className="flex items-center justify-center gap-1 overflow-x-auto">
                   {pages.map(page => (
                     <button
                       key={page.id}
@@ -312,13 +318,9 @@ export default function SymbiosisApp() {
                     </button>
                   ))}
                 </div>
-              )}
-              <div className="flex items-center justify-between text-xs text-muted-foreground font-mono">
-                <div className="flex items-center gap-2">
-                  <span className="text-primary">{'>'}_</span>
-                  <span>Symbiosis // Redefine the Limits</span>
-                </div>
-                <div className="flex items-center gap-4">
+
+                {/* Right: status + settings */}
+                <div className="flex items-center justify-end gap-4">
                   <span className="hidden sm:inline">Market data updates in real-time</span>
                   <span className="flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />

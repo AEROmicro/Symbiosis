@@ -163,7 +163,7 @@ export function StockDetail({ symbol, refreshInterval = 15000, onSymbolChange }:
             </span>
             <div className={cn(
               "flex items-center gap-1 text-sm font-medium",
-              isPositive ? "text-primary" : "text-destructive"
+              isPositive ? "text-price-up" : "text-price-down"
             )}>
               {isPositive ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
               <span className="tabular-nums">
@@ -196,7 +196,7 @@ export function StockDetail({ symbol, refreshInterval = 15000, onSymbolChange }:
               </span>
               <span className={cn(
                 "text-xs font-medium tabular-nums",
-                regularPos ? "text-primary/70" : "text-destructive/70"
+                regularPos ? "text-price-up/70" : "text-price-down/70"
               )}>
                 {regularPos ? '+' : ''}{stock.change.toFixed(2)} ({regularPos ? '+' : ''}{stock.changePercent.toFixed(2)}%)
               </span>

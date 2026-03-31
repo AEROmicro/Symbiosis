@@ -118,7 +118,7 @@ export function StockCard({ symbol, onRemove, onClick, isSelected, refreshInterv
         <div className="flex items-center gap-1.5">
           <span className={cn(
             "text-sm font-bold tracking-tighter font-mono",
-            isPositive ? "text-primary" : "text-destructive"
+            isPositive ? "text-price-up" : "text-price-down"
           )}>
             {stock.symbol}
           </span>
@@ -143,7 +143,7 @@ export function StockCard({ symbol, onRemove, onClick, isSelected, refreshInterv
       {/* Change row */}
       <div className={cn(
         "flex items-center gap-1.5 text-[11px] font-mono font-medium tracking-tight",
-        isPositive ? "text-primary" : "text-destructive"
+        isPositive ? "text-price-up" : "text-price-down"
       )}>
         {isPositive ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
         <span className="tabular-nums">
@@ -158,7 +158,7 @@ export function StockCard({ symbol, onRemove, onClick, isSelected, refreshInterv
       <div className="absolute bottom-3 right-3 flex items-center gap-1.5">
         <span className={cn(
           "w-1 h-1 rounded-full",
-          isPositive ? "bg-primary" : "bg-destructive",
+          isPositive ? "bg-price-up" : "bg-price-down",
           "animate-pulse"
         )} />
         <span className="text-[8px] text-muted-foreground/40 font-bold tracking-[0.2em] font-mono uppercase">Live</span>

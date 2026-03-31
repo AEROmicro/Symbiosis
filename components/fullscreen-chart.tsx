@@ -347,7 +347,7 @@ export function FullscreenChart({ symbol, open, onClose, onSymbolChange }: Fulls
   }
 
   const maxVol = Math.max(...visibleData.map(d => d.volume || 0)) || 1
-  const color = isPositive ? 'var(--primary)' : 'var(--destructive)'
+  const color = isPositive ? 'var(--price-up)' : 'var(--price-down)'
 
   // Candlestick body width: use 90% of the per-bar slot, leaving 10% spacing between candles
   const candleWidth = visibleData.length > 0 ? Math.max(0.4, 90 / visibleData.length) : 1
@@ -424,7 +424,7 @@ export function FullscreenChart({ symbol, open, onClose, onSymbolChange }: Fulls
           <span className="text-xl font-bold tabular-nums font-mono">
             {sym}{displayPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
-          <span className={cn('text-sm tabular-nums font-mono', displayIsPos ? 'text-primary' : 'text-destructive')}>
+          <span className={cn('text-sm tabular-nums font-mono', displayIsPos ? 'text-price-up' : 'text-price-down')}>
             {displayIsPos ? '+' : ''}{displayChange.toFixed(2)} ({displayIsPos ? '+' : ''}{displayChangePct.toFixed(2)}%)
           </span>
         </div>
@@ -738,7 +738,7 @@ export function FullscreenChart({ symbol, open, onClose, onSymbolChange }: Fulls
                       const highY  = toY(d.high ?? d.close)
                       const lowY   = toY(d.low ?? d.close)
                       const bullish = d.close >= (d.open ?? d.close)
-                      const cColor  = bullish ? 'var(--primary)' : 'var(--destructive)'
+                      const cColor  = bullish ? 'var(--price-up)' : 'var(--price-down)'
                       const bodyTop = Math.min(openY, closeY)
                       const bodyH   = Math.max(Math.abs(closeY - openY), 0.5)
                       const hw      = candleWidth / 2
@@ -865,7 +865,7 @@ export function FullscreenChart({ symbol, open, onClose, onSymbolChange }: Fulls
                   return (
                     <div
                       key={i}
-                      className={cn('flex-1 min-w-0', isPos ? 'bg-primary/50' : 'bg-destructive/50')}
+                      className={cn('flex-1 min-w-0', isPos ? 'bg-price-up/50' : 'bg-price-down/50')}
                       style={{ height: `${volH}%` }}
                     />
                   )
@@ -897,9 +897,9 @@ export function FullscreenChart({ symbol, open, onClose, onSymbolChange }: Fulls
                 >
                   {/* Reference lines */}
                   <line x1="0" y1={rsiToY(70)} x2="100" y2={rsiToY(70)}
-                    stroke="var(--destructive)" strokeWidth="0.4" strokeDasharray="2,2" strokeOpacity="0.5" />
+                    stroke="var(--price-down)" strokeWidth="0.4" strokeDasharray="2,2" strokeOpacity="0.5" />
                   <line x1="0" y1={rsiToY(30)} x2="100" y2={rsiToY(30)}
-                    stroke="var(--primary)" strokeWidth="0.4" strokeDasharray="2,2" strokeOpacity="0.5" />
+                    stroke="var(--price-up)" strokeWidth="0.4" strokeDasharray="2,2" strokeOpacity="0.5" />
                   <line x1="0" y1={rsiToY(50)} x2="100" y2={rsiToY(50)}
                     stroke="currentColor" strokeWidth="0.2" strokeOpacity="0.15"
                     className="text-muted-foreground" />

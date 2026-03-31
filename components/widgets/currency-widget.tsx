@@ -110,7 +110,7 @@ export function CurrencyWidget() {
               <span className="font-semibold text-foreground">{r.from}/{r.to}</span>
               <div className="flex items-center gap-2">
                 <span className="tabular-nums">{r.price.toFixed(4)}</span>
-                <span className={cn('flex items-center gap-0.5', pos ? 'text-primary' : 'text-destructive')}>
+                <span className={cn('flex items-center gap-0.5', pos ? 'text-price-up' : 'text-price-down')}>
                   {pos ? <TrendingUp className="w-2.5 h-2.5" /> : <TrendingDown className="w-2.5 h-2.5" />}
                   {pos ? '+' : ''}{r.change.toFixed(2)}%
                 </span>

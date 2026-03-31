@@ -75,7 +75,7 @@ export function CryptoWidget() {
                         ? c.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
                         : c.price.toFixed(4)}
                     </div>
-                    <div className={cn('flex items-center gap-0.5 justify-end', pos ? 'text-primary' : 'text-destructive')}>
+                    <div className={cn('flex items-center gap-0.5 justify-end', pos ? 'text-price-up' : 'text-price-down')}>
                       {pos ? <TrendingUp className="w-2.5 h-2.5" /> : <TrendingDown className="w-2.5 h-2.5" />}
                       {pos ? '+' : ''}{c.change?.toFixed(2)}%
                     </div>

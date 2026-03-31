@@ -146,7 +146,7 @@ export function PriceChart({ symbol, currency, onExpand, livePrice }: PriceChart
           <div className="text-xl font-bold tabular-nums">
             {sym}{displayPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
-          <div className={cn("text-xs tabular-nums font-mono", displayIsPositive ? "text-primary" : "text-destructive")}>
+          <div className={cn("text-xs tabular-nums font-mono", displayIsPositive ? "text-price-up" : "text-price-down")}>
             {displayIsPositive ? '+' : ''}{displayChange.toFixed(2)} ({displayIsPositive ? '+' : ''}{displayChangePercent.toFixed(2)}%)
           </div>
         </div>
@@ -193,8 +193,8 @@ export function PriceChart({ symbol, currency, onExpand, livePrice }: PriceChart
           <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-full p-4 overflow-visible">
              <defs>
               <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={isPositive ? 'var(--primary)' : 'var(--destructive)'} stopOpacity="0.2" />
-                <stop offset="100%" stopColor={isPositive ? 'var(--primary)' : 'var(--destructive)'} stopOpacity="0" />
+                <stop offset="0%" stopColor={isPositive ? 'var(--price-up)' : 'var(--price-down)'} stopOpacity="0.2" />
+                <stop offset="100%" stopColor={isPositive ? 'var(--price-up)' : 'var(--price-down)'} stopOpacity="0" />
               </linearGradient>
             </defs>
 
@@ -205,7 +205,7 @@ export function PriceChart({ symbol, currency, onExpand, livePrice }: PriceChart
             <path d={getAreaPath()} fill="url(#chartGradient)" />
             
             {/* Main Price Line */}
-            <path d={getPath()} fill="none" stroke={isPositive ? 'var(--primary)' : 'var(--destructive)'} strokeWidth="2" vectorEffect="non-scaling-stroke" />
+            <path d={getPath()} fill="none" stroke={isPositive ? 'var(--price-up)' : 'var(--price-down)'} strokeWidth="2" vectorEffect="non-scaling-stroke" />
             
             {/* Hover Vertical Line */}
             {hoveredX !== null && (
@@ -233,7 +233,7 @@ export function PriceChart({ symbol, currency, onExpand, livePrice }: PriceChart
             return (
               <div 
                 key={i} 
-                className={cn("flex-1", volIsPos ? "bg-primary/40" : "bg-destructive/40")} 
+                className={cn("flex-1", volIsPos ? "bg-price-up/40" : "bg-price-down/40")} 
                 style={{ height: `${volHeight}%` }} 
               />
             )
