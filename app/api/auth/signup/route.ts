@@ -1,3 +1,5 @@
+export const runtime = 'edge';
+
 import { NextRequest, NextResponse } from 'next/server'
 import { hashPassword, signToken, COOKIE_NAME } from '@/lib/auth'
 import { createUser } from '@/lib/user-store'
