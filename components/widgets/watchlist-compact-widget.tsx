@@ -4,7 +4,7 @@ import { useMemo, useState, useEffect } from 'react'
 import { useMultipleStocks } from '@/hooks/use-stock-data'
 import { TrendingUp, TrendingDown } from 'lucide-react'
 import { cn, getCurrencySymbol } from '@/lib/utils'
-import { resolveExchange, getMarketState } from '@/lib/exchanges'
+import { resolveExchange, getMarketState, EXCHANGES } from '@/lib/exchanges'
 import type { StockData } from '@/lib/stock-types'
 
 interface WatchlistCompactProps {
@@ -16,12 +16,8 @@ interface WatchlistCompactProps {
 
 /** Derive the effective session-aware price / change for a single stock. */
 function effectiveValues(stock: StockData) {
-  const ex       = resolveExchange(stock.exchange)
-  const apiState = stock.marketState
-  const state    =
-    apiState === 'PRE' || apiState === 'POST' || apiState === 'REGULAR'
-      ? apiState
-      : ex ? getMarketState(ex) : 'CLOSED'
+  const ex    = resolveExchange(stock.exchange) ?? EXCHANGES.find(e => e.id === 'NYSE')!
+  const state = getMarketState(ex)
 
   const price =
     state === 'PRE'  && stock.preMarketPrice  != null ? stock.preMarketPrice  :

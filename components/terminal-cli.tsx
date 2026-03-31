@@ -10,8 +10,6 @@ interface TerminalCLIProps {
   onClearAll: () => void
   onSelectStock?: (symbol: string) => void
   watchedStocks: string[]
-  // Multi-list support (account only)
-  isLoggedIn?: boolean
   watchlistNames?: string[]
   activeListName?: string
   onAddStockToList?: (symbol: string, listName: string) => void

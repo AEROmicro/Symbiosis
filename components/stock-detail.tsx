@@ -31,21 +31,11 @@ export function StockDetail({ symbol, refreshInterval = 15000, onSymbolChange }:
     [stock]
   )
 
-  // Effective market state:
-  //  1. Trust Yahoo's PRE / POST / REGULAR signals directly.
-  //  2. If Yahoo says CLOSED, fall back to local-clock calculation for the
-  //     stock's actual exchange — this catches PRE, POST, and mis-reported CLOSED.
-  //  3. If no stock data at all, use NYSE as a best-guess default.
-  // The `tick` dependency ensures this recomputes every 60 s without an API call.
+  // Effective market state — always derived from the local exchange clock so
+  // indices (^IXIC, ^GSPC, etc.) show correct PRE / REGULAR / POST badges
+  // without an extra API call.
   const effectiveMarketState = useMemo(() => {
-    if (!stock) {
-      const defaultEx = EXCHANGES[0] // NYSE
-      return getMarketState(defaultEx)
-    }
-    if (stock.marketState === 'REGULAR' || stock.marketState === 'PRE' || stock.marketState === 'POST')
-      return stock.marketState
-    // Yahoo returned CLOSED — derive from local exchange clock
-    const ex = resolvedExchange ?? EXCHANGES[0]
+    const ex = resolvedExchange ?? EXCHANGES[0] // NYSE fallback
     return getMarketState(ex)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stock, resolvedExchange, tick])
