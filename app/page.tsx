@@ -442,11 +442,6 @@ export default function SymbiosisApp() {
         onLayoutChange={setWidgetLayout}
       />
 
-      {/* Auth Dialog */}
-      <AuthDialog
-        open={authOpen}
-        onClose={() => setAuthOpen(false)}
-      />
     </div>
   )
 }
