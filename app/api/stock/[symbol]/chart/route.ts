@@ -16,6 +16,7 @@ export async function GET(
     '1mo': '1h',
     '3mo': '1d',
     '6mo': '1d',
+    'ytd': '1d',
     '1y': '1d',
     '5y': '1wk',
     'max': '1mo'

@@ -58,6 +58,16 @@ export type WidgetType =
   | 'world-clock'
   | 'price-alerts'
   | 'savings-goals'
+  | 'ipo-calendar'
+  | 'analyst-ratings'
+  | 'short-interest'
+  | 'stock-comparison'
+  | 'earnings-surprise'
+  | 'sentiment-tracker'
+  | 'trade-journal'
+  | 'volatility-index'
+  | 'market-cap-leaderboard'
+  | 'candlestick-mini'
 
 export interface WidgetConfig {
   id: string
@@ -817,6 +827,96 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     category: 'tools',
     color: 'bg-emerald-500/20',
   },
+  {
+    type: 'ipo-calendar',
+    name: 'IPO Calendar',
+    description: 'Upcoming IPO listings with price ranges and exchange info',
+    iconName: 'CalendarDays',
+    defaultW: 4, defaultH: 10, minW: 4, minH: 8,
+    category: 'market',
+    color: 'bg-sky-500/20',
+  },
+  {
+    type: 'analyst-ratings',
+    name: 'Analyst Ratings',
+    description: 'Wall Street analyst consensus ratings — Buy, Hold, Sell breakdown for major stocks',
+    iconName: 'TrendingUp',
+    defaultW: 4, defaultH: 9, minW: 4, minH: 8,
+    category: 'market',
+    color: 'bg-indigo-500/20',
+  },
+  {
+    type: 'short-interest',
+    name: 'Short Interest',
+    description: 'Short float percentage and short ratio for high-interest stocks',
+    iconName: 'Activity',
+    defaultW: 4, defaultH: 9, minW: 4, minH: 8,
+    category: 'market',
+    color: 'bg-red-500/20',
+  },
+  {
+    type: 'stock-comparison',
+    name: 'Stock Comparison',
+    description: 'Side-by-side performance comparison of multiple stocks',
+    iconName: 'LayoutGrid',
+    defaultW: 4, defaultH: 10, minW: 4, minH: 8,
+    category: 'tools',
+    color: 'bg-blue-500/20',
+  },
+  {
+    type: 'earnings-surprise',
+    name: 'Earnings Surprise',
+    description: 'Recent EPS actual vs estimate with surprise percentage',
+    iconName: 'Zap',
+    defaultW: 4, defaultH: 9, minW: 4, minH: 8,
+    category: 'market',
+    color: 'bg-yellow-500/20',
+  },
+  {
+    type: 'sentiment-tracker',
+    name: 'Sentiment Tracker',
+    description: 'Social media and news sentiment scores for popular stocks',
+    iconName: 'Activity',
+    defaultW: 4, defaultH: 9, minW: 4, minH: 8,
+    category: 'market',
+    color: 'bg-purple-500/20',
+  },
+  {
+    type: 'trade-journal',
+    name: 'Trade Journal',
+    description: 'Log and track personal trades with P&L calculations',
+    iconName: 'Briefcase',
+    defaultW: 8, defaultH: 12, minW: 4, minH: 10,
+    category: 'tools',
+    color: 'bg-emerald-500/20',
+  },
+  {
+    type: 'volatility-index',
+    name: 'Volatility Index',
+    description: 'VIX and related volatility measures with market fear gauge',
+    iconName: 'Activity',
+    defaultW: 4, defaultH: 8, minW: 4, minH: 7,
+    category: 'market',
+    color: 'bg-orange-500/20',
+  },
+  {
+    type: 'market-cap-leaderboard',
+    name: 'Market Cap Leaders',
+    description: 'Top 10 companies ranked by market capitalization',
+    iconName: 'TrendingUp',
+    defaultW: 4, defaultH: 10, minW: 4, minH: 8,
+    category: 'market',
+    color: 'bg-violet-500/20',
+  },
+  {
+    type: 'candlestick-mini',
+    name: 'Candlestick Chart',
+    description: 'Mini OHLC candlestick chart for any stock symbol',
+    iconName: 'TrendingUp',
+    defaultW: 4, defaultH: 10, minW: 4, minH: 8,
+    category: 'tools',
+    color: 'bg-cyan-500/20',
+  },
 ]
 
 export const DEFAULT_WIDGET_LAYOUT: WidgetConfig[] = [
@@ -834,3 +934,12 @@ export const DEFAULT_WIDGET_LAYOUT: WidgetConfig[] = [
 ]
 
 export const WIDGET_LAYOUT_KEY = 'symbiosis-widget-layout'
+
+export interface DashboardPage {
+  id: string
+  name: string
+  layout: WidgetConfig[]
+}
+
+export const PAGES_STORAGE_KEY = 'symbiosis-pages'
+export const CURRENT_PAGE_KEY = 'symbiosis-current-page'
