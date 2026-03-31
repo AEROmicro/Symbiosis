@@ -8,6 +8,8 @@ export interface AuthUser {
   displayName: string
   preferences: {
     watchlist: string[]
+    watchlistSets?: Record<string, string[]>
+    activeListName?: string
     widgetLayout: object[]
     theme: string
     exchange: string

@@ -251,6 +251,7 @@ export function StockDetail({ symbol, refreshInterval = 15000, onSymbolChange }:
           symbol={symbol}
           currency={stock.currency}
           onExpand={() => setFullscreenOpen(true)}
+          livePrice={effectivePrice}
         />
       </div>
 

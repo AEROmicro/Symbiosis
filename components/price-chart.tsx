@@ -27,6 +27,8 @@ interface PriceChartProps {
   symbol: string
   currency?: string
   onExpand?: () => void
+  /** Live effective price from parent (pre/post/regular aware) — injected as latest data point */
+  livePrice?: number
 }
 
 const fetcher = (url: string) => fetch(url).then(r => r.json())
@@ -41,7 +43,7 @@ const ranges = [
   { label: '5Y', value: '5y' },
 ]
 
-export function PriceChart({ symbol, currency, onExpand }: PriceChartProps) {
+export function PriceChart({ symbol, currency, onExpand, livePrice }: PriceChartProps) {
   const [range, setRange] = useState('1d')
   const [hoveredPoint, setHoveredPoint] = useState<ChartData | null>(null)
   const [hoveredX, setHoveredX] = useState<number | null>(null)
@@ -49,13 +51,35 @@ export function PriceChart({ symbol, currency, onExpand }: PriceChartProps) {
 
   const sym = getCurrencySymbol(currency)
   
+  // Refresh every 5 s in 1-day view so the chart line stays current
   const { data, isLoading } = useSWR<ChartResponse>(
     `/api/stock/${symbol}/chart?range=${range}`,
     fetcher,
-    { refreshInterval: range === '1d' ? 30000 : 0 }
+    { refreshInterval: range === '1d' ? 5_000 : 0, dedupingInterval: 3_000 }
   )
 
-  const chartData = data?.data || []
+  // Append a live price point so the chart always ends at the effective price
+  // (pre/post/regular) that the watchlist card shows.
+  const baseData = data?.data || []
+  const chartData: ChartData[] = (() => {
+    if (!livePrice || range !== '1d' || baseData.length === 0) return baseData
+    const now = Date.now()
+    const last = baseData[baseData.length - 1]
+    // Only append if our timestamp would be strictly after the last candle
+    if (now <= last.time) return baseData
+    return [
+      ...baseData,
+      {
+        time: now,
+        open: last.close,
+        high: Math.max(last.close, livePrice),
+        low: Math.min(last.close, livePrice),
+        close: livePrice,
+        volume: 0,
+      },
+    ]
+  })()
+
   const previousClose = data?.previousClose || 0
   
   // Calculate min/max for scaling
@@ -98,7 +122,9 @@ export function PriceChart({ symbol, currency, onExpand }: PriceChartProps) {
     setHoveredX(percentage * 100)
   }
 
-  const displayPrice = hoveredPoint?.close || lastPrice
+  // When not hovering, show the live effective price (if provided) so the
+  // chart header always matches the watchlist card price.
+  const displayPrice = hoveredPoint?.close ?? (livePrice ?? lastPrice)
   const displayChange = referencePrice > 0 ? displayPrice - referencePrice : 0
   const displayChangePercent = referencePrice > 0 ? (displayChange / referencePrice) * 100 : 0
   const displayIsPositive = displayChange >= 0

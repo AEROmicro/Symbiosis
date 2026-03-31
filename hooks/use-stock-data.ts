@@ -1,6 +1,6 @@
 import useSWR from 'swr'
 import type { StockData } from '@/lib/stock-types'
-import { resolveExchange, getMarketState } from '@/lib/exchanges'
+import { resolveExchange, getMarketState, EXCHANGES } from '@/lib/exchanges'
 
 const fetcher = async (url: string) => {
   const res = await fetch(url)
@@ -33,8 +33,11 @@ function stockRefreshInterval(data: StockData | undefined, openInterval: number)
     case 'POST':    return openInterval * 5
     default: {
       const ex = resolveExchange(data.exchange)
-      if (!ex) return 15 * 60_000
-      const state = getMarketState(ex)
+      // Unknown exchange — assume NYSE/US hours so the refresh interval stays
+      // active rather than falling back to the 15-minute closed-market cadence.
+      const nyseFallback = EXCHANGES.find(e => e.id === 'NYSE')!
+      const effectiveEx = ex ?? nyseFallback
+      const state = getMarketState(effectiveEx)
       if (state === 'REGULAR')               return openInterval
       if (state === 'PRE' || state === 'POST') return openInterval * 5
       return 15 * 60_000   // genuinely closed — re-check every 15 min
@@ -84,9 +87,10 @@ export function useMultipleStocks(symbols: string[], openInterval = 60_000) {
         if (states.includes('REGULAR'))                          return openInterval
         if (states.some((s) => s === 'PRE' || s === 'POST'))    return openInterval * 5
         // All Yahoo states CLOSED — consult local exchange clocks
+        const nyseFallback = EXCHANGES.find(e => e.id === 'NYSE')!
         const manualStates = data.map((s) => {
-          const ex = resolveExchange(s.exchange)
-          return ex ? getMarketState(ex) : 'CLOSED'
+          const ex = resolveExchange(s.exchange) ?? nyseFallback
+          return getMarketState(ex)
         })
         if (manualStates.includes('REGULAR'))                           return openInterval
         if (manualStates.some((s) => s === 'PRE' || s === 'POST'))     return openInterval * 5

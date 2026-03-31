@@ -6,6 +6,8 @@ const USERS_FILE = path.join(DATA_DIR, 'users.json')
 
 export interface UserPreferences {
   watchlist: string[]
+  watchlistSets?: Record<string, string[]>
+  activeListName?: string
   widgetLayout: object[]
   theme: string
   exchange: string

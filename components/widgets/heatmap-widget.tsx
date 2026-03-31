@@ -28,17 +28,22 @@ function changeColor(change: number | null): string {
 }
 
 export function HeatmapWidget() {
-  // Sector ETFs trade during regular NYSE hours — useMultipleStocks will
-  // automatically stop polling when all markets are closed.
   const { stocks, isLoading } = useMultipleStocks(TICKERS, 30_000)
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+
+  useEffect(() => {
+    if (stocks.length > 0) setLastUpdated(new Date())
+  }, [stocks])
 
   const sectors = SECTORS.map(s => {
     const stock = stocks.find(d => d.symbol === s.ticker)
     return { ...s, change: stock?.changePercent ?? null }
   })
 
+  const secAgo = lastUpdated ? Math.round((Date.now() - lastUpdated.getTime()) / 1000) : null
+
   return (
-    <div className="p-4 h-full flex flex-col">
+    <div className="p-4 h-full flex flex-col gap-2">
       <div className="grid grid-cols-2 gap-2 flex-1 min-h-0">
         {sectors.map((s) => (
           <div
@@ -61,6 +66,11 @@ export function HeatmapWidget() {
             )}
           </div>
         ))}
+      </div>
+      {/* Live indicator */}
+      <div className="flex items-center justify-end gap-1.5 shrink-0 text-[10px] font-mono text-muted-foreground">
+        <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+        {isLoading ? 'updating…' : secAgo !== null ? `updated ${secAgo}s ago` : 'live'}
       </div>
     </div>
   )

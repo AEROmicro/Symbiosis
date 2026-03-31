@@ -59,6 +59,7 @@ import { TimerWidget }            from '@/components/widgets/timer-widget'
 import { JsonViewerWidget }       from '@/components/widgets/json-viewer-widget'
 import { SystemMonitorWidget }    from '@/components/widgets/system-monitor-widget'
 import { WeatherWidget }          from '@/components/widgets/weather-widget'
+import { WatchlistWidget }        from '@/components/widgets/watchlist-widget'
 import { WorldClockWidget }       from '@/components/widgets/world-clock-widget'
 import { PriceAlertsWidget }      from '@/components/widgets/price-alerts-widget'
 import { SavingsGoalsWidget }     from '@/components/widgets/savings-goals-widget'
@@ -76,6 +77,15 @@ export interface WidgetAppProps {
   defaultExchange?: string
   widgetLayout?: import('@/lib/widget-types').WidgetConfig[]
   onLoadProfile?: (layout: import('@/lib/widget-types').WidgetConfig[]) => void
+  // Multi-list watchlists
+  isLoggedIn?: boolean
+  watchlistSets?: Record<string, string[]>
+  activeListName?: string
+  onSwitchList?: (name: string) => void
+  onCreateList?: (name: string) => void
+  onDeleteList?: (name: string) => void
+  // Terminal: add to specific list
+  onAddStockToList?: (symbol: string, listName: string) => void
 }
 
 // ── Icon lookup by name ─────────────────────────────────────────────────────
@@ -130,6 +140,8 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
     refreshInterval,
     defaultExchange,
     widgetLayout, onLoadProfile,
+    isLoggedIn, watchlistSets, activeListName,
+    onSwitchList, onCreateList, onDeleteList, onAddStockToList,
   } = appProps
 
   switch (config.type) {
@@ -146,6 +158,10 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
               onClearAll={onClearAll}
               onSelectStock={onSelectStock}
               watchedStocks={watchedStocks}
+              isLoggedIn={isLoggedIn}
+              watchlistNames={Object.keys(watchlistSets ?? {})}
+              activeListName={activeListName}
+              onAddStockToList={onAddStockToList}
             />
           </div>
         </WidgetFrame>
@@ -154,31 +170,20 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
     // ── Watchlist ───────────────────────────────────────────────────────────
     case 'watchlist':
       return (
-        <WidgetFrame title={`${title} (${watchedStocks.length})`} iconName={iconName}>
-          <div className="h-full overflow-y-auto p-3">
-            {watchedStocks.length === 0 ? (
-              <div className="border border-dashed border-border bg-card/50 rounded-md p-8 text-center">
-                <div className="text-4xl text-primary/30 mb-3 font-mono">{'[  ]'}</div>
-                <p className="text-muted-foreground text-sm">No stocks in watchlist</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Use the terminal or quick add buttons to add stocks
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
-                {watchedStocks.map((symbol) => (
-                  <StockCard
-                    key={symbol}
-                    symbol={symbol}
-                    onRemove={onRemoveStock}
-                    onClick={onSelectStock}
-                    isSelected={selectedStock === symbol}
-                    refreshInterval={refreshInterval}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+        <WidgetFrame title={`${activeListName ?? title} (${watchedStocks.length})`} iconName={iconName}>
+          <WatchlistWidget
+            watchedStocks={watchedStocks}
+            selectedStock={selectedStock}
+            onRemoveStock={onRemoveStock}
+            onSelectStock={onSelectStock}
+            refreshInterval={refreshInterval}
+            isLoggedIn={isLoggedIn}
+            watchlistSets={watchlistSets}
+            activeListName={activeListName}
+            onSwitchList={onSwitchList}
+            onCreateList={onCreateList}
+            onDeleteList={onDeleteList}
+          />
         </WidgetFrame>
       )
 
