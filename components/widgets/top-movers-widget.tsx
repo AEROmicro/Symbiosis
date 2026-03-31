@@ -40,15 +40,15 @@ export function TopMoversWidget() {
     )}>
       <div className="flex items-center gap-1.5 min-w-0">
         {positive
-          ? <TrendingUp   className="w-3 h-3 text-primary shrink-0" />
-          : <TrendingDown className="w-3 h-3 text-destructive shrink-0" />}
+          ? <TrendingUp   className="w-3 h-3 text-price-up shrink-0" />
+          : <TrendingDown className="w-3 h-3 text-price-down shrink-0" />}
         <span className="font-semibold font-mono truncate">{item.symbol}</span>
       </div>
       <div className="text-right shrink-0 ml-2">
         <div className="tabular-nums font-mono text-foreground text-[11px]">
           {item.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </div>
-        <div className={cn('text-[10px] font-semibold tabular-nums', positive ? 'text-primary' : 'text-destructive')}>
+        <div className={cn('text-[10px] font-semibold tabular-nums', positive ? 'text-price-up' : 'text-price-down')}>
           {positive ? '+' : ''}{item.change.toFixed(2)}%
         </div>
       </div>
@@ -67,7 +67,7 @@ export function TopMoversWidget() {
     <div className="p-3 h-full flex flex-col gap-2 overflow-hidden">
       {/* Gainers */}
       <div className="flex flex-col flex-1 gap-1.5 min-h-0">
-        <div className="flex items-center gap-1.5 text-xs text-primary font-mono font-semibold shrink-0">
+        <div className="flex items-center gap-1.5 text-xs text-price-up font-mono font-semibold shrink-0">
           <TrendingUp className="w-3 h-3" />
           Top Gainers
         </div>
@@ -81,7 +81,7 @@ export function TopMoversWidget() {
 
       {/* Losers */}
       <div className="flex flex-col flex-1 gap-1.5 min-h-0">
-        <div className="flex items-center gap-1.5 text-xs text-destructive font-mono font-semibold shrink-0">
+        <div className="flex items-center gap-1.5 text-xs text-price-down font-mono font-semibold shrink-0">
           <TrendingDown className="w-3 h-3" />
           Top Losers
         </div>

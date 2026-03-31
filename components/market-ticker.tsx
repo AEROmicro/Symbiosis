@@ -85,8 +85,8 @@ export function MarketTicker({ onMarketStateChange }: { onMarketStateChange?: (s
             <span className={cn(
               "inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold tabular-nums",
               item.change >= 0
-                ? "bg-primary/15 text-primary"
-                : "bg-destructive/15 text-destructive"
+                ? "bg-price-up/15 text-price-up"
+                : "bg-price-down/15 text-price-down"
             )}>
               {item.change >= 0 ? '▲' : '▼'}
               {item.change >= 0 ? '+' : ''}{item.change.toFixed(2)}%

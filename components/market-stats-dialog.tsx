@@ -121,7 +121,7 @@ export function MarketStatsDialog() {
                       </div>
                       <div className={cn(
                         "flex items-center gap-1 text-xs font-semibold",
-                        isPositive ? "text-primary" : "text-destructive"
+                        isPositive ? "text-price-up" : "text-price-down"
                       )}>
                         {isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                         {isPositive ? '+' : ''}{index.change.toFixed(2)}%

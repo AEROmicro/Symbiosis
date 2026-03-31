@@ -357,7 +357,7 @@ export function CurrencyConverter({ onAddToWatchlist, watchedStocks = [] }: Curr
                 <span>
                   Historical Rate
                   {chartChange !== null && (
-                    <span className={cn('ml-2 font-mono', chartChange >= 0 ? 'text-primary' : 'text-destructive')}>
+                    <span className={cn('ml-2 font-mono', chartChange >= 0 ? 'text-price-up' : 'text-price-down')}>
                       {chartChange >= 0 ? '+' : ''}{chartChange.toFixed(2)}%
                     </span>
                   )}
@@ -428,7 +428,7 @@ export function CurrencyConverter({ onAddToWatchlist, watchedStocks = [] }: Curr
                   <Line
                     type="monotone"
                     dataKey="close"
-                    stroke={chartChange !== null && chartChange < 0 ? 'var(--destructive)' : 'var(--primary)'}
+                    stroke={chartChange !== null && chartChange < 0 ? 'var(--price-down)' : 'var(--price-up)'}
                     strokeWidth={1.5}
                     dot={false}
                     activeDot={{ r: 3 }}

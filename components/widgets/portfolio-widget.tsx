@@ -79,7 +79,7 @@ export function PortfolioWidget() {
           {/* Summary */}
           <div className={cn(
             'p-3 rounded border text-xs shrink-0',
-            totalPnl >= 0 ? 'border-primary/30 bg-primary/10' : 'border-destructive/30 bg-destructive/10',
+            totalPnl >= 0 ? 'border-price-up/30 bg-price-up/10' : 'border-price-down/30 bg-price-down/10',
           )}>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Total Value</span>
@@ -87,7 +87,7 @@ export function PortfolioWidget() {
             </div>
             <div className="flex justify-between mt-1">
               <span className="text-muted-foreground">Total P&amp;L</span>
-              <span className={cn('font-semibold flex items-center gap-1', totalPnl >= 0 ? 'text-primary' : 'text-destructive')}>
+              <span className={cn('font-semibold flex items-center gap-1', totalPnl >= 0 ? 'text-price-up' : 'text-price-down')}>
                 {totalPnl >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                 {totalPnl >= 0 ? '+' : ''}${totalPnl.toFixed(2)} ({totalPnlPct >= 0 ? '+' : ''}{totalPnlPct.toFixed(2)}%)
               </span>
@@ -103,7 +103,7 @@ export function PortfolioWidget() {
                   key={pos.symbol}
                   className={cn(
                     'flex justify-between p-2 rounded border text-xs',
-                    isPositive ? 'border-primary/20 bg-primary/5' : 'border-destructive/20 bg-destructive/5',
+                    isPositive ? 'border-price-up/20 bg-price-up/5' : 'border-price-down/20 bg-price-down/5',
                   )}
                 >
                   <div>
@@ -114,7 +114,7 @@ export function PortfolioWidget() {
                     {pos.currentPrice !== null ? (
                       <>
                         <div className="font-bold">${pos.value!.toFixed(2)}</div>
-                        <div className={cn('flex items-center gap-0.5 justify-end', isPositive ? 'text-primary' : 'text-destructive')}>
+                        <div className={cn('flex items-center gap-0.5 justify-end', isPositive ? 'text-price-up' : 'text-price-down')}>
                           {isPositive ? <TrendingUp className="w-2.5 h-2.5" /> : <TrendingDown className="w-2.5 h-2.5" />}
                           {pos.pnl! >= 0 ? '+' : ''}${pos.pnl!.toFixed(2)}
                         </div>

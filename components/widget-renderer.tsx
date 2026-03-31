@@ -6,6 +6,7 @@ import {
   Briefcase, Clock, Globe, Activity, Map, Bitcoin, DollarSign,
   CalendarDays, HelpCircle, Calculator, ListTodo, Rss,
   Landmark, Gem, Target, Coins, Book, Search,
+  Layers, Timer, CheckSquare,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { WidgetConfig } from '@/lib/widget-types'
@@ -73,6 +74,10 @@ import { TradeJournalWidget }     from '@/components/widgets/trade-journal-widge
 import { VolatilityWidget }       from '@/components/widgets/volatility-widget'
 import { MarketCapWidget }        from '@/components/widgets/market-cap-widget'
 import { CandlestickWidget }      from '@/components/widgets/candlestick-widget'
+import { OptionsChainWidget }      from '@/components/widgets/options-chain-widget'
+import { TechnicalAnalysisWidget } from '@/components/widgets/technical-analysis-widget'
+import { PomodoroWidget }          from '@/components/widgets/pomodoro-widget'
+import { HabitTrackerWidget }      from '@/components/widgets/habit-tracker-widget'
 
 // ── Props passed from the main app to stateful widgets ─────────────────────
 export interface WidgetAppProps {
@@ -104,6 +109,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Briefcase, Clock, Globe, Activity, Map, Bitcoin, DollarSign,
   CalendarDays, HelpCircle, Calculator, ListTodo, Rss,
   Landmark, Gem, Target, Coins, Book, Search,
+  Layers, Timer, CheckSquare,
 }
 
 // ── WidgetFrame ─────────────────────────────────────────────────────────────
@@ -595,6 +601,14 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
       return <WidgetFrame title={title} iconName={iconName}><MarketCapWidget /></WidgetFrame>
     case 'candlestick-mini':
       return <WidgetFrame title={title} iconName={iconName}><CandlestickWidget symbol={selectedStock ?? 'AAPL'} /></WidgetFrame>
+    case 'options-chain':
+      return <WidgetFrame title={title} iconName={iconName}><OptionsChainWidget /></WidgetFrame>
+    case 'technical-analysis':
+      return <WidgetFrame title={title} iconName={iconName}><TechnicalAnalysisWidget /></WidgetFrame>
+    case 'pomodoro':
+      return <WidgetFrame title={title} iconName={iconName}><PomodoroWidget /></WidgetFrame>
+    case 'habit-tracker':
+      return <WidgetFrame title={title} iconName={iconName}><HabitTrackerWidget /></WidgetFrame>
 
     default:
       return (

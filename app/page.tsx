@@ -9,6 +9,7 @@ import { WidgetRenderer, type WidgetAppProps } from '@/components/widget-rendere
 import { BlueprintEditor } from '@/components/blueprint-editor'
 import { MobileLayout } from '@/components/mobile-layout'
 import { Terminal } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import {
   type WidgetConfig,
   type DashboardPage,
@@ -248,12 +249,7 @@ export default function SymbiosisApp() {
       )}
 
       {/* Header */}
-      <TerminalHeader
-        marketState={marketState}
-        pages={pages}
-        currentPageId={currentPageId}
-        onPageChange={setCurrentPageId}
-      />
+      <TerminalHeader />
 
       {/* Market Ticker */}
       <MarketTicker onMarketStateChange={setMarketState} />
@@ -298,12 +294,33 @@ export default function SymbiosisApp() {
           {/* Footer */}
           <footer className="border-t border-border py-4 mt-8 relative z-10">
             <div className="container mx-auto px-4 max-w-7xl">
-              <div className="flex items-center justify-between text-xs text-muted-foreground font-mono">
+              <div className="grid grid-cols-3 items-center text-xs text-muted-foreground font-mono">
+                {/* Left: branding */}
                 <div className="flex items-center gap-2">
                   <span className="text-primary">{'>'}_</span>
                   <span>Symbiosis // Redefine the Limits</span>
                 </div>
-                <div className="flex items-center gap-4">
+
+                {/* Center: page tabs */}
+                <div className="flex items-center justify-center gap-1 overflow-x-auto">
+                  {pages.map(page => (
+                    <button
+                      key={page.id}
+                      onClick={() => setCurrentPageId(page.id)}
+                      className={cn(
+                        'px-3 py-0.5 text-[11px] font-mono rounded-sm border transition-colors shrink-0',
+                        page.id === currentPageId
+                          ? 'bg-primary border-primary text-primary-foreground'
+                          : 'border-border text-muted-foreground hover:text-foreground hover:border-primary/50'
+                      )}
+                    >
+                      {page.name}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Right: status + settings */}
+                <div className="flex items-center justify-end gap-4">
                   <span className="hidden sm:inline">Market data updates in real-time</span>
                   <span className="flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />

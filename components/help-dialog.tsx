@@ -1,6 +1,6 @@
 'use client'
 
-import { HelpCircle, ExternalLink, Command, Activity, Info } from 'lucide-react'
+import { HelpCircle, ExternalLink, Command, Activity, Info, Mail } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -181,6 +181,13 @@ export function HelpDialog() {
               >
                 <ExternalLink className="w-4 h-4" />
                 View on GitHub
+              </a>
+              <a
+                href="mailto:aeroforge-co@outlook.com?subject=Symbiosis%20Support&body=Hello%20ÆROforge%20team%2C%0A%0A"
+                className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors"
+              >
+                <Mail className="w-4 h-4" />
+                Contact Support — aeroforge-co@outlook.com
               </a>
               <p className="text-xs text-muted-foreground">
                 Symbiosis v5.2 Magnetar Basalt (stable build) - Built with Next.js, React, and Tailwind CSS

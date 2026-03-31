@@ -1,32 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { cn } from '@/lib/utils'
 
-interface TerminalHeaderProps {
-  marketState?: string
-  pages?: Array<{ id: string; name: string }>
-  currentPageId?: string
-  onPageChange?: (id: string) => void
-}
+interface TerminalHeaderProps {}
 
-function getMarketStateDisplay(state: string): { label: string; color: string; pulse: boolean } {
-  switch (state) {
-    case 'REGULAR':
-      return { label: 'OPEN', color: 'text-primary', pulse: true }
-    case 'PRE':
-      return { label: 'PRE-MARKET', color: 'text-yellow-500', pulse: true }
-    case 'POST':
-      return { label: 'AFTER-HOURS', color: 'text-orange-500', pulse: true }
-    case 'CLOSED':
-    default:
-      return { label: 'CLOSED', color: 'text-muted-foreground', pulse: false }
-  }
-}
-
-export function TerminalHeader({ marketState = 'CLOSED', pages, currentPageId, onPageChange }: TerminalHeaderProps) {
+export function TerminalHeader({}: TerminalHeaderProps) {
   const [time, setTime] = useState<string>('')
-  const [etTime, setEtTime] = useState<string>('')
   const [date, setDate] = useState<string>('')
 
   useEffect(() => {
@@ -39,19 +18,11 @@ export function TerminalHeader({ marketState = 'CLOSED', pages, currentPageId, o
         day: 'numeric',
         year: 'numeric'
       }))
-      setEtTime(now.toLocaleTimeString('en-US', { 
-        hour12: false, 
-        timeZone: 'America/New_York',
-        hour: '2-digit',
-        minute: '2-digit'
-      }) + ' ET')
     }
     updateTime()
     const interval = setInterval(updateTime, 1000)
     return () => clearInterval(interval)
   }, [])
-
-  const showTabs = pages && pages.length > 1
 
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
@@ -83,26 +54,6 @@ export function TerminalHeader({ marketState = 'CLOSED', pages, currentPageId, o
           </div>
         </div>
       </div>
-
-      {/* Page tabs */}
-      {showTabs && (
-        <div className="flex items-center gap-1 px-4 py-1.5 border-t border-border/50 overflow-x-auto">
-          {pages.map(page => (
-            <button
-              key={page.id}
-              onClick={() => onPageChange?.(page.id)}
-              className={cn(
-                'px-3 py-0.5 text-[11px] font-mono rounded-sm border transition-colors shrink-0',
-                page.id === currentPageId
-                  ? 'bg-primary border-primary text-primary-foreground'
-                  : 'border-border text-muted-foreground hover:text-foreground hover:border-primary/50'
-              )}
-            >
-              {page.name}
-            </button>
-          ))}
-        </div>
-      )}
 
       {/* Scanline effect */}
       <div className="h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />

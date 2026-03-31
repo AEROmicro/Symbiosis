@@ -49,7 +49,7 @@ export function MarketCapWidget() {
               <span className="text-primary font-semibold">{entry.symbol}</span>
               <span className="text-muted-foreground truncate">{entry.name}</span>
               <span className="text-right text-foreground">{entry.marketCap}</span>
-              <span className={cn('text-right font-semibold', entry.change1d >= 0 ? 'text-primary' : 'text-destructive')}>
+              <span className={cn('text-right font-semibold', entry.change1d >= 0 ? 'text-price-up' : 'text-price-down')}>
                 {entry.change1d >= 0 ? '+' : ''}{entry.change1d.toFixed(1)}%
               </span>
             </div>

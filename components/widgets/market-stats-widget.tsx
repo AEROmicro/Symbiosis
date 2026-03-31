@@ -49,7 +49,7 @@ export function MarketStatsWidget() {
                   <div className="text-sm font-bold tabular-nums mt-0.5">
                     {idx.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </div>
-                  <div className={cn('flex items-center gap-0.5 mt-0.5', pos ? 'text-primary' : 'text-destructive')}>
+                  <div className={cn('flex items-center gap-0.5 mt-0.5', pos ? 'text-price-up' : 'text-price-down')}>
                     {pos ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                     {pos ? '+' : ''}{idx.change.toFixed(2)}%
                   </div>

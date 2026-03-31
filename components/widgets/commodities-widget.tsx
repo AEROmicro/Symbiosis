@@ -73,7 +73,7 @@ export function CommoditiesWidget() {
                     <div className="font-bold tabular-nums">
                       ${c.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
-                    <div className={cn('flex items-center gap-0.5 justify-end text-[10px]', pos ? 'text-primary' : 'text-destructive')}>
+                    <div className={cn('flex items-center gap-0.5 justify-end text-[10px]', pos ? 'text-price-up' : 'text-price-down')}>
                       {pos ? <TrendingUp className="w-2.5 h-2.5" /> : <TrendingDown className="w-2.5 h-2.5" />}
                       {pos ? '+' : ''}{c.change?.toFixed(2)}%
                     </div>
