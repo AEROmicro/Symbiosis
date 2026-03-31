@@ -10,6 +10,11 @@ interface TerminalCLIProps {
   onClearAll: () => void
   onSelectStock?: (symbol: string) => void
   watchedStocks: string[]
+  // Multi-list support (account only)
+  isLoggedIn?: boolean
+  watchlistNames?: string[]
+  activeListName?: string
+  onAddStockToList?: (symbol: string, listName: string) => void
 }
 
 interface ChartPoint {
@@ -26,7 +31,7 @@ const POPULAR_STOCKS = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'META', 'NVDA',
 
 const PORTFOLIO_STORAGE_KEY = 'symbiosis-portfolio'
 
-export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, onSelectStock, watchedStocks }: TerminalCLIProps) {
+export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, onSelectStock, watchedStocks, isLoggedIn, watchlistNames, activeListName, onAddStockToList }: TerminalCLIProps) {
   const [input, setInput] = useState('')
   const [logs, setLogs] = useState<TerminalLog[]>([
     {
@@ -78,10 +83,10 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, onSelectSto
   }
 
   // Validate symbol exists by fetching from API
-  const validateAndAddSymbol = async (symbol: string) => {
+  const validateAndAddSymbol = async (symbol: string, listName?: string) => {
     const upperSymbol = symbol.toUpperCase()
     
-    if (watchedStocks.includes(upperSymbol)) {
+    if (watchedStocks.includes(upperSymbol) && !listName) {
       addLog('warning', `${upperSymbol} is already in your watchlist`)
       return
     }
@@ -93,8 +98,13 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, onSelectSto
       const response = await fetch(`/api/stock/${upperSymbol}`)
       if (response.ok) {
         const data = await response.json()
-        onAddStock(upperSymbol)
-        addLog('success', `Added ${upperSymbol} (${data.name}) @ $${data.price.toFixed(2)}`)
+        if (listName && onAddStockToList) {
+          onAddStockToList(upperSymbol, listName)
+          addLog('success', `Added ${upperSymbol} (${data.name}) to "${listName}" @ $${data.price.toFixed(2)}`)
+        } else {
+          onAddStock(upperSymbol)
+          addLog('success', `Added ${upperSymbol} (${data.name}) @ $${data.price.toFixed(2)}`)
+        }
       } else {
         addLog('error', `Symbol '${upperSymbol}' not found. Check the ticker symbol.`)
       }
@@ -550,10 +560,29 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, onSelectSto
 
       case 'add':
         if (!args[0]) {
-          addLog('error', 'Usage: add <SYMBOL> (e.g., add AAPL)')
+          addLog('error', isLoggedIn
+            ? 'Usage: add <SYMBOL> [listname] (e.g., add AAPL or add AAPL tech)'
+            : 'Usage: add <SYMBOL> (e.g., add AAPL)')
           break
         }
-        await validateAndAddSymbol(args[0])
+        if (args[1] && isLoggedIn && onAddStockToList) {
+          // add AAPL listname
+          await validateAndAddSymbol(args[0], args[1])
+        } else {
+          await validateAndAddSymbol(args[0])
+        }
+        break
+
+      case 'lists':
+        if (!isLoggedIn) {
+          addLog('warning', 'Sign in to use multiple watchlists')
+          break
+        }
+        addLog('info', '── Watchlists ─────────────────────────')
+        ;(watchlistNames ?? []).forEach(n => {
+          addLog('info', `  ${n === activeListName ? '▶' : '○'} ${n}`)
+        })
+        addLog('info', 'Use: add <SYMBOL> <listname> to add to a specific list')
         break
 
       case 'track':

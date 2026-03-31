@@ -134,12 +134,24 @@ export function resolveExchange(fullExchangeName: string): ExchangeDef | null {
   if (!fullExchangeName) return null
   const n = fullExchangeName.toLowerCase().trim()
 
+  // ── US indices / data feeds (SNP, DJI, Nasdaq GIDS, Russell, etc.) ─────────
+  // These are returned by Yahoo Finance for index symbols (^GSPC, ^IXIC, ^DJI,
+  // ^RUT, ^VIX, futures, etc.) and should all use NYSE/NASDAQ trading hours.
+  if (
+    n === 'snp' || n === 'dji' || n === 'ixic' || n === 'nya' ||
+    n.includes('nasdaq gids') || n.includes('nasdaq composite') ||
+    n.includes('nasdaq global') || n.includes('global index') ||
+    n.includes('russell') || n.includes('s&p') || n.includes('sp ') ||
+    n === 'cme' || n === 'cbt' || n === 'iex' || n === 'cme group' ||
+    n === 'cboe' || n === 'bats' || n === 'arca' || n === 'nyb' || n === 'pnk' ||
+    n.includes('dow jones') || n.includes('wilshire') || n.includes('standard & poor')
+  ) return EXCHANGES.find(e => e.id === 'NYSE') ?? null
+
   // ── US exchanges (NASDAQ + NYSE family) ────────────────────────────────────
   if (
     n.includes('nasdaq') || n === 'nms' || n === 'ngm' || n === 'ncm' ||
     n === 'new york stock exchange' || n.includes('nyse') ||
-    n === 'nyq' || n === 'nya' || n === 'nyb' || n === 'pnk' ||
-    n === 'cboe' || n === 'bats' || n === 'arca'
+    n === 'nyq' || n === 'nyb' || n === 'pnk'
   ) return EXCHANGES.find(e => e.id === 'NYSE') ?? null
 
   // ── Canada ─────────────────────────────────────────────────────────────────

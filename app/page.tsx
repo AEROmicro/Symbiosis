@@ -1,14 +1,16 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import GridLayout, { type Layout, useContainerWidth } from 'react-grid-layout'
 import { TerminalHeader } from '@/components/terminal-header'
 import { MarketTicker } from '@/components/market-ticker'
 import { SettingsDialog, type AppTheme, type ModernTheme } from '@/components/settings-dialog'
+import { AuthDialog } from '@/components/auth-dialog'
 import { WidgetRenderer, type WidgetAppProps } from '@/components/widget-renderer'
 import { BlueprintEditor } from '@/components/blueprint-editor'
 import { MobileLayout } from '@/components/mobile-layout'
-import { Terminal } from 'lucide-react'
+import { useAuth } from '@/hooks/use-auth'
+import { Terminal, User, LogIn } from 'lucide-react'
 import {
   type WidgetConfig,
   DEFAULT_WIDGET_LAYOUT,
@@ -16,14 +18,18 @@ import {
 } from '@/lib/widget-types'
 
 const STORAGE_KEY = 'symbiosis-watchlist'
+const WATCHLIST_SETS_KEY = 'symbiosis-watchlist-sets'
+const ACTIVE_LIST_KEY = 'symbiosis-active-list'
 const THEME_KEY   = 'symbiosis-theme'
 const EXCHANGE_KEY = 'symbiosis-exchange'
 const MODERN_ENABLED_KEY = 'symbiosis-modern-enabled'
 const MODERN_THEME_KEY   = 'symbiosis-modern-theme'
+const DEFAULT_LIST_NAME = 'Watchlist'
 const DEFAULT_STOCKS = ['^IXIC', '^GSPC', '^DJI']
 
 export default function SymbiosisApp() {
-  const [watchedStocks, setWatchedStocks]   = useState<string[]>(DEFAULT_STOCKS)
+  const [watchlistSets, setWatchlistSets] = useState<Record<string, string[]>>({ [DEFAULT_LIST_NAME]: DEFAULT_STOCKS })
+  const [activeListName, setActiveListName] = useState(DEFAULT_LIST_NAME)
   const [selectedStock, setSelectedStock]   = useState<string | null>('^IXIC')
   const [marketState,   setMarketState]     = useState<string>('CLOSED')
   const [hydrated,      setHydrated]        = useState(false)
@@ -34,21 +40,43 @@ export default function SymbiosisApp() {
   const [modernTheme, setModernTheme]       = useState<ModernTheme>('dark')
   const [widgetLayout, setWidgetLayout]     = useState<WidgetConfig[]>(DEFAULT_WIDGET_LAYOUT)
   const [blueprintOpen, setBlueprintOpen]   = useState(false)
+  const [authOpen, setAuthOpen]             = useState(false)
   const [isMobile, setIsMobile]             = useState(false)
   const refreshInterval = 1000
   const { width: gridWidth, containerRef }  = useContainerWidth({ initialWidth: 1280 })
 
+  const { user, loading: authLoading, syncPreferences } = useAuth()
+  const prevUserIdRef = useRef<string | null>(null)
+  const syncDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   // Load from localStorage after mount
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      if (stored) {
-        const parsed = JSON.parse(stored)
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setWatchedStocks(parsed)
-          setSelectedStock(parsed[0])
+      // Try new multi-list format first; fall back to legacy single-list key
+      const storedSets = localStorage.getItem(WATCHLIST_SETS_KEY)
+      if (storedSets) {
+        const parsed = JSON.parse(storedSets)
+        if (parsed && typeof parsed === 'object') setWatchlistSets(parsed)
+        const storedActive = localStorage.getItem(ACTIVE_LIST_KEY)
+        if (storedActive && parsed[storedActive]) {
+          setActiveListName(storedActive)
+          setSelectedStock(parsed[storedActive][0] ?? null)
+        } else {
+          const first = Object.values(parsed as Record<string, string[]>)[0] ?? []
+          setSelectedStock(first[0] ?? null)
+        }
+      } else {
+        // Migrate from legacy single-list storage
+        const stored = localStorage.getItem(STORAGE_KEY)
+        if (stored) {
+          const parsed = JSON.parse(stored)
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setWatchlistSets({ [DEFAULT_LIST_NAME]: parsed })
+            setSelectedStock(parsed[0])
+          }
         }
       }
+
       const storedTheme = localStorage.getItem(THEME_KEY) as AppTheme | null
       if (storedTheme) setTheme(storedTheme)
 
@@ -100,17 +128,78 @@ export default function SymbiosisApp() {
     }
   }, [theme, modernEnabled, modernTheme])
 
-  // Persist watchlist
+  // Derived active stock list
+  const watchedStocks = watchlistSets[activeListName] ?? []
+
+  // Persist watchlist sets
   useEffect(() => {
     if (!hydrated) return
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(watchedStocks)) } catch { /* ignore */ }
-  }, [watchedStocks, hydrated])
+    try {
+      localStorage.setItem(WATCHLIST_SETS_KEY, JSON.stringify(watchlistSets))
+      localStorage.setItem(ACTIVE_LIST_KEY, activeListName)
+    } catch { /* ignore */ }
+  }, [watchlistSets, activeListName, hydrated])
 
   // Persist widget layout
   useEffect(() => {
     if (!hydrated) return
     try { localStorage.setItem(WIDGET_LAYOUT_KEY, JSON.stringify(widgetLayout)) } catch { /* ignore */ }
   }, [widgetLayout, hydrated])
+
+  // When user logs in, load their server-side preferences
+  useEffect(() => {
+    if (!user || authLoading) return
+    if (prevUserIdRef.current === user.id) return
+    prevUserIdRef.current = user.id
+
+    const prefs = user.preferences
+    // Restore watchlist sets (with legacy fallback)
+    if (prefs.watchlistSets && typeof prefs.watchlistSets === 'object' && Object.keys(prefs.watchlistSets).length > 0) {
+      setWatchlistSets(prefs.watchlistSets as Record<string, string[]>)
+      const active = prefs.activeListName ?? Object.keys(prefs.watchlistSets)[0] ?? DEFAULT_LIST_NAME
+      setActiveListName(active)
+      const firstStock = (prefs.watchlistSets as Record<string, string[]>)[active]?.[0] ?? null
+      setSelectedStock(firstStock)
+    } else if (prefs.watchlist?.length) {
+      setWatchlistSets({ [DEFAULT_LIST_NAME]: prefs.watchlist })
+      setSelectedStock(prefs.watchlist[0])
+    }
+    if (Array.isArray(prefs.widgetLayout) && prefs.widgetLayout.length > 0) {
+      setWidgetLayout(prefs.widgetLayout as WidgetConfig[])
+    }
+    if (prefs.theme) setTheme(prefs.theme as AppTheme)
+    if (prefs.exchange) setDefaultExchange(prefs.exchange)
+    if (typeof prefs.modernEnabled === 'boolean') setModernEnabled(prefs.modernEnabled)
+    if (prefs.modernTheme) setModernTheme(prefs.modernTheme as ModernTheme)
+    if (typeof prefs.scanlineEnabled === 'boolean') setScanlineEnabled(prefs.scanlineEnabled)
+  }, [user, authLoading])
+
+  // When user logs out, reset prevUserIdRef
+  useEffect(() => {
+    if (!user && !authLoading) {
+      prevUserIdRef.current = null
+    }
+  }, [user, authLoading])
+
+  // Sync preferences to server when they change (debounced)
+  useEffect(() => {
+    if (!hydrated || !user) return
+    if (syncDebounceRef.current) clearTimeout(syncDebounceRef.current)
+    syncDebounceRef.current = setTimeout(() => {
+      syncPreferences({
+        watchlist: watchedStocks,
+        watchlistSets,
+        activeListName,
+        widgetLayout,
+        theme,
+        exchange: defaultExchange,
+        modernEnabled,
+        modernTheme,
+        scanlineEnabled,
+      })
+    }, 500)
+    return () => { if (syncDebounceRef.current) clearTimeout(syncDebounceRef.current) }
+  }, [watchlistSets, activeListName, widgetLayout, theme, defaultExchange, modernEnabled, modernTheme, scanlineEnabled, hydrated, user, syncPreferences, watchedStocks])
 
   const handleThemeChange = useCallback((newTheme: AppTheme) => {
     setTheme(newTheme)
@@ -132,17 +221,62 @@ export default function SymbiosisApp() {
     try { localStorage.setItem(EXCHANGE_KEY, exchangeId) } catch { /* ignore */ }
   }, [])
 
+  // ── Watchlist handlers ──────────────────────────────────────────────────────
   const handleAddStock = useCallback((symbol: string) => {
-    setWatchedStocks(prev => prev.includes(symbol) ? prev : [...prev, symbol])
+    setWatchlistSets(prev => {
+      const current = prev[activeListName] ?? []
+      if (current.includes(symbol)) return prev
+      return { ...prev, [activeListName]: [...current, symbol] }
+    })
+  }, [activeListName])
+
+  const handleAddStockToList = useCallback((symbol: string, listName: string) => {
+    setWatchlistSets(prev => {
+      const current = prev[listName] ?? []
+      if (current.includes(symbol)) return prev
+      return { ...prev, [listName]: [...current, symbol] }
+    })
   }, [])
 
   const handleRemoveStock = useCallback((symbol: string) => {
-    setWatchedStocks(prev => prev.filter(s => s !== symbol))
+    setWatchlistSets(prev => ({
+      ...prev,
+      [activeListName]: (prev[activeListName] ?? []).filter(s => s !== symbol),
+    }))
     if (selectedStock === symbol) setSelectedStock(null)
-  }, [selectedStock])
+  }, [activeListName, selectedStock])
 
-  const handleClearAll  = useCallback(() => { setWatchedStocks([]); setSelectedStock(null) }, [])
+  const handleClearAll = useCallback(() => {
+    setWatchlistSets(prev => ({ ...prev, [activeListName]: [] }))
+    setSelectedStock(null)
+  }, [activeListName])
+
   const handleSelectStock = useCallback((symbol: string) => { setSelectedStock(symbol) }, [])
+
+  // ── Multi-list handlers (account only) ─────────────────────────────────────
+  const handleSwitchList = useCallback((name: string) => {
+    setActiveListName(name)
+    const first = (watchlistSets[name] ?? [])[0] ?? null
+    setSelectedStock(first)
+  }, [watchlistSets])
+
+  const handleCreateList = useCallback((name: string) => {
+    setWatchlistSets(prev => ({ ...prev, [name]: [] }))
+    setActiveListName(name)
+  }, [])
+
+  const handleDeleteList = useCallback((name: string) => {
+    if (name === DEFAULT_LIST_NAME) return // can't delete the default
+    setWatchlistSets(prev => {
+      const next = { ...prev }
+      delete next[name]
+      return next
+    })
+    if (activeListName === name) {
+      setActiveListName(DEFAULT_LIST_NAME)
+      setSelectedStock((watchlistSets[DEFAULT_LIST_NAME] ?? [])[0] ?? null)
+    }
+  }, [activeListName, watchlistSets])
 
   const appProps: WidgetAppProps = {
     watchedStocks,
@@ -154,6 +288,14 @@ export default function SymbiosisApp() {
     marketState,
     refreshInterval,
     defaultExchange,
+    // Multi-list
+    isLoggedIn:        !!user,
+    watchlistSets,
+    activeListName,
+    onSwitchList:      handleSwitchList,
+    onCreateList:      handleCreateList,
+    onDeleteList:      handleDeleteList,
+    onAddStockToList:  handleAddStockToList,
   }
 
   // RGL layout (static — not draggable by user on main screen)
@@ -265,6 +407,22 @@ export default function SymbiosisApp() {
                     modernTheme={modernTheme}
                     onModernThemeChange={handleModernThemeChange}
                   />
+                  <button
+                    onClick={() => setAuthOpen(true)}
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-sm border border-border hover:border-primary/50 hover:text-primary transition-colors text-xs font-mono"
+                  >
+                    {user ? (
+                      <>
+                        <User className="w-3 h-3" />
+                        <span className="max-w-[100px] truncate">{user.displayName}</span>
+                      </>
+                    ) : (
+                      <>
+                        <LogIn className="w-3 h-3" />
+                        Sign In
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
               <div className="mt-3 text-center text-xs text-muted-foreground font-mono space-y-0.5">
@@ -282,6 +440,12 @@ export default function SymbiosisApp() {
         onClose={() => setBlueprintOpen(false)}
         layout={widgetLayout}
         onLayoutChange={setWidgetLayout}
+      />
+
+      {/* Auth Dialog */}
+      <AuthDialog
+        open={authOpen}
+        onClose={() => setAuthOpen(false)}
       />
     </div>
   )
