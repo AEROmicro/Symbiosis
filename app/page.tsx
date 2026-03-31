@@ -11,8 +11,11 @@ import { MobileLayout } from '@/components/mobile-layout'
 import { Terminal } from 'lucide-react'
 import {
   type WidgetConfig,
+  type DashboardPage,
   DEFAULT_WIDGET_LAYOUT,
   WIDGET_LAYOUT_KEY,
+  PAGES_STORAGE_KEY,
+  CURRENT_PAGE_KEY,
 } from '@/lib/widget-types'
 
 const STORAGE_KEY = 'symbiosis-watchlist'
@@ -32,11 +35,18 @@ export default function SymbiosisApp() {
   const [defaultExchange, setDefaultExchange] = useState<string>('NYSE')
   const [modernEnabled, setModernEnabled]   = useState(false)
   const [modernTheme, setModernTheme]       = useState<ModernTheme>('dark')
-  const [widgetLayout, setWidgetLayout]     = useState<WidgetConfig[]>(DEFAULT_WIDGET_LAYOUT)
+  const DEFAULT_PAGES: DashboardPage[] = [
+    { id: 'main', name: 'Main', layout: DEFAULT_WIDGET_LAYOUT }
+  ]
+  const [pages, setPages] = useState<DashboardPage[]>(DEFAULT_PAGES)
+  const [currentPageId, setCurrentPageId] = useState<string>('main')
   const [blueprintOpen, setBlueprintOpen]   = useState(false)
   const [isMobile, setIsMobile]             = useState(false)
   const refreshInterval = 1000
   const { width: gridWidth, containerRef }  = useContainerWidth({ initialWidth: 1280 })
+
+  const currentPage = pages.find(p => p.id === currentPageId) ?? pages[0]
+  const widgetLayout = currentPage?.layout ?? DEFAULT_WIDGET_LAYOUT
 
   // Load from localStorage after mount
   useEffect(() => {
@@ -61,12 +71,25 @@ export default function SymbiosisApp() {
       const storedModernTheme = localStorage.getItem(MODERN_THEME_KEY) as ModernTheme | null
       if (storedModernTheme) setModernTheme(storedModernTheme)
 
-      const storedLayout = localStorage.getItem(WIDGET_LAYOUT_KEY)
-      if (storedLayout) {
-        const parsedLayout = JSON.parse(storedLayout)
-        if (Array.isArray(parsedLayout) && parsedLayout.length > 0) {
-          setWidgetLayout(parsedLayout)
+      const storedPages = localStorage.getItem(PAGES_STORAGE_KEY)
+      if (storedPages) {
+        const parsedPages = JSON.parse(storedPages)
+        if (Array.isArray(parsedPages) && parsedPages.length > 0) {
+          setPages(parsedPages)
         }
+      } else {
+        // migrate legacy single layout
+        const storedLayout = localStorage.getItem(WIDGET_LAYOUT_KEY)
+        if (storedLayout) {
+          const parsedLayout = JSON.parse(storedLayout)
+          if (Array.isArray(parsedLayout) && parsedLayout.length > 0) {
+            setPages([{ id: 'main', name: 'Main', layout: parsedLayout }])
+          }
+        }
+      }
+      const storedCurrentPage = localStorage.getItem(CURRENT_PAGE_KEY)
+      if (storedCurrentPage) {
+        setCurrentPageId(storedCurrentPage)
       }
     } catch {
       // localStorage unavailable — fall back to defaults
@@ -106,11 +129,16 @@ export default function SymbiosisApp() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(watchedStocks)) } catch { /* ignore */ }
   }, [watchedStocks, hydrated])
 
-  // Persist widget layout
+  // Persist pages
   useEffect(() => {
     if (!hydrated) return
-    try { localStorage.setItem(WIDGET_LAYOUT_KEY, JSON.stringify(widgetLayout)) } catch { /* ignore */ }
-  }, [widgetLayout, hydrated])
+    try { localStorage.setItem(PAGES_STORAGE_KEY, JSON.stringify(pages)) } catch { /* ignore */ }
+  }, [pages, hydrated])
+
+  useEffect(() => {
+    if (!hydrated) return
+    try { localStorage.setItem(CURRENT_PAGE_KEY, currentPageId) } catch { /* ignore */ }
+  }, [currentPageId, hydrated])
 
   const handleThemeChange = useCallback((newTheme: AppTheme) => {
     setTheme(newTheme)
@@ -143,6 +171,30 @@ export default function SymbiosisApp() {
 
   const handleClearAll  = useCallback(() => { setWatchedStocks([]); setSelectedStock(null) }, [])
   const handleSelectStock = useCallback((symbol: string) => { setSelectedStock(symbol) }, [])
+
+  const handlePageLayoutChange = useCallback((layout: WidgetConfig[]) => {
+    setPages(prev => prev.map(p => p.id === currentPageId ? { ...p, layout } : p))
+  }, [currentPageId])
+
+  const handleCreatePage = useCallback((name: string) => {
+    const id = `page-${Date.now()}`
+    const newPage: DashboardPage = { id, name, layout: DEFAULT_WIDGET_LAYOUT }
+    setPages(prev => [...prev, newPage])
+    setCurrentPageId(id)
+  }, [])
+
+  const handleDeletePage = useCallback((id: string) => {
+    setPages(prev => {
+      const next = prev.filter(p => p.id !== id)
+      if (next.length === 0) return [{ id: 'main', name: 'Main', layout: DEFAULT_WIDGET_LAYOUT }]
+      return next
+    })
+    setCurrentPageId(prev => prev === id ? (pages.find(p => p.id !== id)?.id ?? 'main') : prev)
+  }, [pages])
+
+  const handleRenamePage = useCallback((id: string, name: string) => {
+    setPages(prev => prev.map(p => p.id === id ? { ...p, name } : p))
+  }, [])
 
   const appProps: WidgetAppProps = {
     watchedStocks,
@@ -196,7 +248,12 @@ export default function SymbiosisApp() {
       )}
 
       {/* Header */}
-      <TerminalHeader marketState={marketState} />
+      <TerminalHeader
+        marketState={marketState}
+        pages={pages}
+        currentPageId={currentPageId}
+        onPageChange={setCurrentPageId}
+      />
 
       {/* Market Ticker */}
       <MarketTicker onMarketStateChange={setMarketState} />
@@ -281,7 +338,13 @@ export default function SymbiosisApp() {
         open={blueprintOpen}
         onClose={() => setBlueprintOpen(false)}
         layout={widgetLayout}
-        onLayoutChange={setWidgetLayout}
+        onLayoutChange={handlePageLayoutChange}
+        pages={pages}
+        currentPageId={currentPageId}
+        onPageChange={setCurrentPageId}
+        onCreatePage={handleCreatePage}
+        onDeletePage={handleDeletePage}
+        onRenamePage={handleRenamePage}
       />
     </div>
   )

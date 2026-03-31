@@ -5,6 +5,9 @@ import { cn } from '@/lib/utils'
 
 interface TerminalHeaderProps {
   marketState?: string
+  pages?: Array<{ id: string; name: string }>
+  currentPageId?: string
+  onPageChange?: (id: string) => void
 }
 
 function getMarketStateDisplay(state: string): { label: string; color: string; pulse: boolean } {
@@ -21,7 +24,7 @@ function getMarketStateDisplay(state: string): { label: string; color: string; p
   }
 }
 
-export function TerminalHeader({ marketState = 'CLOSED' }: TerminalHeaderProps) {
+export function TerminalHeader({ marketState = 'CLOSED', pages, currentPageId, onPageChange }: TerminalHeaderProps) {
   const [time, setTime] = useState<string>('')
   const [etTime, setEtTime] = useState<string>('')
   const [date, setDate] = useState<string>('')
@@ -36,7 +39,6 @@ export function TerminalHeader({ marketState = 'CLOSED' }: TerminalHeaderProps) 
         day: 'numeric',
         year: 'numeric'
       }))
-      // Show ET time for market reference
       setEtTime(now.toLocaleTimeString('en-US', { 
         hour12: false, 
         timeZone: 'America/New_York',
@@ -48,6 +50,8 @@ export function TerminalHeader({ marketState = 'CLOSED' }: TerminalHeaderProps) 
     const interval = setInterval(updateTime, 1000)
     return () => clearInterval(interval)
   }, [])
+
+  const showTabs = pages && pages.length > 1
 
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
@@ -80,8 +84,29 @@ export function TerminalHeader({ marketState = 'CLOSED' }: TerminalHeaderProps) 
         </div>
       </div>
 
+      {/* Page tabs */}
+      {showTabs && (
+        <div className="flex items-center gap-1 px-4 py-1.5 border-t border-border/50 overflow-x-auto">
+          {pages.map(page => (
+            <button
+              key={page.id}
+              onClick={() => onPageChange?.(page.id)}
+              className={cn(
+                'px-3 py-0.5 text-[11px] font-mono rounded-sm border transition-colors shrink-0',
+                page.id === currentPageId
+                  ? 'bg-primary border-primary text-primary-foreground'
+                  : 'border-border text-muted-foreground hover:text-foreground hover:border-primary/50'
+              )}
+            >
+              {page.name}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Scanline effect */}
       <div className="h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
     </header>
   )
 }
+

@@ -63,6 +63,16 @@ import { WatchlistWidget }        from '@/components/widgets/watchlist-widget'
 import { WorldClockWidget }       from '@/components/widgets/world-clock-widget'
 import { PriceAlertsWidget }      from '@/components/widgets/price-alerts-widget'
 import { SavingsGoalsWidget }     from '@/components/widgets/savings-goals-widget'
+import { IpoCalendarWidget }      from '@/components/widgets/ipo-calendar-widget'
+import { AnalystRatingsWidget }   from '@/components/widgets/analyst-ratings-widget'
+import { ShortInterestWidget }    from '@/components/widgets/short-interest-widget'
+import { StockComparisonWidget }  from '@/components/widgets/stock-comparison-widget'
+import { EarningsSurpriseWidget } from '@/components/widgets/earnings-surprise-widget'
+import { SentimentTrackerWidget } from '@/components/widgets/sentiment-tracker-widget'
+import { TradeJournalWidget }     from '@/components/widgets/trade-journal-widget'
+import { VolatilityWidget }       from '@/components/widgets/volatility-widget'
+import { MarketCapWidget }        from '@/components/widgets/market-cap-widget'
+import { CandlestickWidget }      from '@/components/widgets/candlestick-widget'
 
 // ── Props passed from the main app to stateful widgets ─────────────────────
 export interface WidgetAppProps {
@@ -564,6 +574,27 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
           <SavingsGoalsWidget />
         </WidgetFrame>
       )
+
+    case 'ipo-calendar':
+      return <WidgetFrame title={title} iconName={iconName}><IpoCalendarWidget /></WidgetFrame>
+    case 'analyst-ratings':
+      return <WidgetFrame title={title} iconName={iconName}><AnalystRatingsWidget /></WidgetFrame>
+    case 'short-interest':
+      return <WidgetFrame title={title} iconName={iconName}><ShortInterestWidget /></WidgetFrame>
+    case 'stock-comparison':
+      return <WidgetFrame title={title} iconName={iconName}><StockComparisonWidget /></WidgetFrame>
+    case 'earnings-surprise':
+      return <WidgetFrame title={title} iconName={iconName}><EarningsSurpriseWidget /></WidgetFrame>
+    case 'sentiment-tracker':
+      return <WidgetFrame title={title} iconName={iconName}><SentimentTrackerWidget /></WidgetFrame>
+    case 'trade-journal':
+      return <WidgetFrame title={title} iconName={iconName}><TradeJournalWidget /></WidgetFrame>
+    case 'volatility-index':
+      return <WidgetFrame title={title} iconName={iconName}><VolatilityWidget /></WidgetFrame>
+    case 'market-cap-leaderboard':
+      return <WidgetFrame title={title} iconName={iconName}><MarketCapWidget /></WidgetFrame>
+    case 'candlestick-mini':
+      return <WidgetFrame title={title} iconName={iconName}><CandlestickWidget symbol={selectedStock ?? 'AAPL'} /></WidgetFrame>
 
     default:
       return (

@@ -14,6 +14,12 @@ interface Mover {
 export function TopMoversWidget() {
   const { indices, isLoading, refresh } = useMarketData()
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+  const [tick, setTick] = useState(0)
+
+  useEffect(() => {
+    const id = setInterval(() => setTick(t => t + 1), 1000)
+    return () => clearInterval(id)
+  }, [])
 
   useEffect(() => {
     if (indices.length > 0) setLastUpdated(new Date())

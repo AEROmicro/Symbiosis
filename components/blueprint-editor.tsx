@@ -116,9 +116,15 @@ interface BlueprintEditorProps {
   onClose: () => void
   layout: WidgetConfig[]
   onLayoutChange: (layout: WidgetConfig[]) => void
+  pages?: Array<{ id: string; name: string; layout: WidgetConfig[] }>
+  currentPageId?: string
+  onPageChange?: (id: string) => void
+  onCreatePage?: (name: string) => void
+  onDeletePage?: (id: string) => void
+  onRenamePage?: (id: string, name: string) => void
 }
 
-export function BlueprintEditor({ open, onClose, layout, onLayoutChange }: BlueprintEditorProps) {
+export function BlueprintEditor({ open, onClose, layout, onLayoutChange, pages, currentPageId, onPageChange, onCreatePage, onDeletePage, onRenamePage }: BlueprintEditorProps) {
   const [draft, setDraft] = useState<WidgetConfig[]>(layout)
   const [search, setSearch] = useState('')
 
@@ -128,6 +134,11 @@ export function BlueprintEditor({ open, onClose, layout, onLayoutChange }: Bluep
   useEffect(() => {
     if (open) setDraft(layout)
   }, [open, layout])
+
+  // Re-sync draft when page changes in the blueprint editor
+  useEffect(() => {
+    if (open) setDraft(layout)
+  }, [currentPageId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleLayoutChange = (rglLayout: Layout) => {
     setDraft(prev => mergeLayout(prev, rglLayout))
@@ -193,6 +204,46 @@ export function BlueprintEditor({ open, onClose, layout, onLayoutChange }: Bluep
             </span>
           </DialogTitle>
         </DialogHeader>
+
+        {/* Pages bar */}
+        {pages && pages.length > 0 && (
+          <div className="flex items-center gap-1 px-4 py-2 border-b border-border bg-card/50 shrink-0 overflow-x-auto">
+            <span className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider mr-2 shrink-0">Pages:</span>
+            {pages.map(page => (
+              <div key={page.id} className="flex items-center shrink-0">
+                <button
+                  onClick={() => onPageChange?.(page.id)}
+                  className={cn(
+                    'px-2 py-1 text-[11px] font-mono border transition-colors',
+                    pages.length > 1 ? 'rounded-l' : 'rounded',
+                    page.id === currentPageId
+                      ? 'bg-primary border-primary text-primary-foreground'
+                      : 'border-border text-muted-foreground hover:text-foreground hover:bg-primary/10'
+                  )}
+                >
+                  {page.name}
+                </button>
+                {pages.length > 1 && (
+                  <button
+                    onClick={() => onDeletePage?.(page.id)}
+                    className="px-1 py-1 text-[11px] font-mono border border-l-0 rounded-r hover:bg-destructive/20 hover:text-destructive transition-colors border-border"
+                  >
+                    <X className="w-2.5 h-2.5" />
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              onClick={() => {
+                const name = prompt('New page name:')
+                if (name?.trim()) onCreatePage?.(name.trim())
+              }}
+              className="px-2 py-1 text-[11px] font-mono border border-dashed border-border rounded text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors ml-1 shrink-0"
+            >
+              <Plus className="w-2.5 h-2.5" />
+            </button>
+          </div>
+        )}
 
         {/* Body */}
         <div className="flex flex-1 min-h-0">
