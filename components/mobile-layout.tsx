@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import {
   BarChart2, LayoutGrid, Terminal as TerminalIcon,
-  MoreHorizontal, Plus, Check,
+  MoreHorizontal, Plus, Check, Gem,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { TerminalCLI }      from '@/components/terminal-cli'
@@ -274,7 +275,7 @@ export function MobileLayout({
 
       {/* ── Bottom navigation ─────────────────────────────────── */}
       <nav className="shrink-0 border-t border-border bg-card/90 backdrop-blur-sm safe-bottom">
-        <div className="grid grid-cols-4">
+        <div className="grid grid-cols-5">
           {([
             { tab: 'market',    Icon: BarChart2,      label: 'Market'    },
             { tab: 'watchlist', Icon: LayoutGrid,     label: 'Watchlist' },
@@ -295,6 +296,14 @@ export function MobileLayout({
               <span className="text-[10px] font-mono">{label}</span>
             </button>
           ))}
+          {/* Tourmaline link */}
+          <Link
+            href="/tourmaline"
+            className="flex flex-col items-center gap-1 py-3 text-muted-foreground hover:text-primary transition-colors"
+          >
+            <Gem className="w-5 h-5" />
+            <span className="text-[10px] font-mono">Tourmaline</span>
+          </Link>
         </div>
       </nav>
     </div>

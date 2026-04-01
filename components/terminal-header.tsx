@@ -1,12 +1,17 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { Gem } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface TerminalHeaderProps {}
 
 export function TerminalHeader({}: TerminalHeaderProps) {
   const [time, setTime] = useState<string>('')
   const [date, setDate] = useState<string>('')
+  const pathname = usePathname()
 
   useEffect(() => {
     const updateTime = () => {
@@ -29,16 +34,42 @@ export function TerminalHeader({}: TerminalHeaderProps) {
       <div className="flex items-center justify-between px-4 py-3">
         {/* Logo */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1 text-primary font-bold text-xl tracking-tight">
+          <Link href="/" className="flex items-center gap-1 text-primary font-bold text-xl tracking-tight hover:opacity-80 transition-opacity">
             <span className="text-primary/80">{'>'}</span>
             <span className="text-primary">_</span>
             <span className="ml-2">Symbiosis</span>
-          </div>
+          </Link>
           <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground font-mono">
             <span className="px-2 py-0.5 bg-primary/10 border border-primary/30 rounded text-primary">
               v5.2 Magnetar Basalt
             </span>
           </div>
+          {/* Nav links */}
+          <nav className="hidden md:flex items-center gap-1 ml-2">
+            <Link
+              href="/"
+              className={cn(
+                'px-2 py-0.5 text-xs font-mono rounded border transition-colors',
+                pathname === '/'
+                  ? 'bg-primary/10 border-primary/30 text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+              )}
+            >
+              Dashboard
+            </Link>
+            <Link
+              href="/tourmaline"
+              className={cn(
+                'px-2 py-0.5 text-xs font-mono rounded border transition-colors flex items-center gap-1',
+                pathname?.startsWith('/tourmaline')
+                  ? 'bg-primary/10 border-primary/30 text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+              )}
+            >
+              <Gem className="w-3 h-3" />
+              Tourmaline
+            </Link>
+          </nav>
         </div>
 
         {/* Status Indicators */}
@@ -60,4 +91,3 @@ export function TerminalHeader({}: TerminalHeaderProps) {
     </header>
   )
 }
-
