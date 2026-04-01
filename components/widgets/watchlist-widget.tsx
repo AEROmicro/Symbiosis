@@ -81,7 +81,7 @@ export function WatchlistWidget({
 
       {/* Fixed list-switcher bar — always at the bottom */}
       {hasMultipleLists && (
-        <div className="shrink-0 border-t border-border bg-card/80 px-3 py-2">
+        <div className="shrink-0 border-t border-border bg-card/80 px-2 py-1">
           <div className="flex items-center gap-1 overflow-x-auto scrollbar-none">
             {/* List tabs */}
             {listNames.map(name => (
@@ -89,7 +89,7 @@ export function WatchlistWidget({
                 <button
                   onClick={() => { onSwitchList?.(name) }}
                   className={cn(
-                    'px-2.5 py-1 rounded text-[10px] font-mono font-semibold transition-colors border whitespace-nowrap',
+                    'px-2 py-0.5 rounded text-[10px] font-mono font-semibold transition-colors border whitespace-nowrap',
                     name === activeListName
                       ? 'bg-primary/20 border-primary/40 text-primary'
                       : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted',
@@ -115,7 +115,7 @@ export function WatchlistWidget({
             {/* New list button */}
             <button
               onClick={() => setDialogOpen(true)}
-              className="shrink-0 ml-1 flex items-center gap-1 px-2 py-1 rounded text-[10px] font-mono text-muted-foreground hover:text-primary border border-transparent hover:border-primary/30 transition-colors"
+              className="shrink-0 ml-1 flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono text-muted-foreground hover:text-primary border border-transparent hover:border-primary/30 transition-colors"
               title="Create new watchlist"
             >
               <ListPlus className="w-3 h-3" />

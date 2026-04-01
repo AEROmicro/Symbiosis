@@ -12,6 +12,11 @@ import { MarketStatsWidget }    from '@/components/widgets/market-stats-widget'
 import { CryptoWidget }         from '@/components/widgets/crypto-widget'
 import { NewsWidget }           from '@/components/widgets/news-widget'
 import { PortfolioWidget }      from '@/components/widgets/portfolio-widget'
+import { TopMoversWidget }      from '@/components/widgets/top-movers-widget'
+import { FearGreedWidget }      from '@/components/widgets/fear-greed-widget'
+import { MarketBreadthWidget }  from '@/components/widgets/market-breadth-widget'
+import { EconomicCalendarWidget } from '@/components/widgets/economic-calendar-widget'
+import { BondsWidget }          from '@/components/widgets/bonds-widget'
 import { HelpDialog }           from '@/components/help-dialog'
 import { KeyboardShortcuts }    from '@/components/keyboard-shortcuts'
 import { MarketHoursDialog }    from '@/components/market-hours-dialog'
@@ -90,10 +95,34 @@ export function MobileLayout({
             </section>
             <section>
               <h2 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">
+                Top Movers
+              </h2>
+              <div className="border border-border rounded-md overflow-hidden" style={{ height: 280 }}>
+                <TopMoversWidget />
+              </div>
+            </section>
+            <section>
+              <h2 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">
+                Fear &amp; Greed
+              </h2>
+              <div className="border border-border rounded-md overflow-hidden" style={{ height: 220 }}>
+                <FearGreedWidget />
+              </div>
+            </section>
+            <section>
+              <h2 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">
                 Crypto
               </h2>
               <div className="border border-border rounded-md overflow-hidden" style={{ height: 260 }}>
                 <CryptoWidget />
+              </div>
+            </section>
+            <section>
+              <h2 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">
+                Market Breadth
+              </h2>
+              <div className="border border-border rounded-md overflow-hidden" style={{ height: 240 }}>
+                <MarketBreadthWidget />
               </div>
             </section>
           </div>
@@ -185,6 +214,24 @@ export function MobileLayout({
               </h2>
               <div className="border border-border rounded-md overflow-hidden" style={{ height: 320 }}>
                 <NewsWidget />
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">
+                Economic Calendar
+              </h2>
+              <div className="border border-border rounded-md overflow-hidden" style={{ height: 280 }}>
+                <EconomicCalendarWidget />
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">
+                Bonds
+              </h2>
+              <div className="border border-border rounded-md overflow-hidden" style={{ height: 240 }}>
+                <BondsWidget />
               </div>
             </section>
 

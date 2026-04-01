@@ -47,7 +47,7 @@ function isDST(date: Date): boolean {
  *   CLOSED   → smart back-off until next likely open
  */
 export function useMarketData() {
-  const { data, error, isLoading, mutate } = useSWR<MarketData>(
+  const { data, error, isLoading, isValidating, mutate } = useSWR<MarketData>(
     '/api/market',
     fetcher,
     {
@@ -71,6 +71,7 @@ export function useMarketData() {
     marketState: data?.marketState ?? 'CLOSED',
     indices: data?.indices ?? [],
     isLoading,
+    isValidating,
     isError: !!error,
     refresh: mutate,
   }
