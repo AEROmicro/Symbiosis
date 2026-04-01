@@ -19,15 +19,22 @@ import {
   CURRENT_PAGE_KEY,
 } from '@/lib/widget-types'
 
-const STORAGE_KEY = 'symbiosis-watchlist'
-const THEME_KEY   = 'symbiosis-theme'
-const EXCHANGE_KEY = 'symbiosis-exchange'
+const STORAGE_KEY        = 'symbiosis-watchlist'        // legacy – migration only
+const WATCHLISTS_KEY     = 'symbiosis-watchlists'
+const ACTIVE_LIST_KEY    = 'symbiosis-active-list'
+const THEME_KEY          = 'symbiosis-theme'
+const EXCHANGE_KEY       = 'symbiosis-exchange'
 const MODERN_ENABLED_KEY = 'symbiosis-modern-enabled'
 const MODERN_THEME_KEY   = 'symbiosis-modern-theme'
-const DEFAULT_STOCKS = ['^IXIC', '^GSPC', '^DJI']
+const DEFAULT_LIST_NAME  = 'Watchlist'
+const DEFAULT_STOCKS     = ['^IXIC', '^GSPC', '^DJI']
 
 export default function SymbiosisApp() {
-  const [watchedStocks, setWatchedStocks]   = useState<string[]>(DEFAULT_STOCKS)
+  const [watchlistSets, setWatchlistSets] = useState<Record<string, string[]>>({
+    [DEFAULT_LIST_NAME]: DEFAULT_STOCKS,
+  })
+  const [activeListName, setActiveListName] = useState<string>(DEFAULT_LIST_NAME)
+  const watchedStocks = watchlistSets[activeListName] ?? []
   const [selectedStock, setSelectedStock]   = useState<string | null>('^IXIC')
   const [marketState,   setMarketState]     = useState<string>('CLOSED')
   const [hydrated,      setHydrated]        = useState(false)
@@ -52,12 +59,27 @@ export default function SymbiosisApp() {
   // Load from localStorage after mount
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      if (stored) {
-        const parsed = JSON.parse(stored)
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setWatchedStocks(parsed)
-          setSelectedStock(parsed[0])
+      // Multi-watchlist (new format)
+      const storedWatchlists = localStorage.getItem(WATCHLISTS_KEY)
+      if (storedWatchlists) {
+        const parsed = JSON.parse(storedWatchlists)
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+          setWatchlistSets(parsed)
+          const storedActive = localStorage.getItem(ACTIVE_LIST_KEY)
+          const activeName = storedActive && parsed[storedActive] ? storedActive : Object.keys(parsed)[0] ?? DEFAULT_LIST_NAME
+          setActiveListName(activeName)
+          const firstStock = (parsed[activeName] ?? [])[0]
+          if (firstStock) setSelectedStock(firstStock)
+        }
+      } else {
+        // Migrate legacy flat watchlist
+        const stored = localStorage.getItem(STORAGE_KEY)
+        if (stored) {
+          const parsed = JSON.parse(stored)
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setWatchlistSets({ [DEFAULT_LIST_NAME]: parsed })
+            setSelectedStock(parsed[0])
+          }
         }
       }
       const storedTheme = localStorage.getItem(THEME_KEY) as AppTheme | null
@@ -124,11 +146,16 @@ export default function SymbiosisApp() {
     }
   }, [theme, modernEnabled, modernTheme])
 
-  // Persist watchlist
+  // Persist watchlists
   useEffect(() => {
     if (!hydrated) return
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(watchedStocks)) } catch { /* ignore */ }
-  }, [watchedStocks, hydrated])
+    try { localStorage.setItem(WATCHLISTS_KEY, JSON.stringify(watchlistSets)) } catch { /* ignore */ }
+  }, [watchlistSets, hydrated])
+
+  useEffect(() => {
+    if (!hydrated) return
+    try { localStorage.setItem(ACTIVE_LIST_KEY, activeListName) } catch { /* ignore */ }
+  }, [activeListName, hydrated])
 
   // Persist pages
   useEffect(() => {
@@ -162,16 +189,57 @@ export default function SymbiosisApp() {
   }, [])
 
   const handleAddStock = useCallback((symbol: string) => {
-    setWatchedStocks(prev => prev.includes(symbol) ? prev : [...prev, symbol])
-  }, [])
+    setWatchlistSets(prev => {
+      const list = prev[activeListName] ?? []
+      if (list.includes(symbol)) return prev
+      return { ...prev, [activeListName]: [...list, symbol] }
+    })
+  }, [activeListName])
 
   const handleRemoveStock = useCallback((symbol: string) => {
-    setWatchedStocks(prev => prev.filter(s => s !== symbol))
+    setWatchlistSets(prev => ({
+      ...prev,
+      [activeListName]: (prev[activeListName] ?? []).filter(s => s !== symbol),
+    }))
     if (selectedStock === symbol) setSelectedStock(null)
-  }, [selectedStock])
+  }, [activeListName, selectedStock])
 
-  const handleClearAll  = useCallback(() => { setWatchedStocks([]); setSelectedStock(null) }, [])
+  const handleClearAll = useCallback(() => {
+    setWatchlistSets(prev => ({ ...prev, [activeListName]: [] }))
+    setSelectedStock(null)
+  }, [activeListName])
   const handleSelectStock = useCallback((symbol: string) => { setSelectedStock(symbol) }, [])
+
+  const handleSwitchList = useCallback((name: string) => {
+    setActiveListName(name)
+    setSelectedStock(null)
+  }, [])
+
+  const handleCreateList = useCallback((name: string) => {
+    setWatchlistSets(prev => ({ ...prev, [name]: [] }))
+    setActiveListName(name)
+  }, [])
+
+  const handleDeleteList = useCallback((name: string) => {
+    setWatchlistSets(prev => {
+      const next = { ...prev }
+      delete next[name]
+      return next
+    })
+    setActiveListName(prev => {
+      if (prev !== name) return prev
+      const remaining = Object.keys(watchlistSets).filter(n => n !== name)
+      return remaining[0] ?? DEFAULT_LIST_NAME
+    })
+  }, [watchlistSets])
+
+  const handleAddStockToList = useCallback((symbol: string, listName: string) => {
+    setWatchlistSets(prev => {
+      const list = prev[listName] ?? []
+      if (list.includes(symbol)) return prev
+      return { ...prev, [listName]: [...list, symbol] }
+    })
+  }, [])
 
   const handlePageLayoutChange = useCallback((layout: WidgetConfig[]) => {
     setPages(prev => prev.map(p => p.id === currentPageId ? { ...p, layout } : p))
@@ -207,6 +275,12 @@ export default function SymbiosisApp() {
     marketState,
     refreshInterval,
     defaultExchange,
+    watchlistSets,
+    activeListName,
+    onSwitchList:      handleSwitchList,
+    onCreateList:      handleCreateList,
+    onDeleteList:      handleDeleteList,
+    onAddStockToList:  handleAddStockToList,
   }
 
   // RGL layout (static — not draggable by user on main screen)

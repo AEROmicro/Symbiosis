@@ -4,7 +4,7 @@ import { useMemo, useState, useEffect } from 'react'
 import { useStockData } from '@/hooks/use-stock-data'
 import { TrendingUp, TrendingDown, X, RefreshCw } from 'lucide-react'
 import { cn, getCurrencySymbol } from '@/lib/utils'
-import { resolveExchange, getMarketState } from '@/lib/exchanges'
+import { resolveExchange, getMarketState, EXCHANGES } from '@/lib/exchanges'
 
 interface StockCardProps {
   symbol: string
@@ -27,16 +27,13 @@ export function StockCard({ symbol, onRemove, onClick, isSelected, refreshInterv
   // Resolve the exchange once per stock load
   const resolvedEx = useMemo(() => (stock ? resolveExchange(stock.exchange) : null), [stock])
 
-  // Effective market state:
-  //   Trust Yahoo for PRE/POST/REGULAR.
-  //   If Yahoo says CLOSED, compute from the exchange's local clock so we
-  //   correctly show PRE / POST when applicable (e.g. US stocks 4–9:30 AM ET).
+  // Effective market state — always derived from the local exchange clock so
+  // indices (^IXIC, ^GSPC, etc.) and any symbol whose API returns "CLOSED"
+  // still get the correct PRE / REGULAR / POST badge without an extra round-trip.
   const effectiveMarketState = useMemo(() => {
     if (!stock) return null
-    if (stock.marketState === 'REGULAR' || stock.marketState === 'PRE' || stock.marketState === 'POST')
-      return stock.marketState
-    if (resolvedEx) return getMarketState(resolvedEx)
-    return 'CLOSED'
+    const ex = resolvedEx ?? EXCHANGES.find(e => e.id === 'NYSE')!
+    return getMarketState(ex)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stock, resolvedEx, tick])
 

@@ -10,8 +10,6 @@ interface TerminalCLIProps {
   onClearAll: () => void
   onSelectStock?: (symbol: string) => void
   watchedStocks: string[]
-  // Multi-list support (account only)
-  isLoggedIn?: boolean
   watchlistNames?: string[]
   activeListName?: string
   onAddStockToList?: (symbol: string, listName: string) => void
@@ -560,12 +558,10 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, onSelectSto
 
       case 'add':
         if (!args[0]) {
-          addLog('error', isLoggedIn
-            ? 'Usage: add <SYMBOL> [listname] (e.g., add AAPL or add AAPL tech)'
-            : 'Usage: add <SYMBOL> (e.g., add AAPL)')
+          addLog('error', 'Usage: add <SYMBOL> [listname] (e.g., add AAPL or add AAPL tech)')
           break
         }
-        if (args[1] && isLoggedIn && onAddStockToList) {
+        if (args[1] && onAddStockToList) {
           // add AAPL listname
           await validateAndAddSymbol(args[0], args[1])
         } else {
@@ -574,10 +570,6 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, onSelectSto
         break
 
       case 'lists':
-        if (!isLoggedIn) {
-          addLog('warning', 'Sign in to use multiple watchlists')
-          break
-        }
         addLog('info', '── Watchlists ─────────────────────────')
         ;(watchlistNames ?? []).forEach(n => {
           addLog('info', `  ${n === activeListName ? '▶' : '○'} ${n}`)
