@@ -54,7 +54,7 @@ export function WatchlistWidget({
   return (
     <div className="flex flex-col h-full">
       {/* Scrollable stock cards area */}
-      <div className="flex-1 p-3 min-h-0 overflow-y-auto pb-10">
+      <div className="flex-1 p-3 min-h-0 overflow-y-auto">
         {watchedStocks.length === 0 ? (
         <div className="border border-dashed border-border bg-card/50 rounded-md p-8 text-center h-full flex flex-col items-center justify-center">
             <div className="text-4xl text-primary/30 mb-3 font-mono">{'[  ]'}</div>
