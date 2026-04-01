@@ -44,7 +44,6 @@ interface MobileLayoutProps {
   onThemeChange: (t: AppTheme) => void
   scanlineEnabled: boolean
   onScanlineChange: (v: boolean) => void
-  onOpenBlueprint: () => void
   defaultExchange?: string
   onExchangeChange?: (id: string) => void
   modernEnabled?: boolean
@@ -59,7 +58,6 @@ export function MobileLayout({
   onThemeChange,
   scanlineEnabled,
   onScanlineChange,
-  onOpenBlueprint,
   defaultExchange = 'NYSE',
   onExchangeChange,
   modernEnabled = false,
@@ -97,7 +95,7 @@ export function MobileLayout({
               <h2 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">
                 Top Movers
               </h2>
-              <div className="border border-border rounded-md overflow-hidden" style={{ height: 280 }}>
+              <div className="border border-border rounded-md overflow-auto" style={{ minHeight: 200 }}>
                 <TopMoversWidget />
               </div>
             </section>
@@ -105,7 +103,7 @@ export function MobileLayout({
               <h2 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">
                 Fear &amp; Greed
               </h2>
-              <div className="border border-border rounded-md overflow-hidden" style={{ height: 220 }}>
+              <div className="border border-border rounded-md overflow-auto" style={{ minHeight: 180 }}>
                 <FearGreedWidget />
               </div>
             </section>
@@ -113,7 +111,7 @@ export function MobileLayout({
               <h2 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">
                 Crypto
               </h2>
-              <div className="border border-border rounded-md overflow-hidden" style={{ height: 260 }}>
+              <div className="border border-border rounded-md overflow-auto" style={{ minHeight: 200 }}>
                 <CryptoWidget />
               </div>
             </section>
@@ -121,7 +119,7 @@ export function MobileLayout({
               <h2 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">
                 Market Breadth
               </h2>
-              <div className="border border-border rounded-md overflow-hidden" style={{ height: 240 }}>
+              <div className="border border-border rounded-md overflow-auto" style={{ minHeight: 200 }}>
                 <MarketBreadthWidget />
               </div>
             </section>
@@ -203,7 +201,7 @@ export function MobileLayout({
               <h2 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">
                 Portfolio
               </h2>
-              <div className="border border-border rounded-md overflow-hidden" style={{ height: 280 }}>
+              <div className="border border-border rounded-md overflow-auto" style={{ minHeight: 200 }}>
                 <PortfolioWidget />
               </div>
             </section>
@@ -212,7 +210,7 @@ export function MobileLayout({
               <h2 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">
                 News
               </h2>
-              <div className="border border-border rounded-md overflow-hidden" style={{ height: 320 }}>
+              <div className="border border-border rounded-md overflow-auto" style={{ minHeight: 260 }}>
                 <NewsWidget />
               </div>
             </section>
@@ -221,7 +219,7 @@ export function MobileLayout({
               <h2 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">
                 Economic Calendar
               </h2>
-              <div className="border border-border rounded-md overflow-hidden" style={{ height: 280 }}>
+              <div className="border border-border rounded-md overflow-auto" style={{ minHeight: 200 }}>
                 <EconomicCalendarWidget />
               </div>
             </section>
@@ -230,7 +228,7 @@ export function MobileLayout({
               <h2 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">
                 Bonds
               </h2>
-              <div className="border border-border rounded-md overflow-hidden" style={{ height: 240 }}>
+              <div className="border border-border rounded-md overflow-auto" style={{ minHeight: 200 }}>
                 <BondsWidget />
               </div>
             </section>
@@ -257,7 +255,6 @@ export function MobileLayout({
                 onThemeChange={onThemeChange}
                 scanlineEnabled={scanlineEnabled}
                 onScanlineChange={onScanlineChange}
-                onOpenBlueprint={onOpenBlueprint}
                 defaultExchange={defaultExchange}
                 onExchangeChange={onExchangeChange ?? (() => {})}
                 modernEnabled={modernEnabled}

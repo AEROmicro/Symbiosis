@@ -336,7 +336,6 @@ export default function SymbiosisApp() {
           onThemeChange={handleThemeChange}
           scanlineEnabled={scanlineEnabled}
           onScanlineChange={setScanlineEnabled}
-          onOpenBlueprint={() => setBlueprintOpen(true)}
           defaultExchange={defaultExchange}
           onExchangeChange={handleExchangeChange}
           modernEnabled={modernEnabled}
