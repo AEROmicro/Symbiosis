@@ -14,7 +14,198 @@ interface StockCardProps {
   refreshInterval?: number
 }
 
-export function StockCard({ symbol, onRemove, onClick, isSelected, refreshInterval = 3000 }: StockCardProps) {
+export function StockCard({ symbol, onRemove, onClick, isSelected, to:
+
+TSX
+￼
+￼
+className={cn(
+and keep your p-[15px] change.
+
+If you want me to pinpoint the exact line in your repo and give you a ready-to-apply patch, paste the latest file contents or tell me the commit SHA you just built.
+
+￼
+￼
+￼
+￼
+￼
+￼
+￼
+￼
+￼
+Model:
+GPT-5.2-Codex
+￼
+Skip to content
+￼
+AEROmicro
+Symbiosis
+￼
+Type / to search
+￼
+￼
+￼￼
+Repository navigation
+Code
+Issues
+Pull requests
+1
+ (1)
+Agents
+Actions
+Projects
+Wiki
+Security and quality
+Insights
+Settings
+￼
+Files
+￼
+ main
+￼
+￼
+t
+widgets content loaded
+.github
+.next
+app
+components
+ui
+widgets
+analog-clock-widget.tsx
+analyst-ratings-widget.tsx
+bonds-widget.tsx
+calculator-widget.tsx
+candlestick-widget.tsx
+clock-widget.tsx
+commodities-widget.tsx
+correlation-heatmap-widget.tsx
+crypto-widget.tsx
+currency-widget.tsx
+dictionary-widget.tsx
+dividends-widget.tsx
+earnings-surprise-widget.tsx
+earnings-widget.tsx
+economic-calendar-widget.tsx
+fear-greed-widget.tsx
+formulas-widget.tsx
+habit-tracker-widget.tsx
+heatmap-widget.tsx
+help-widget.tsx
+insider-activity-widget.tsx
+ipo-calendar-widget.tsx
+json-viewer-widget.tsx
+macro-indicators-widget.tsx
+market-breadth-widget.tsx
+market-cap-widget.tsx
+market-hours-widget.tsx
+market-session-widget.tsx
+market-stats-widget.tsx
+news-ticker-widget.tsx
+news-widget.tsx
+notes-widget.tsx
+options-chain-widget.tsx
+options-flow-widget.tsx
+pomodoro-widget.tsx
+portfolio-widget.tsx
+position-sizer-widget.tsx
+price-alerts-widget.tsx
+risk-metrics-widget.tsx
+savings-goals-widget.tsx
+sector-rotation-widget.tsx
+sentiment-tracker-widget.tsx
+short-interest-widget.tsx
+spacer-widget.tsx
+stock-comparison-widget.tsx
+stock-screener-widget.tsx
+system-monitor-widget.tsx
+system-status-widget.tsx
+technical-analysis-widget.tsx
+timer-widget.tsx
+todo-widget.tsx
+top-movers-widget.tsx
+trade-journal-widget.tsx
+volatility-widget.tsx
+watchlist-compact-widget.tsx
+watchlist-widget.tsx
+weather-widget.tsx
+world-clock-widget.tsx
+yield-curve-widget.tsx
+blueprint-editor.tsx
+calculator-dialog.tsx
+currency-converter.tsx
+fullscreen-chart.tsx
+help-dialog.tsx
+keyboard-shortcuts.tsx
+layout-profiles-dialog.tsx
+market-hours-dialog.tsx
+market-stats-dialog.tsx
+market-ticker.tsx
+mobile-layout.tsx
+news-dialog.tsx
+portfolio-dialog.tsx
+price-chart.tsx
+quick-actions.tsx
+settings-dialog.tsx
+stock-card.tsx
+stock-detail.tsx
+terminal-cli.tsx
+terminal-header.tsx
+theme-provider.tsx
+widget-renderer.tsx
+data
+electron
+hooks
+lib
+public
+styles
+.gitignore
+.mailmap
+LICENSE
+README.md
+User_Manual.pdf
+components.json
+index.html
+logo.png
+manifest.json
+next.config.mjs
+package-lock.json
+package.json
+postcss.config.mjs
+screenshot.png
+script.js
+styles.css
+sw.js
+tsconfig.json
+BreadcrumbsSymbiosis/components
+/stock-card.tsx
+￼
+￼
+Latest commit
+￼
+AEROmicro
+Adjust padding in stock card component
+￼
+b97801e
+ · 
+1 minute ago
+History
+History
+File metadata and controls
+￼
+Code
+￼
+Blame
+165 lines (148 loc) · 7.01 KB
+￼
+￼
+￼
+Raw
+￼
+￼
+￼
+￼
+refreshInterval = 3000 }: StockCardProps) {
   const { stock, isLoading, isError, refresh } = useStockData(symbol, refreshInterval)
 
   // Tick every 60 s so the session badge reflects local time even between polls
@@ -92,7 +283,7 @@ export function StockCard({ symbol, onRemove, onClick, isSelected, refreshInterv
   return (
     <div
       onClick={() => onClick(symbol)}
-      "className={cn(
+      className={cn(
         "group relative border rounded-xl p-[15px] cursor-pointer transition-all duration-300",
         "bg-card/40 backdrop-blur-sm",
         "hover:bg-primary/[0.02] hover:border-border/60",
