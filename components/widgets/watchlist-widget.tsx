@@ -54,9 +54,9 @@ export function WatchlistWidget({
   return (
     <div className="flex flex-col h-full">
       {/* Scrollable stock cards area */}
-      <div className="flex-1 p-3 min-h-0">
+      <div className="flex-1 p-3 min-h-0 overflow-y-auto pb-10">
         {watchedStocks.length === 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 auto-rows-fr grid-rows-3 overflow-hidden">
+        <div className="border border-dashed border-border bg-card/50 rounded-md p-8 text-center h-full flex flex-col items-center justify-center">
             <div className="text-4xl text-primary/30 mb-3 font-mono">{'[  ]'}</div>
             <p className="text-muted-foreground text-sm">No stocks in {activeListName}</p>
             <p className="text-xs text-muted-foreground mt-1">
@@ -64,7 +64,7 @@ export function WatchlistWidget({
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 auto-rows-fr max-h-[calc(3*10.5rem+2*0.75rem)]">
             {watchedStocks.map((symbol) => (
               <StockCard
                 key={symbol}
@@ -81,7 +81,7 @@ export function WatchlistWidget({
 
       {/* Fixed list-switcher bar — always at the bottom */}
       {hasMultipleLists && (
-        <div className="shrink-0 border-t border-border bg-card/80 px-2 py-1">
+        <div className="shrink-0 border-t border-border bg-card/80 px-2 py-1 relative z-10">
           <div className="flex items-center gap-1 overflow-x-auto scrollbar-none">
             {/* List tabs */}
             {listNames.map(name => (
