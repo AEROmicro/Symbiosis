@@ -41,7 +41,7 @@ export function TerminalHeader({}: TerminalHeaderProps) {
           </Link>
           <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground font-mono">
             <span className="px-2 py-0.5 bg-primary/10 border border-primary/30 rounded text-primary">
-              v5.2 Magnetar Basalt
+              v6 Tachyonic Basalt
             </span>
           </div>
           {/* Nav links */}
