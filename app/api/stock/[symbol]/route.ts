@@ -16,7 +16,8 @@ function fmtMarketCap(raw: number | null | undefined): string {
 
 async function fetchV7Quote(symbol: string) {
   const fields = [
-    'symbol','shortName','regularMarketPrice','regularMarketPreviousClose',
+    'symbol','shortName','regularMarketPrice','regularMarketChange','regularMarketChangePercent',
+    'regularMarketPreviousClose',
     'regularMarketOpen','regularMarketDayHigh','regularMarketDayLow',
     'regularMarketVolume','averageDailyVolume3Month','regularMarketState',
     'fullExchangeName','currency','marketCap','fiftyTwoWeekHigh','fiftyTwoWeekLow',
@@ -63,8 +64,16 @@ async function fetchYahooFinanceData(symbol: string) {
 
     const currentPrice = q.regularMarketPrice
     const prevClose    = q.regularMarketPreviousClose
-    const manualChange = currentPrice - prevClose
-    const manualChangePct = (manualChange / prevClose) * 100
+
+    // Prefer Yahoo's own daily change values to avoid null/0 prevClose bugs
+    // (null coerces to 0 in JS arithmetic, turning the entire price into a fake "change")
+    const yahooChange    = q.regularMarketChange    ?? null
+    const yahooChangePct = q.regularMarketChangePercent ?? null
+    const safePrevClose  = (prevClose != null && prevClose > 0) ? prevClose : null
+    const manualChange   = safePrevClose != null ? currentPrice - safePrevClose : null
+    const manualChangePct = safePrevClose != null && manualChange != null ? (manualChange / safePrevClose) * 100 : null
+    const dailyChange    = yahooChange    ?? manualChange   ?? 0
+    const dailyChangePct = yahooChangePct ?? manualChangePct ?? 0
 
     const marketCapRaw = q.marketCap ?? sd?.marketCap?.raw
     const marketCapStr = fmtMarketCap(marketCapRaw)
@@ -100,8 +109,8 @@ async function fetchYahooFinanceData(symbol: string) {
       symbol: q.symbol || symbol.toUpperCase(),
       name: q.shortName || symbol.toUpperCase(),
       price: n(currentPrice),
-      change: n(manualChange),
-      changePercent: n(manualChangePct),
+      change: n(dailyChange),
+      changePercent: n(dailyChangePct),
       high: n(q.regularMarketDayHigh),
       low: n(q.regularMarketDayLow),
       open: n(q.regularMarketOpen),
@@ -155,13 +164,16 @@ async function fetchChartData(symbol: string) {
 
     const price = meta.regularMarketPrice
     const prevClose = meta.chartPreviousClose
+    const safePrevClose = (prevClose != null && prevClose > 0) ? prevClose : null
+    const chartChange = safePrevClose != null ? price - safePrevClose : 0
+    const chartChangePct = safePrevClose != null ? (chartChange / safePrevClose) * 100 : 0
 
     return {
       symbol: meta.symbol,
       name: meta.shortName || meta.symbol,
       price: n(price),
-      change: n(price - prevClose),
-      changePercent: n(((price - prevClose) / prevClose) * 100),
+      change: n(chartChange),
+      changePercent: n(chartChangePct),
       high: n(meta.regularMarketDayHigh ?? price),
       low: n(meta.regularMarketDayLow ?? price),
       open: n(meta.regularMarketOpen ?? prevClose),
