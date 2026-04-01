@@ -76,9 +76,10 @@ export function StockCard({
           <span className="font-bold text-destructive font-mono tracking-tighter">{symbol}</span>
           <button
             onClick={(e) => { e.stopPropagation(); onRemove(symbol) }}
-            className="text-muted-foreground hover:text-destructive transition-colors"
+            className="w-5 h-5 flex items-center justify-center rounded-sm border border-destructive/40 bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-all"
+            title="Remove from watchlist"
           >
-            <X className="w-4 h-4" />
+            <X className="w-3 h-3" />
           </button>
         </div>
         <p className="text-[10px] text-destructive/60 uppercase tracking-widest font-mono">Sync Error</p>
@@ -111,9 +112,10 @@ export function StockCard({
       {/* Remove button - Hidden until hover */}
       <button
         onClick={(e) => { e.stopPropagation(); onRemove(symbol) }}
-        className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-all z-10"
+        className="absolute top-2.5 right-2.5 opacity-0 group-hover:opacity-100 w-5 h-5 flex items-center justify-center rounded-sm border border-destructive/40 bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-all z-10"
+        title="Remove from watchlist"
       >
-        <X className="w-4 h-4" />
+        <X className="w-3 h-3" />
       </button>
 
       {/* Symbol & Name */}

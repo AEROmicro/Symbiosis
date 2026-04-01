@@ -72,6 +72,21 @@ export type WidgetType =
   | 'pomodoro'
   | 'habit-tracker'
   | 'candlestick-mini'
+  | 'dark-pool-scanner'
+  | 'bitcoin-dominance'
+  | 'global-markets'
+  | 'dividend-calendar'
+  | 'stock-split-tracker'
+  | 'etf-flow-tracker'
+  | 'vix-term-structure'
+  | 'fibonacci-calculator'
+  | 'news-sentiment'
+  | 'market-internals'
+  | 'crypto-screener'
+  | 'economic-surprise-index'
+  | 'ai-market-briefing'
+  | 'pattern-scanner'
+  | 'portfolio-stress-test'
 
 export interface WidgetConfig {
   id: string
@@ -956,6 +971,145 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     defaultW: 5, defaultH: 11, minW: 5, minH: 9,
     category: 'tools',
     color: 'bg-emerald-500/20',
+  },
+
+  // ── NEW Standard widgets ────────────────────────────────────────────────────
+  {
+    type: 'dark-pool-scanner',
+    name: 'Dark Pool Scanner',
+    description: 'Live feed of large block trades and dark pool activity',
+    iconName: 'Activity',
+    defaultW: 4, defaultH: 10, minW: 4, minH: 8,
+    category: 'market',
+    color: 'bg-slate-500/20',
+  },
+  {
+    type: 'bitcoin-dominance',
+    name: 'Bitcoin Dominance',
+    description: 'BTC market cap dominance % with 7-day chart and altcoin breakdown',
+    iconName: 'Bitcoin',
+    defaultW: 4, defaultH: 9, minW: 3, minH: 8,
+    category: 'market',
+    color: 'bg-orange-500/20',
+  },
+  {
+    type: 'global-markets',
+    name: 'Global Markets',
+    description: 'Major global stock indices: S&P, NASDAQ, FTSE, Nikkei, DAX and more',
+    iconName: 'Globe',
+    defaultW: 4, defaultH: 11, minW: 4, minH: 9,
+    category: 'market',
+    color: 'bg-cyan-500/20',
+  },
+  {
+    type: 'dividend-calendar',
+    name: 'Dividend Calendar',
+    description: 'Upcoming ex-dividend and payment dates for top dividend stocks',
+    iconName: 'CalendarDays',
+    defaultW: 4, defaultH: 11, minW: 4, minH: 9,
+    category: 'market',
+    color: 'bg-emerald-500/20',
+  },
+  {
+    type: 'stock-split-tracker',
+    name: 'Stock Split Tracker',
+    description: 'Upcoming and recent stock splits with ratios and ex-dates',
+    iconName: 'Layers',
+    defaultW: 4, defaultH: 9, minW: 4, minH: 8,
+    category: 'market',
+    color: 'bg-violet-500/20',
+  },
+  {
+    type: 'etf-flow-tracker',
+    name: 'ETF Flow Tracker',
+    description: 'Daily inflows and outflows for major ETFs including SPY, QQQ, IWM and more',
+    iconName: 'TrendingUp',
+    defaultW: 4, defaultH: 10, minW: 4, minH: 8,
+    category: 'market',
+    color: 'bg-blue-500/20',
+  },
+  {
+    type: 'vix-term-structure',
+    name: 'VIX Term Structure',
+    description: 'VIX futures term structure showing contango or backwardation',
+    iconName: 'Activity',
+    defaultW: 4, defaultH: 9, minW: 3, minH: 8,
+    category: 'market',
+    color: 'bg-red-500/20',
+  },
+  {
+    type: 'fibonacci-calculator',
+    name: 'Fibonacci Calculator',
+    description: 'Calculate Fibonacci retracement and extension levels from high/low inputs',
+    iconName: 'Calculator',
+    defaultW: 4, defaultH: 11, minW: 3, minH: 9,
+    category: 'tools',
+    color: 'bg-yellow-500/20',
+  },
+  {
+    type: 'news-sentiment',
+    name: 'News Sentiment',
+    description: 'Aggregate news sentiment scores with bullish/bearish ratings for top stocks',
+    iconName: 'Activity',
+    defaultW: 4, defaultH: 10, minW: 4, minH: 8,
+    category: 'market',
+    color: 'bg-purple-500/20',
+  },
+  {
+    type: 'market-internals',
+    name: 'Market Internals',
+    description: 'NYSE TICK, TRIN, Put/Call ratio, advancing issues and up volume',
+    iconName: 'Activity',
+    defaultW: 4, defaultH: 9, minW: 3, minH: 8,
+    category: 'market',
+    color: 'bg-teal-500/20',
+  },
+  {
+    type: 'crypto-screener',
+    name: 'Crypto Screener',
+    description: 'Top cryptocurrencies ranked by 24h volume with price and change filters',
+    iconName: 'Bitcoin',
+    defaultW: 4, defaultH: 10, minW: 4, minH: 8,
+    category: 'market',
+    color: 'bg-amber-500/20',
+  },
+  {
+    type: 'economic-surprise-index',
+    name: 'Economic Surprise Index',
+    description: 'Weekly economic surprise index for US, EU and China with gauge',
+    iconName: 'Globe',
+    defaultW: 4, defaultH: 10, minW: 4, minH: 8,
+    category: 'market',
+    color: 'bg-sky-500/20',
+  },
+
+  // ── Advanced features ───────────────────────────────────────────────────────
+  {
+    type: 'ai-market-briefing',
+    name: 'AI Market Briefing',
+    description: 'AI-generated daily market briefing with key risks, opportunities and trade setups',
+    iconName: 'Zap',
+    defaultW: 5, defaultH: 14, minW: 4, minH: 12,
+    category: 'market',
+    color: 'bg-primary/20',
+  },
+  {
+    type: 'pattern-scanner',
+    name: 'Pattern Scanner',
+    description: 'Scans watchlist for technical chart patterns — Bull Flag, Cup & Handle, H&S and more',
+    iconName: 'Search',
+    defaultW: 5, defaultH: 12, minW: 4, minH: 10,
+    category: 'market',
+    color: 'bg-indigo-500/20',
+  },
+  {
+    type: 'portfolio-stress-test',
+    name: 'Portfolio Stress Test',
+    description: 'Simulate portfolio performance in 7 historical crash scenarios and bull markets',
+    iconName: 'Activity',
+    defaultW: 5, defaultH: 13, minW: 4, minH: 11,
+    category: 'tools',
+    color: 'bg-rose-500/20',
   },
 ]
 

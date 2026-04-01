@@ -29,6 +29,10 @@ interface PriceChartProps {
   onExpand?: () => void
   /** Live effective price from parent (pre/post/regular aware) — injected as latest data point */
   livePrice?: number
+  /** Live effective change — passed from parent so chart header matches watchlist card */
+  liveChange?: number
+  /** Live effective change % — passed from parent so chart header matches watchlist card */
+  liveChangePercent?: number
 }
 
 const fetcher = (url: string) => fetch(url).then(r => r.json())
@@ -44,7 +48,7 @@ const ranges = [
   { label: '5Y', value: '5y' },
 ]
 
-export function PriceChart({ symbol, currency, onExpand, livePrice }: PriceChartProps) {
+export function PriceChart({ symbol, currency, onExpand, livePrice, liveChange, liveChangePercent }: PriceChartProps) {
   const [range, setRange] = useState('1d')
   const [hoveredPoint, setHoveredPoint] = useState<ChartData | null>(null)
   const [hoveredX, setHoveredX] = useState<number | null>(null)
@@ -96,8 +100,12 @@ export function PriceChart({ symbol, currency, onExpand, livePrice }: PriceChart
   const prevCloseY = 100 - ((previousClose - adjustedMin) / adjustedRange) * 100
 
   const lastPrice = chartData.length > 0 ? chartData[chartData.length - 1].close : previousClose
-  const referencePrice = chartData.length > 0 ? chartData[0].open || chartData[0].close : previousClose
-  const isPositive = lastPrice >= referencePrice
+  // For 1D view, use previousClose as reference so the chart % matches the watchlist card.
+  // For other ranges, use the first candle's open to show the full-period change.
+  const referencePrice = range === '1d' && previousClose > 0
+    ? previousClose
+    : chartData.length > 0 ? (chartData[0].open || chartData[0].close) : previousClose
+  const isPositive = (livePrice ?? lastPrice) >= referencePrice
 
   const getPath = () => {
     if (chartData.length === 0) return ''
@@ -123,11 +131,15 @@ export function PriceChart({ symbol, currency, onExpand, livePrice }: PriceChart
     setHoveredX(percentage * 100)
   }
 
-  // When not hovering, show the live effective price (if provided) so the
-  // chart header always matches the watchlist card price.
+  // When not hovering on 1D, use the live values passed from parent so the chart
+  // header shows the exact same price/change as the watchlist card.
   const displayPrice = hoveredPoint?.close ?? (livePrice ?? lastPrice)
-  const displayChange = referencePrice > 0 ? displayPrice - referencePrice : 0
-  const displayChangePercent = referencePrice > 0 ? (displayChange / referencePrice) * 100 : 0
+  const displayChange = hoveredPoint
+    ? (referencePrice > 0 ? hoveredPoint.close - referencePrice : 0)
+    : (liveChange ?? (referencePrice > 0 ? displayPrice - referencePrice : 0))
+  const displayChangePercent = hoveredPoint
+    ? (referencePrice > 0 ? ((hoveredPoint.close - referencePrice) / referencePrice) * 100 : 0)
+    : (liveChangePercent ?? (referencePrice > 0 ? (displayChange / referencePrice) * 100 : 0))
   const displayIsPositive = displayChange >= 0
 
   if (isLoading) {

@@ -78,6 +78,21 @@ import { OptionsChainWidget }      from '@/components/widgets/options-chain-widg
 import { TechnicalAnalysisWidget } from '@/components/widgets/technical-analysis-widget'
 import { PomodoroWidget }          from '@/components/widgets/pomodoro-widget'
 import { HabitTrackerWidget }      from '@/components/widgets/habit-tracker-widget'
+import { DarkPoolScannerWidget }   from '@/components/widgets/dark-pool-scanner-widget'
+import { BitcoinDominanceWidget }  from '@/components/widgets/bitcoin-dominance-widget'
+import { GlobalMarketsWidget }     from '@/components/widgets/global-markets-widget'
+import { DividendCalendarWidget }  from '@/components/widgets/dividend-calendar-widget'
+import { StockSplitTrackerWidget } from '@/components/widgets/stock-split-tracker-widget'
+import { EtfFlowTrackerWidget }    from '@/components/widgets/etf-flow-tracker-widget'
+import { VixTermStructureWidget }  from '@/components/widgets/vix-term-structure-widget'
+import { FibonacciCalculatorWidget } from '@/components/widgets/fibonacci-calculator-widget'
+import { NewsSentimentWidget }     from '@/components/widgets/news-sentiment-widget'
+import { MarketInternalsWidget }   from '@/components/widgets/market-internals-widget'
+import { CryptoScreenerWidget }    from '@/components/widgets/crypto-screener-widget'
+import { EconomicSurpriseIndexWidget } from '@/components/widgets/economic-surprise-index-widget'
+import { AiMarketBriefingWidget }  from '@/components/widgets/ai-market-briefing-widget'
+import { PatternScannerWidget }    from '@/components/widgets/pattern-scanner-widget'
+import { PortfolioStressTestWidget } from '@/components/widgets/portfolio-stress-test-widget'
 
 // ── Props passed from the main app to stateful widgets ─────────────────────
 export interface WidgetAppProps {
@@ -606,6 +621,40 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
       return <WidgetFrame title={title} iconName={iconName}><PomodoroWidget /></WidgetFrame>
     case 'habit-tracker':
       return <WidgetFrame title={title} iconName={iconName}><HabitTrackerWidget /></WidgetFrame>
+
+    // ── New standard widgets ─────────────────────────────────────────────────
+    case 'dark-pool-scanner':
+      return <WidgetFrame title={title} iconName={iconName}><DarkPoolScannerWidget /></WidgetFrame>
+    case 'bitcoin-dominance':
+      return <WidgetFrame title={title} iconName={iconName}><BitcoinDominanceWidget /></WidgetFrame>
+    case 'global-markets':
+      return <WidgetFrame title={title} iconName={iconName}><GlobalMarketsWidget /></WidgetFrame>
+    case 'dividend-calendar':
+      return <WidgetFrame title={title} iconName={iconName}><DividendCalendarWidget /></WidgetFrame>
+    case 'stock-split-tracker':
+      return <WidgetFrame title={title} iconName={iconName}><StockSplitTrackerWidget /></WidgetFrame>
+    case 'etf-flow-tracker':
+      return <WidgetFrame title={title} iconName={iconName}><EtfFlowTrackerWidget /></WidgetFrame>
+    case 'vix-term-structure':
+      return <WidgetFrame title={title} iconName={iconName}><VixTermStructureWidget /></WidgetFrame>
+    case 'fibonacci-calculator':
+      return <WidgetFrame title={title} iconName={iconName}><FibonacciCalculatorWidget /></WidgetFrame>
+    case 'news-sentiment':
+      return <WidgetFrame title={title} iconName={iconName}><NewsSentimentWidget /></WidgetFrame>
+    case 'market-internals':
+      return <WidgetFrame title={title} iconName={iconName}><MarketInternalsWidget /></WidgetFrame>
+    case 'crypto-screener':
+      return <WidgetFrame title={title} iconName={iconName}><CryptoScreenerWidget /></WidgetFrame>
+    case 'economic-surprise-index':
+      return <WidgetFrame title={title} iconName={iconName}><EconomicSurpriseIndexWidget /></WidgetFrame>
+
+    // ── Advanced features ────────────────────────────────────────────────────
+    case 'ai-market-briefing':
+      return <WidgetFrame title={title} iconName={iconName}><AiMarketBriefingWidget /></WidgetFrame>
+    case 'pattern-scanner':
+      return <WidgetFrame title={title} iconName={iconName}><PatternScannerWidget /></WidgetFrame>
+    case 'portfolio-stress-test':
+      return <WidgetFrame title={title} iconName={iconName}><PortfolioStressTestWidget /></WidgetFrame>
 
     default:
       return (

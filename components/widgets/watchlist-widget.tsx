@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, Trash2, ListPlus } from 'lucide-react'
+import { Check, X, ListPlus, AlertTriangle } from 'lucide-react'
 import { StockCard } from '@/components/stock-card'
 import { cn } from '@/lib/utils'
 import {
@@ -11,6 +11,16 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 
 interface WatchlistWidgetProps {
   watchedStocks: string[]
@@ -39,6 +49,7 @@ export function WatchlistWidget({
 }: WatchlistWidgetProps) {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [newListName, setNewListName] = useState('')
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
 
   const listNames = Object.keys(watchlistSets)
   const hasMultipleLists = listNames.length > 0
@@ -102,11 +113,11 @@ export function WatchlistWidget({
                 </button>
                 {listNames.length > 1 && name !== 'Watchlist' && (
                   <button
-                    onClick={() => onDeleteList?.(name)}
-                    className="absolute -top-1 -right-1 hidden group-hover:flex w-3.5 h-3.5 rounded-full bg-destructive/80 text-white items-center justify-center"
+                    onClick={() => setDeleteTarget(name)}
+                    className="absolute -top-1.5 -right-1.5 hidden group-hover:flex w-4 h-4 rounded-sm bg-destructive/90 text-white items-center justify-center border border-destructive/60 hover:bg-destructive transition-colors"
                     title={`Delete ${name}`}
                   >
-                    <Trash2 className="w-2 h-2" />
+                    <X className="w-2.5 h-2.5" />
                   </button>
                 )}
               </div>
@@ -161,6 +172,30 @@ export function WatchlistWidget({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Delete watchlist confirmation */}
+      <AlertDialog open={deleteTarget !== null} onOpenChange={open => { if (!open) setDeleteTarget(null) }}>
+        <AlertDialogContent className="max-w-sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-mono text-sm flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-destructive" />
+              Delete Watchlist
+            </AlertDialogTitle>
+            <AlertDialogDescription className="font-mono text-xs">
+              Delete <span className="text-foreground font-semibold">&ldquo;{deleteTarget}&rdquo;</span>? All stocks in this list will be removed. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="text-xs font-mono">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => { if (deleteTarget) { onDeleteList?.(deleteTarget); setDeleteTarget(null) } }}
+              className="text-xs font-mono bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import {
   BarChart2, LayoutGrid, Terminal as TerminalIcon,
-  MoreHorizontal, Plus, Check,
+  MoreHorizontal, Plus, Check, Gem,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { TerminalCLI }      from '@/components/terminal-cli'
@@ -44,7 +45,6 @@ interface MobileLayoutProps {
   onThemeChange: (t: AppTheme) => void
   scanlineEnabled: boolean
   onScanlineChange: (v: boolean) => void
-  onOpenBlueprint: () => void
   defaultExchange?: string
   onExchangeChange?: (id: string) => void
   modernEnabled?: boolean
@@ -59,7 +59,6 @@ export function MobileLayout({
   onThemeChange,
   scanlineEnabled,
   onScanlineChange,
-  onOpenBlueprint,
   defaultExchange = 'NYSE',
   onExchangeChange,
   modernEnabled = false,
@@ -97,7 +96,7 @@ export function MobileLayout({
               <h2 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">
                 Top Movers
               </h2>
-              <div className="border border-border rounded-md overflow-hidden" style={{ height: 280 }}>
+              <div className="border border-border rounded-md overflow-auto" style={{ minHeight: 200 }}>
                 <TopMoversWidget />
               </div>
             </section>
@@ -105,7 +104,7 @@ export function MobileLayout({
               <h2 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">
                 Fear &amp; Greed
               </h2>
-              <div className="border border-border rounded-md overflow-hidden" style={{ height: 220 }}>
+              <div className="border border-border rounded-md overflow-auto" style={{ minHeight: 180 }}>
                 <FearGreedWidget />
               </div>
             </section>
@@ -113,7 +112,7 @@ export function MobileLayout({
               <h2 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">
                 Crypto
               </h2>
-              <div className="border border-border rounded-md overflow-hidden" style={{ height: 260 }}>
+              <div className="border border-border rounded-md overflow-auto" style={{ minHeight: 200 }}>
                 <CryptoWidget />
               </div>
             </section>
@@ -121,7 +120,7 @@ export function MobileLayout({
               <h2 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">
                 Market Breadth
               </h2>
-              <div className="border border-border rounded-md overflow-hidden" style={{ height: 240 }}>
+              <div className="border border-border rounded-md overflow-auto" style={{ minHeight: 200 }}>
                 <MarketBreadthWidget />
               </div>
             </section>
@@ -203,7 +202,7 @@ export function MobileLayout({
               <h2 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">
                 Portfolio
               </h2>
-              <div className="border border-border rounded-md overflow-hidden" style={{ height: 280 }}>
+              <div className="border border-border rounded-md overflow-auto" style={{ minHeight: 200 }}>
                 <PortfolioWidget />
               </div>
             </section>
@@ -212,7 +211,7 @@ export function MobileLayout({
               <h2 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">
                 News
               </h2>
-              <div className="border border-border rounded-md overflow-hidden" style={{ height: 320 }}>
+              <div className="border border-border rounded-md overflow-auto" style={{ minHeight: 260 }}>
                 <NewsWidget />
               </div>
             </section>
@@ -221,7 +220,7 @@ export function MobileLayout({
               <h2 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">
                 Economic Calendar
               </h2>
-              <div className="border border-border rounded-md overflow-hidden" style={{ height: 280 }}>
+              <div className="border border-border rounded-md overflow-auto" style={{ minHeight: 200 }}>
                 <EconomicCalendarWidget />
               </div>
             </section>
@@ -230,7 +229,7 @@ export function MobileLayout({
               <h2 className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">
                 Bonds
               </h2>
-              <div className="border border-border rounded-md overflow-hidden" style={{ height: 240 }}>
+              <div className="border border-border rounded-md overflow-auto" style={{ minHeight: 200 }}>
                 <BondsWidget />
               </div>
             </section>
@@ -257,7 +256,6 @@ export function MobileLayout({
                 onThemeChange={onThemeChange}
                 scanlineEnabled={scanlineEnabled}
                 onScanlineChange={onScanlineChange}
-                onOpenBlueprint={onOpenBlueprint}
                 defaultExchange={defaultExchange}
                 onExchangeChange={onExchangeChange ?? (() => {})}
                 modernEnabled={modernEnabled}
@@ -277,7 +275,7 @@ export function MobileLayout({
 
       {/* ── Bottom navigation ─────────────────────────────────── */}
       <nav className="shrink-0 border-t border-border bg-card/90 backdrop-blur-sm safe-bottom">
-        <div className="grid grid-cols-4">
+        <div className="grid grid-cols-5">
           {([
             { tab: 'market',    Icon: BarChart2,      label: 'Market'    },
             { tab: 'watchlist', Icon: LayoutGrid,     label: 'Watchlist' },
@@ -298,6 +296,14 @@ export function MobileLayout({
               <span className="text-[10px] font-mono">{label}</span>
             </button>
           ))}
+          {/* Tourmaline link */}
+          <Link
+            href="/tourmaline"
+            className="flex flex-col items-center gap-1 py-3 text-muted-foreground hover:text-primary transition-colors"
+          >
+            <Gem className="w-5 h-5" />
+            <span className="text-[10px] font-mono">Tourmaline</span>
+          </Link>
         </div>
       </nav>
     </div>
