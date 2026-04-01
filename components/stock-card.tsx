@@ -92,8 +92,8 @@ export function StockCard({ symbol, onRemove, onClick, isSelected, refreshInterv
   return (
     <div
       onClick={() => onClick(symbol)}
-      className={cn(
-        "group relative border rounded-xl p-4 cursor-pointer transition-all duration-300",
+      "className={cn(
+        "group relative border rounded-xl p-[15px] cursor-pointer transition-all duration-300",
         "bg-card/40 backdrop-blur-sm",
         "hover:bg-primary/[0.02] hover:border-border/60",
         isSelected 
