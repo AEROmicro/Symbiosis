@@ -49,15 +49,24 @@ export function StockCard({
     effectiveMarketState === 'POST' && (stock?.postMarketPrice ?? null) != null ? stock!.postMarketPrice! :
     stock?.price ?? 0
 
+  // Always compute daily from price vs previous close (fallback)
+  const dailyChange = stock?.previousClose
+    ? (effectivePrice - stock.previousClose)
+    : 0
+
+  const dailyChangePercent = stock?.previousClose
+    ? (dailyChange / stock.previousClose) * 100
+    : 0
+
   const effectiveChange =
     effectiveMarketState === 'PRE'  && (stock?.preMarketChange  ?? null) != null ? stock!.preMarketChange!  :
     effectiveMarketState === 'POST' && (stock?.postMarketChange ?? null) != null ? stock!.postMarketChange! :
-    stock?.change ?? 0
+    dailyChange
 
   const effectiveChangePercent =
     effectiveMarketState === 'PRE'  && (stock?.preMarketChangePercent  ?? null) != null ? stock!.preMarketChangePercent!  :
     effectiveMarketState === 'POST' && (stock?.postMarketChangePercent ?? null) != null ? stock!.postMarketChangePercent! :
-    stock?.changePercent ?? 0
+    dailyChangePercent
 
   if (isLoading) {
     return (
