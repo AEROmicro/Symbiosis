@@ -81,7 +81,7 @@ export function WatchlistWidget({
 
       {/* Fixed list-switcher bar — always at the bottom */}
       {hasMultipleLists && (
-        <div className="shrink-0 border-t border-border bg-card/80 px-2 py-1">
+        <div className="shrink-0 border-t border-border bg-card/80 px-1.5 py-1">
           <div className="flex items-center gap-1 overflow-x-auto scrollbar-none">
             {/* List tabs */}
             {listNames.map(name => (
