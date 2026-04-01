@@ -131,15 +131,21 @@ export function PriceChart({ symbol, currency, onExpand, livePrice, liveChange, 
     setHoveredX(percentage * 100)
   }
 
-  // When not hovering on 1D, use the live values passed from parent so the chart
-  // header shows the exact same price/change as the watchlist card.
+  // For the 1D range, use the live values passed from parent so the chart header
+  // matches the watchlist card (pre/post/regular aware). For all other ranges,
+  // compute the change relative to the first candle so the header reflects the
+  // full period change (e.g. 5D shows the 5-day change, 1Y shows the 1-year change).
   const displayPrice = hoveredPoint?.close ?? (livePrice ?? lastPrice)
   const displayChange = hoveredPoint
     ? (referencePrice > 0 ? hoveredPoint.close - referencePrice : 0)
-    : (liveChange ?? (referencePrice > 0 ? displayPrice - referencePrice : 0))
+    : range === '1d'
+      ? (liveChange ?? (referencePrice > 0 ? displayPrice - referencePrice : 0))
+      : (referencePrice > 0 ? displayPrice - referencePrice : 0)
   const displayChangePercent = hoveredPoint
     ? (referencePrice > 0 ? ((hoveredPoint.close - referencePrice) / referencePrice) * 100 : 0)
-    : (liveChangePercent ?? (referencePrice > 0 ? (displayChange / referencePrice) * 100 : 0))
+    : range === '1d'
+      ? (liveChangePercent ?? (referencePrice > 0 ? (displayChange / referencePrice) * 100 : 0))
+      : (referencePrice > 0 ? (displayChange / referencePrice) * 100 : 0)
   const displayIsPositive = displayChange >= 0
 
   if (isLoading) {
