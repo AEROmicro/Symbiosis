@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { TrendingUp, TrendingDown, RefreshCw } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useMarketData } from '@/hooks/use-market-data'
@@ -12,24 +11,11 @@ interface Mover {
 }
 
 export function TopMoversWidget() {
-  const { indices, isLoading, refresh } = useMarketData()
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
-  const [tick, setTick] = useState(0)
-
-  useEffect(() => {
-    const id = setInterval(() => setTick(t => t + 1), 1000)
-    return () => clearInterval(id)
-  }, [])
-
-  useEffect(() => {
-    if (indices.length > 0) setLastUpdated(new Date())
-  }, [indices])
+  const { indices, isLoading, isValidating, refresh } = useMarketData()
 
   const sorted   = [...indices].sort((a, b) => b.change - a.change)
   const gainers  = sorted.filter(d => d.change > 0).slice(0, 4)
   const losers   = [...sorted].reverse().filter(d => d.change < 0).slice(0, 4)
-
-  const secAgo = lastUpdated ? Math.round((Date.now() - lastUpdated.getTime()) / 1000) : null
 
   const MoverRow = ({ item, positive }: { item: Mover; positive: boolean }) => (
     <div className={cn(
@@ -97,15 +83,15 @@ export function TopMoversWidget() {
       <div className="mt-auto flex items-center justify-between pt-1 border-t border-border shrink-0 text-[10px] font-mono text-muted-foreground">
         <div className="flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-          {isLoading ? 'updating…' : secAgo !== null ? `updated ${secAgo}s ago` : 'live'}
+          {isValidating ? 'updating…' : 'live'}
         </div>
         <button
           onClick={() => refresh()}
-          disabled={isLoading}
+          disabled={isValidating}
           className="text-muted-foreground hover:text-foreground transition-colors"
           aria-label="Refresh top movers"
         >
-          <RefreshCw className={cn('w-3 h-3', isLoading && 'animate-spin')} />
+          <RefreshCw className={cn('w-3 h-3', isValidating && 'animate-spin')} />
         </button>
       </div>
     </div>
