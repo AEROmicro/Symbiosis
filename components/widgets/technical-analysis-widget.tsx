@@ -9,6 +9,15 @@ const fetcher = (url: string) => fetch(url).then(r => r.json())
 interface CandleData { time: number; open: number; high: number; low: number; close: number; volume: number }
 interface ChartResponse { symbol: string; data: CandleData[] }
 
+const RANGES = [
+  { label: '1D',  value: '1d'  },
+  { label: '5D',  value: '5d'  },
+  { label: '1M',  value: '1mo' },
+  { label: '3M',  value: '3mo' },
+  { label: '6M',  value: '6mo' },
+  { label: '1Y',  value: '1y'  },
+]
+
 // ── Indicator math ────────────────────────────────────────────────────────
 function ema(values: number[], period: number): number[] {
   const k = 2 / (period + 1)
@@ -93,15 +102,24 @@ function signalBadge(s: Signal) {
 export function TechnicalAnalysisWidget() {
   const [symbol, setSymbol] = useState('AAPL')
   const [inputVal, setInputVal] = useState('AAPL')
+  const [range, setRange] = useState('3mo')
 
   const { data, isLoading, error, mutate } = useSWR<ChartResponse>(
-    `/api/stock/${symbol}/chart?range=3mo`,
+    `/api/stock/${symbol}/chart?range=${range}`,
     fetcher,
     { refreshInterval: 300_000, dedupingInterval: 60_000 }
   )
 
-  const indicators = useMemo<Indicator[]>(() => {
-    const candles = data?.data ?? []
+  // Period gain/loss
+  const candles = data?.data ?? []
+  const firstOpen = candles.length > 0 ? (candles[0].open ?? candles[0].close) : null
+  const lastClose = candles.length > 0 ? candles[candles.length - 1].close : null
+  const periodChange = firstOpen != null && lastClose != null && firstOpen > 0 ? lastClose - firstOpen : null
+  const periodChangePct = firstOpen != null && periodChange != null && firstOpen > 0
+    ? (periodChange / firstOpen) * 100 : null
+  const periodIsPositive = (periodChange ?? 0) >= 0
+
+    const indicators = useMemo<Indicator[]>(() => {
     if (candles.length < 50) return []
     const closes = candles.map(c => c.close)
     const last = closes[closes.length - 1]
@@ -171,7 +189,7 @@ export function TechnicalAnalysisWidget() {
         detail: last >= upper ? 'At upper band' : last <= lower ? 'At lower band' : `Mid ${bbPct.toFixed(0)}%`,
       },
     ]
-  }, [data])
+  }, [candles])
 
   const overall: Signal = useMemo(() => {
     if (indicators.length === 0) return 'neutral'
@@ -208,21 +226,51 @@ export function TechnicalAnalysisWidget() {
         </button>
       </div>
 
-      {/* Overall signal */}
+      {/* Range selector */}
+      <div className="flex gap-1 px-3 pb-1 shrink-0 flex-wrap">
+        {RANGES.map(r => (
+          <button
+            key={r.value}
+            onClick={() => setRange(r.value)}
+            className={cn(
+              'px-1.5 py-0.5 rounded border text-[9px] transition-colors',
+              range === r.value
+                ? 'bg-primary/20 text-primary border-primary/40'
+                : 'border-border text-muted-foreground hover:text-foreground'
+            )}
+          >
+            {r.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Period gain/loss + Overall signal */}
       {indicators.length > 0 && (
         <div className={cn(
-          'mx-3 mb-2 p-2 rounded border flex items-center justify-between shrink-0',
+          'mx-3 mb-2 p-2 rounded border shrink-0',
           overall === 'bullish' ? 'bg-price-up/10 border-price-up/30' :
           overall === 'bearish' ? 'bg-price-down/10 border-price-down/30' :
           'bg-muted/20 border-border'
         )}>
-          <div className="flex items-center gap-1.5">
-            {signalIcon(overall)}
-            <span className="font-semibold uppercase tracking-wide text-[10px]">
-              {symbol} — Overall Signal
-            </span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              {signalIcon(overall)}
+              <span className="font-semibold uppercase tracking-wide text-[10px]">
+                {symbol} — Overall Signal
+              </span>
+            </div>
+            {signalBadge(overall)}
           </div>
-          {signalBadge(overall)}
+          {periodChange != null && (
+            <div className={cn('flex items-center gap-1 mt-1 text-[10px]', periodIsPositive ? 'text-price-up' : 'text-price-down')}>
+              {periodIsPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+              <span className="tabular-nums">
+                {periodIsPositive ? '+' : ''}{periodChange.toFixed(2)}
+                <span className="opacity-70 ml-1">({periodIsPositive ? '+' : ''}{periodChangePct?.toFixed(2) ?? '0.00'}%)</span>
+              </span>
+              <span className="text-muted-foreground ml-1">{RANGES.find(r => r.value === range)?.label} change</span>
+            </div>
+          )}
         </div>
       )}
 
@@ -261,7 +309,7 @@ export function TechnicalAnalysisWidget() {
       </div>
 
       <div className="text-[9px] text-muted-foreground px-3 py-1 border-t border-border shrink-0">
-        Real OHLC · 3mo · RSI · MACD · EMA · BB
+        Real OHLC · {RANGES.find(r => r.value === range)?.label} · RSI · MACD · EMA · BB
       </div>
     </div>
   )

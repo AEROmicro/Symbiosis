@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback } from 'react'
 import useSWR from 'swr'
-import { RefreshCw } from 'lucide-react'
+import { TrendingUp, TrendingDown, RefreshCw } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface CandleData {
@@ -32,17 +32,38 @@ const PAD_R = 4
 const PAD_T = 8
 const PAD_B = 8
 
+const RANGES = [
+  { label: '1D', value: '1d' },
+  { label: '5D', value: '5d' },
+  { label: '1M', value: '1mo' },
+  { label: '3M', value: '3mo' },
+  { label: '6M', value: '6mo' },
+  { label: '1Y', value: '1y' },
+]
+
 export function CandlestickWidget({ symbol = 'AAPL' }: CandlestickWidgetProps) {
   const [hovered, setHovered] = useState<CandleData | null>(null)
+  const [range, setRange] = useState('1mo')
   const svgRef = useRef<SVGSVGElement>(null)
 
   const { data, isLoading, error } = useSWR<ChartResponse>(
-    `/api/stock/${encodeURIComponent(symbol)}/chart?range=1mo`,
+    `/api/stock/${encodeURIComponent(symbol)}/chart?range=${range}`,
     fetcher,
-    { refreshInterval: 0, dedupingInterval: 60_000 }
+    { refreshInterval: range === '1d' ? 30_000 : 0, dedupingInterval: 60_000 }
   )
 
   const candles = data?.data ?? []
+
+  // Period gain/loss: first candle open → last candle close
+  const firstOpen = candles.length > 0 ? (candles[0].open ?? candles[0].close) : null
+  const lastClose = candles.length > 0 ? candles[candles.length - 1].close : null
+  const periodChange = firstOpen != null && lastClose != null && firstOpen > 0
+    ? lastClose - firstOpen
+    : null
+  const periodChangePct = firstOpen != null && periodChange != null && firstOpen > 0
+    ? (periodChange / firstOpen) * 100
+    : null
+  const periodIsPositive = (periodChange ?? 0) >= 0
 
   const renderChart = useCallback(() => {
     if (candles.length === 0) return null
@@ -116,11 +137,40 @@ export function CandlestickWidget({ symbol = 'AAPL' }: CandlestickWidgetProps) {
   const fmt = (n: number) => n?.toFixed(2) ?? '—'
 
   return (
-    <div className="flex flex-col h-full font-mono text-xs p-2 gap-2">
-      {/* symbol header */}
+    <div className="flex flex-col h-full font-mono text-xs p-2 gap-1.5">
+      {/* Header: symbol + period gain/loss */}
       <div className="flex items-center justify-between shrink-0">
-        <span className="text-primary font-semibold">{symbol}</span>
-        <span className="text-muted-foreground text-[10px]">1M · OHLC</span>
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="text-primary font-semibold shrink-0">{symbol}</span>
+          {periodChange != null && (
+            <div className={cn('flex items-center gap-0.5 text-[10px]', periodIsPositive ? 'text-price-up' : 'text-price-down')}>
+              {periodIsPositive ? <TrendingUp className="w-3 h-3 shrink-0" /> : <TrendingDown className="w-3 h-3 shrink-0" />}
+              <span className="tabular-nums">
+                {periodIsPositive ? '+' : ''}{periodChange.toFixed(2)}
+                <span className="opacity-70 ml-1">({periodIsPositive ? '+' : ''}{periodChangePct?.toFixed(2) ?? '0.00'}%)</span>
+              </span>
+            </div>
+          )}
+        </div>
+        <span className="text-muted-foreground text-[10px] shrink-0">OHLC</span>
+      </div>
+
+      {/* Range selector */}
+      <div className="flex gap-1 shrink-0 flex-wrap">
+        {RANGES.map(r => (
+          <button
+            key={r.value}
+            onClick={() => setRange(r.value)}
+            className={cn(
+              'px-1.5 py-0.5 rounded border text-[9px] transition-colors',
+              range === r.value
+                ? 'bg-primary/20 text-primary border-primary/40'
+                : 'border-border text-muted-foreground hover:text-foreground'
+            )}
+          >
+            {r.label}
+          </button>
+        ))}
       </div>
 
       {/* hover info */}

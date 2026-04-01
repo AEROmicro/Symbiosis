@@ -157,6 +157,7 @@ export function StockCard({
             ({isPositive ? '+' : ''}{effectiveChangePercent.toFixed(2)}%)
           </span>
         </span>
+        <span className="text-[9px] opacity-40 font-normal ml-0.5">1D</span>
       </div>
 
       {/* Minimalist Live Pulse */}

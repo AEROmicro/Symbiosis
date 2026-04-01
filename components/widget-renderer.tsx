@@ -93,6 +93,8 @@ import { EconomicSurpriseIndexWidget } from '@/components/widgets/economic-surpr
 import { AiMarketBriefingWidget }  from '@/components/widgets/ai-market-briefing-widget'
 import { PatternScannerWidget }    from '@/components/widgets/pattern-scanner-widget'
 import { PortfolioStressTestWidget } from '@/components/widgets/portfolio-stress-test-widget'
+import { MiniChartWidget }          from '@/components/widgets/mini-chart-widget'
+import { PerformanceOverviewWidget } from '@/components/widgets/performance-overview-widget'
 
 // ── Props passed from the main app to stateful widgets ─────────────────────
 export interface WidgetAppProps {
@@ -655,6 +657,11 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
       return <WidgetFrame title={title} iconName={iconName}><PatternScannerWidget /></WidgetFrame>
     case 'portfolio-stress-test':
       return <WidgetFrame title={title} iconName={iconName}><PortfolioStressTestWidget /></WidgetFrame>
+
+    case 'mini-chart':
+      return <WidgetFrame title={title} iconName={iconName}><MiniChartWidget symbol={selectedStock ?? 'AAPL'} /></WidgetFrame>
+    case 'performance-overview':
+      return <WidgetFrame title={title} iconName={iconName}><PerformanceOverviewWidget symbol={selectedStock ?? 'AAPL'} /></WidgetFrame>
 
     default:
       return (
