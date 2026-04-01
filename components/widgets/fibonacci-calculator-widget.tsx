@@ -60,8 +60,14 @@ export function FibonacciCalculatorWidget() {
   const handleCalculate = () => {
     const high = parseFloat(highStr)
     const low  = parseFloat(lowStr)
-    if (isNaN(high) || isNaN(low)) { setError('Enter valid numbers.'); return }
-    if (low >= high)               { setError('High must be greater than Low.'); return }
+    if (isNaN(high) || isNaN(low)) {
+      setError('Enter valid numbers.')
+      return
+    }
+    if (low >= high) {
+      setError('High must be greater than Low.')
+      return
+    }
     setError(null)
     setLevels(calcLevels(high, low))
   }
