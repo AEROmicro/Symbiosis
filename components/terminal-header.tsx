@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Gem } from 'lucide-react'
+import { Gem, LayoutDashboard } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface TerminalHeaderProps {}
