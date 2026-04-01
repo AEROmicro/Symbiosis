@@ -67,13 +67,13 @@ async function fetchYahooFinanceData(symbol: string) {
 
     // Prefer Yahoo's own daily change values to avoid null/0 prevClose bugs
     // (null coerces to 0 in JS arithmetic, turning the entire price into a fake "change")
-    const yahooChange    = q.regularMarketChange    ?? null
-    const yahooChangePct = q.regularMarketChangePercent ?? null
-    const safePrevClose  = (prevClose != null && prevClose > 0) ? prevClose : null
-    const manualChange   = safePrevClose != null ? currentPrice - safePrevClose : null
+    const yahooChange     = q.regularMarketChange ?? null
+    const yahooChangePct  = q.regularMarketChangePercent ?? null
+    const safePrevClose   = (prevClose != null && prevClose > 0) ? prevClose : null
+    const manualChange    = safePrevClose != null ? currentPrice - safePrevClose : null
     const manualChangePct = safePrevClose != null && manualChange != null ? (manualChange / safePrevClose) * 100 : null
-    const dailyChange    = yahooChange    ?? manualChange   ?? 0
-    const dailyChangePct = yahooChangePct ?? manualChangePct ?? 0
+    const dailyChange     = yahooChange    ?? manualChange    ?? 0
+    const dailyChangePct  = yahooChangePct ?? manualChangePct ?? 0
 
     const marketCapRaw = q.marketCap ?? sd?.marketCap?.raw
     const marketCapStr = fmtMarketCap(marketCapRaw)
