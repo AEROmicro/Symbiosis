@@ -137,11 +137,40 @@ export function CandlestickWidget({ symbol = 'AAPL' }: CandlestickWidgetProps) {
   const fmt = (n: number) => n?.toFixed(2) ?? '—'
 
   return (
-    <div className="flex flex-col h-full font-mono text-xs p-2 gap-2">
-      {/* symbol header */}
+    <div className="flex flex-col h-full font-mono text-xs p-2 gap-1.5">
+      {/* Header: symbol + period gain/loss */}
       <div className="flex items-center justify-between shrink-0">
-        <span className="text-primary font-semibold">{symbol}</span>
-        <span className="text-muted-foreground text-[10px]">1M · OHLC</span>
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="text-primary font-semibold shrink-0">{symbol}</span>
+          {periodChange != null && (
+            <div className={cn('flex items-center gap-0.5 text-[10px]', periodIsPositive ? 'text-price-up' : 'text-price-down')}>
+              {periodIsPositive ? <TrendingUp className="w-3 h-3 shrink-0" /> : <TrendingDown className="w-3 h-3 shrink-0" />}
+              <span className="tabular-nums">
+                {periodIsPositive ? '+' : ''}{periodChange.toFixed(2)}
+                <span className="opacity-70 ml-1">({periodIsPositive ? '+' : ''}{periodChangePct!.toFixed(2)}%)</span>
+              </span>
+            </div>
+          )}
+        </div>
+        <span className="text-muted-foreground text-[10px] shrink-0">OHLC</span>
+      </div>
+
+      {/* Range selector */}
+      <div className="flex gap-1 shrink-0 flex-wrap">
+        {RANGES.map(r => (
+          <button
+            key={r.value}
+            onClick={() => setRange(r.value)}
+            className={cn(
+              'px-1.5 py-0.5 rounded border text-[9px] transition-colors',
+              range === r.value
+                ? 'bg-primary/20 text-primary border-primary/40'
+                : 'border-border text-muted-foreground hover:text-foreground'
+            )}
+          >
+            {r.label}
+          </button>
+        ))}
       </div>
 
       {/* hover info */}

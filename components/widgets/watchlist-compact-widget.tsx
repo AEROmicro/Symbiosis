@@ -71,7 +71,7 @@ export function WatchlistCompactWidget({
       <div className="grid grid-cols-[1fr_auto_auto] gap-x-3 px-3 pt-2.5 pb-1 text-[9px] uppercase tracking-widest text-muted-foreground font-mono border-b border-border/50 shrink-0">
         <span>Symbol</span>
         <span className="text-right">Price</span>
-        <span className="text-right">Change</span>
+        <span className="text-right">Chg 1D</span>
       </div>
 
       {/* Rows */}

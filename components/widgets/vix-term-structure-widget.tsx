@@ -12,6 +12,8 @@ interface TermPoint {
 
 interface VixData {
   spot: number
+  change: number | null
+  changePercent: number | null
   loading: boolean
   lastUpdated: string | null
 }
@@ -29,7 +31,7 @@ function buildTermStructure(spot: number): TermPoint[] {
 }
 
 export function VixTermStructureWidget() {
-  const [vix, setVix] = useState<VixData>({ spot: DEFAULT_SPOT, loading: false, lastUpdated: null })
+  const [vix, setVix] = useState<VixData>({ spot: DEFAULT_SPOT, change: null, changePercent: null, loading: false, lastUpdated: null })
 
   const fetchVix = async () => {
     setVix(prev => ({ ...prev, loading: true }))
@@ -40,6 +42,8 @@ export function VixTermStructureWidget() {
         const spot = typeof json?.price === 'number' ? json.price : DEFAULT_SPOT
         setVix({
           spot,
+          change: json?.change ?? null,
+          changePercent: json?.changePercent ?? null,
           loading: false,
           lastUpdated: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }),
         })
@@ -85,13 +89,22 @@ export function VixTermStructureWidget() {
       {/* Hero */}
       <div className="flex items-center justify-between rounded border border-border bg-muted/10 px-4 py-3 shrink-0">
         <div>
-          <div className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">VIX Spot</div>
+          <div className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">VIX Spot · 1D Change</div>
           <div className={cn(
             'font-mono text-3xl font-bold tabular-nums',
             vix.spot >= 30 ? 'text-price-down' : vix.spot >= 20 ? 'text-yellow-400' : 'text-price-up',
           )}>
             {vix.loading ? '...' : vix.spot.toFixed(2)}
           </div>
+          {vix.change != null && vix.changePercent != null && (
+            <div className={cn(
+              'font-mono text-[10px] font-semibold tabular-nums mt-0.5',
+              // Higher VIX = bad for market; colour inversely
+              vix.change > 0 ? 'text-price-down' : 'text-price-up',
+            )}>
+              {vix.change > 0 ? '+' : ''}{vix.change.toFixed(2)} ({vix.change > 0 ? '+' : ''}{vix.changePercent.toFixed(2)}%)
+            </div>
+          )}
         </div>
         <span className={cn(
           'px-1.5 py-0.5 rounded border text-[9px] leading-none font-semibold',

@@ -87,6 +87,8 @@ export type WidgetType =
   | 'ai-market-briefing'
   | 'pattern-scanner'
   | 'portfolio-stress-test'
+  | 'mini-chart'
+  | 'performance-overview'
 
 export interface WidgetConfig {
   id: string
@@ -1110,6 +1112,24 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     defaultW: 5, defaultH: 13, minW: 4, minH: 11,
     category: 'tools',
     color: 'bg-rose-500/20',
+  },
+  {
+    type: 'mini-chart',
+    name: 'Mini Chart',
+    description: 'Compact sparkline chart for any symbol — period selector shows gain/loss for 1D through 5Y',
+    iconName: 'TrendingUp',
+    defaultW: 4, defaultH: 9, minW: 3, minH: 7,
+    category: 'market',
+    color: 'bg-primary/20',
+  },
+  {
+    type: 'performance-overview',
+    name: 'Performance Overview',
+    description: 'Multi-period performance bar chart for any symbol — 1D, 5D, 1M, 3M, 6M, YTD, 1Y, 5Y side by side',
+    iconName: 'BarChart3',
+    defaultW: 4, defaultH: 10, minW: 3, minH: 8,
+    category: 'market',
+    color: 'bg-sky-500/20',
   },
 ]
 
