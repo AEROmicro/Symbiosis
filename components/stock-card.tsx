@@ -14,9 +14,13 @@ interface StockCardProps {
   refreshInterval?: number
 }
 
-export function StockCard({ symbol, onRemove, onClick, isSelected, to:￼
-￼
-refreshInterval = 3000 }: StockCardProps) {
+export function StockCard({
+  symbol,
+  onRemove,
+  onClick,
+  isSelected,
+  refreshInterval = 3000,
+}: StockCardProps) {
   const { stock, isLoading, isError, refresh } = useStockData(symbol, refreshInterval)
 
   // Tick every 60 s so the session badge reflects local time even between polls
