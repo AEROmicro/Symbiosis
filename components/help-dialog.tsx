@@ -190,7 +190,7 @@ export function HelpDialog() {
                 Contact Support — aeroforge-co@outlook.com
               </a>
               <p className="text-xs text-muted-foreground">
-                Symbiosis v5.2 Magnetar Basalt (stable build) - Built with Next.js, React, and Tailwind CSS
+                Symbiosis v6 Tachyonic Basalt (stable build) - Built with Next.js, React, and Tailwind CSS
               </p>
             </div>
           </div>

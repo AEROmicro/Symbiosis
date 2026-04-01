@@ -91,7 +91,7 @@ export function SystemStatusWidget({
         <div className="flex items-center justify-between">
           <span className="text-muted-foreground">Version</span>
           <span className={cn('flex items-center gap-1.5', sessionColor)}>
-            <span className="text-foreground tabular-nums">v5.2 Magnetar Basalt</span>
+            <span className="text-foreground tabular-nums">v6 Tachyonic Basalt</span>
           </span>
         </div>
       </div>

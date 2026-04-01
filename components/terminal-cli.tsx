@@ -539,7 +539,7 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, onSelectSto
         addLog('info', '  ║     >_  SYMBIOSIS TERMINAL            ║')
         addLog('info', '  ╚═══════════════════════════════════════╝')
         addLog('info', '')
-        addLog('info', `  Version      : 1.3.0 (build 2026.03.23)`)
+        addLog('info', `  Version      : 6.0.0 (Tachyonic Basalt)`)
         addLog('info', `  Kernel       : Next.js 16 + React 19.2`)
         addLog('info', `  Runtime      : TypeScript 5.x / V8 Engine`)
         addLog('info', `  UI Engine    : TailwindCSS v4 + shadcn/ui`)
