@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback } from 'react'
 import useSWR from 'swr'
-import { RefreshCw } from 'lucide-react'
+import { TrendingUp, TrendingDown, RefreshCw } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface CandleData {
@@ -32,17 +32,38 @@ const PAD_R = 4
 const PAD_T = 8
 const PAD_B = 8
 
+const RANGES = [
+  { label: '1D', value: '1d' },
+  { label: '5D', value: '5d' },
+  { label: '1M', value: '1mo' },
+  { label: '3M', value: '3mo' },
+  { label: '6M', value: '6mo' },
+  { label: '1Y', value: '1y' },
+]
+
 export function CandlestickWidget({ symbol = 'AAPL' }: CandlestickWidgetProps) {
   const [hovered, setHovered] = useState<CandleData | null>(null)
+  const [range, setRange] = useState('1mo')
   const svgRef = useRef<SVGSVGElement>(null)
 
   const { data, isLoading, error } = useSWR<ChartResponse>(
-    `/api/stock/${encodeURIComponent(symbol)}/chart?range=1mo`,
+    `/api/stock/${encodeURIComponent(symbol)}/chart?range=${range}`,
     fetcher,
-    { refreshInterval: 0, dedupingInterval: 60_000 }
+    { refreshInterval: range === '1d' ? 30_000 : 0, dedupingInterval: 60_000 }
   )
 
   const candles = data?.data ?? []
+
+  // Period gain/loss: first candle open → last candle close
+  const firstOpen = candles.length > 0 ? (candles[0].open ?? candles[0].close) : null
+  const lastClose = candles.length > 0 ? candles[candles.length - 1].close : null
+  const periodChange = firstOpen != null && lastClose != null && firstOpen > 0
+    ? lastClose - firstOpen
+    : null
+  const periodChangePct = firstOpen != null && periodChange != null && firstOpen > 0
+    ? (periodChange / firstOpen) * 100
+    : null
+  const periodIsPositive = (periodChange ?? 0) >= 0
 
   const renderChart = useCallback(() => {
     if (candles.length === 0) return null
