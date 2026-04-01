@@ -7,11 +7,11 @@ import { cn } from '@/lib/utils'
 interface CurvePoint { label: string; current: number; normal: number; change: number | null }
 
 // Symbols available in Yahoo Finance for key maturities
-const LIVE_YIELDS: { label: string; symbol: string }[] = [
-  { label: '3M',  symbol: '%5EIRX' },   // ^IRX  13-week bill
-  { label: '5Y',  symbol: '%5EFVX' },   // ^FVX  5-year
-  { label: '10Y', symbol: '%5ETNX' },   // ^TNX  10-year
-  { label: '30Y', symbol: '%5ETYX' },   // ^TYX  30-year
+const LIVE_YIELDS: { label: string; urlEncodedSymbol: string }[] = [
+  { label: '3M',  urlEncodedSymbol: '%5EIRX' },   // ^IRX  13-week bill
+  { label: '5Y',  urlEncodedSymbol: '%5EFVX' },   // ^FVX  5-year
+  { label: '10Y', urlEncodedSymbol: '%5ETNX' },   // ^TNX  10-year
+  { label: '30Y', urlEncodedSymbol: '%5ETYX' },   // ^TYX  30-year
 ]
 
 // Static baseline for maturities we can't easily fetch
@@ -59,7 +59,7 @@ export function YieldCurveWidget() {
     setLoading(true)
     try {
       const results = await Promise.allSettled(
-        LIVE_YIELDS.map(y => fetch(`/api/stock/${y.symbol}`).then(r => r.json()))
+        LIVE_YIELDS.map(y => fetch(`/api/stock/${y.urlEncodedSymbol}`).then(r => r.json()))
       )
       const liveMap: Record<string, { rate: number; change: number | null }> = {}
       LIVE_YIELDS.forEach((y, i) => {
@@ -108,7 +108,7 @@ export function YieldCurveWidget() {
               <span className="text-[9px] text-muted-foreground">{node.label}</span>
               <span className="font-semibold tabular-nums text-[11px]">{node.current.toFixed(2)}%</span>
               {node.change != null && (
-                <span className={cn('text-[9px] tabular-nums font-medium', isUp ? 'text-price-down' : 'text-price-up')}>
+                <span className={cn('text-[9px] tabular-nums font-medium', isUp ? 'text-price-up' : 'text-price-down')}>
                   {isUp ? '+' : ''}{node.change.toFixed(2)}%
                 </span>
               )}

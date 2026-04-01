@@ -115,14 +115,14 @@ export function SectorRotationWidget() {
             <TrendingUp className="w-3 h-3 text-price-up shrink-0" />
             <div className="min-w-0">
               <div className="text-[9px] text-muted-foreground truncate">{best.ticker}</div>
-              <div className="text-price-up font-semibold tabular-nums text-[10px]">+{best.change!.toFixed(2)}%</div>
+              <div className="text-price-up font-semibold tabular-nums text-[10px]">+{best.change?.toFixed(2) ?? '0.00'}%</div>
             </div>
           </div>
           <div className="flex items-center gap-1 px-2 py-1 rounded border border-price-down/20 bg-price-down/5">
             <TrendingDown className="w-3 h-3 text-price-down shrink-0" />
             <div className="min-w-0">
               <div className="text-[9px] text-muted-foreground truncate">{worst.ticker}</div>
-              <div className="text-price-down font-semibold tabular-nums text-[10px]">{worst.change!.toFixed(2)}%</div>
+              <div className="text-price-down font-semibold tabular-nums text-[10px]">{worst.change?.toFixed(2) ?? '0.00'}%</div>
             </div>
           </div>
         </div>

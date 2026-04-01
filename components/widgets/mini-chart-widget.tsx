@@ -126,7 +126,7 @@ export function MiniChartWidget({ symbol: propSymbol = 'AAPL' }: MiniChartWidget
             {isPositive ? <TrendingUp className="w-3.5 h-3.5 shrink-0" /> : <TrendingDown className="w-3.5 h-3.5 shrink-0" />}
             <span className="tabular-nums">
               {isPositive ? '+' : ''}{periodChange.toFixed(2)}
-              <span className="opacity-70 ml-1 text-[10px]">({isPositive ? '+' : ''}{periodChangePct!.toFixed(2)}%)</span>
+              <span className="opacity-70 ml-1 text-[10px]">({isPositive ? '+' : ''}{periodChangePct?.toFixed(2) ?? '0.00'}%)</span>
             </span>
           </div>
         )}

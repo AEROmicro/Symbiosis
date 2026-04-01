@@ -147,7 +147,7 @@ export function CandlestickWidget({ symbol = 'AAPL' }: CandlestickWidgetProps) {
               {periodIsPositive ? <TrendingUp className="w-3 h-3 shrink-0" /> : <TrendingDown className="w-3 h-3 shrink-0" />}
               <span className="tabular-nums">
                 {periodIsPositive ? '+' : ''}{periodChange.toFixed(2)}
-                <span className="opacity-70 ml-1">({periodIsPositive ? '+' : ''}{periodChangePct!.toFixed(2)}%)</span>
+                <span className="opacity-70 ml-1">({periodIsPositive ? '+' : ''}{periodChangePct?.toFixed(2) ?? '0.00'}%)</span>
               </span>
             </div>
           )}
