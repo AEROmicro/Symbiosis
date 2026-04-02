@@ -6,6 +6,12 @@ function n(v: number | null | undefined, decimals = 2): number {
   return Number(v.toFixed(decimals))
 }
 
+// Normalize percent fields that may arrive as fraction (0.0123) or percent points (1.23)
+function normalizePct(v: number | null | undefined): number | null {
+  if (v == null || isNaN(v)) return null
+  return Math.abs(v) <= 1 ? v * 100 : v
+}
+
 function fmtMarketCap(raw: number | null | undefined): string {
   if (!raw || raw <= 0) return 'N/A'
   if (raw >= 1e12) return `$${(raw / 1e12).toFixed(2)}T`
@@ -29,9 +35,6 @@ async function fetchV7Quote(symbol: string) {
     'postMarketPrice','postMarketChange','postMarketChangePercent',
   ].join(',')
   const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(symbol)}&fields=${fields}`
-  // 2-second server-side cache: all concurrent client polls share one Yahoo fetch.
-  // Yahoo real-time data updates ~every 15 s so 2 s gives good freshness without
-  // hammering their unofficial API and risking a 429.
   const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, next: { revalidate: 2 } })
   if (!res.ok) return null
   const data = await res.json()
@@ -65,10 +68,8 @@ async function fetchYahooFinanceData(symbol: string) {
     const currentPrice = q.regularMarketPrice
     const prevClose    = q.regularMarketPreviousClose
 
-    // Prefer Yahoo's own daily change values to avoid null/0 prevClose bugs
-    // (null coerces to 0 in JS arithmetic, turning the entire price into a fake "change")
     const yahooChange     = q.regularMarketChange ?? null
-    const yahooChangePct  = q.regularMarketChangePercent ?? null
+    const yahooChangePct  = normalizePct(q.regularMarketChangePercent)
     const safePrevClose   = (prevClose != null && prevClose > 0) ? prevClose : null
     const manualChange    = safePrevClose != null ? currentPrice - safePrevClose : null
     const manualChangePct = safePrevClose != null && manualChange != null ? (manualChange / safePrevClose) * 100 : null
@@ -82,9 +83,7 @@ async function fetchYahooFinanceData(symbol: string) {
 
     const peRatio   = q.trailingPE             != null ? n(q.trailingPE)             : sd?.trailingPE?.raw  != null ? n(sd.trailingPE.raw)  : null
     const fwdPE     = q.forwardPE              != null ? n(q.forwardPE)              : sd?.forwardPE?.raw   != null ? n(sd.forwardPE.raw)   : null
-
     const eps       = q.epsTrailingTwelveMonths != null ? n(q.epsTrailingTwelveMonths) : ks?.trailingEps?.raw != null ? n(ks.trailingEps.raw) : null
-
     const beta      = q.beta != null ? n(q.beta) : sd?.beta?.raw != null ? n(sd.beta.raw) : ks?.beta?.raw != null ? n(ks.beta.raw) : null
 
     const divYield  = q.trailingAnnualDividendYield != null
@@ -123,7 +122,7 @@ async function fetchYahooFinanceData(symbol: string) {
       marketState: q.marketState || 'CLOSED',
       fiftyTwoWeekHigh: n(q.fiftyTwoWeekHigh),
       fiftyTwoWeekLow: n(q.fiftyTwoWeekLow),
-      fiftyTwoWeekChangePercent: q.fiftyTwoWeekChangePercent != null ? n(q.fiftyTwoWeekChangePercent) : null,
+      fiftyTwoWeekChangePercent: q.fiftyTwoWeekChangePercent != null ? n(normalizePct(q.fiftyTwoWeekChangePercent) ?? 0) : null,
       fiftyDayAvg: n(q.fiftyDayAverage ?? sd?.fiftyDayAverage?.raw),
       twoHundredDayAvg: n(q.twoHundredDayAverage ?? sd?.twoHundredDayAverage?.raw),
       peRatio,
@@ -135,12 +134,12 @@ async function fetchYahooFinanceData(symbol: string) {
       exDividendDate: exDivDate,
       earningsDate,
       targetPrice,
-      preMarketPrice:          q.preMarketPrice          != null ? n(q.preMarketPrice)          : null,
-      preMarketChange:         q.preMarketChange         != null ? n(q.preMarketChange)         : null,
-      preMarketChangePercent:  q.preMarketChangePercent  != null ? n(q.preMarketChangePercent)  : null,
-      postMarketPrice:         q.postMarketPrice         != null ? n(q.postMarketPrice)         : null,
-      postMarketChange:        q.postMarketChange        != null ? n(q.postMarketChange)        : null,
-      postMarketChangePercent: q.postMarketChangePercent != null ? n(q.postMarketChangePercent) : null,
+      preMarketPrice:          q.preMarketPrice          != null ? n(q.preMarketPrice) : null,
+      preMarketChange:         q.preMarketChange         != null ? n(q.preMarketChange) : null,
+      preMarketChangePercent:  q.preMarketChangePercent  != null ? n(normalizePct(q.preMarketChangePercent) ?? 0) : null,
+      postMarketPrice:         q.postMarketPrice         != null ? n(q.postMarketPrice) : null,
+      postMarketChange:        q.postMarketChange        != null ? n(q.postMarketChange) : null,
+      postMarketChangePercent: q.postMarketChangePercent != null ? n(normalizePct(q.postMarketChangePercent) ?? 0) : null,
       lastUpdated: new Date(),
     }
   } catch {
@@ -150,7 +149,6 @@ async function fetchYahooFinanceData(symbol: string) {
 
 async function fetchChartData(symbol: string) {
   try {
-    // 1d interval, 2d range gives us today and yesterday specifically
     const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=2d`
 
     const response = await fetch(url, {
@@ -217,9 +215,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ symb
   if (!stockData) return NextResponse.json({ error: 'Not Found' }, { status: 404 })
   return NextResponse.json(stockData, {
     headers: {
-      // Browsers / CDN: always ask our API (no client caching).
-      // Our API: caches the upstream Yahoo fetch for 2 s (see revalidate above),
-      // so all concurrent polls share one Yahoo round-trip per symbol.
       'Cache-Control': 'no-store',
     },
   })
