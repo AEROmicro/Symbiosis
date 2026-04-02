@@ -17,7 +17,7 @@ const SECTORS: Sector[] = [
   { name: 'Healthcare',           abbr: 'XLV', ytd:  2.3 },
   { name: 'Materials',            abbr: 'XLB', ytd:  1.6 },
   { name: 'Consumer Staples',     abbr: 'XLP', ytd: -0.9 },
-  { name: 'Real Estate',          abbr: 'XLRE',ytd: -2.4 },
+  { name: 'Real Estate',          abbr: 'XLRE', ytd: -2.4 },
   { name: 'Utilities',            abbr: 'XLU', ytd: -1.2 },
   { name: 'Energy',               abbr: 'XLE', ytd: -5.3 },
 ]

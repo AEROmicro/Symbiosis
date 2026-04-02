@@ -43,7 +43,7 @@ function monthsToGoal(current: number, target: number, monthly: number, annualRa
   if (annualRate === 0) return Math.ceil((target - current) / monthly)
   const r = annualRate / 100 / 12
   if (r === 0) return Math.ceil((target - current) / monthly)
-  const n = Math.log((monthly + (target - current) * r) / (monthly - 0)) / Math.log(1 + r)
+  const n = Math.log((monthly + (target - current) * r) / monthly) / Math.log(1 + r)
   return Math.ceil(isFinite(n) && n > 0 ? n : (target - current) / monthly)
 }
 
