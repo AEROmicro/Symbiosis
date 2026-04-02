@@ -43,30 +43,23 @@ export function StockCard({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stock, resolvedEx, tick])
 
-  // Effective price/change — uses pre/post market data when that session is active
+  // Effective price/change — uses pre/post market data when that session is active.
+  // Uses stock.change / stock.changePercent directly from the API (same as stock-detail)
+  // rather than recomputing from previousClose, which can be 0/null from Yahoo.
   const effectivePrice =
     effectiveMarketState === 'PRE'  && (stock?.preMarketPrice  ?? null) != null ? stock!.preMarketPrice!  :
     effectiveMarketState === 'POST' && (stock?.postMarketPrice ?? null) != null ? stock!.postMarketPrice! :
     stock?.price ?? 0
 
-  // Always compute daily from price vs previous close (fallback)
-  const dailyChange = stock?.previousClose
-    ? (effectivePrice - stock.previousClose)
-    : 0
-
-  const dailyChangePercent = stock?.previousClose
-    ? (dailyChange / stock.previousClose) * 100
-    : 0
-
   const effectiveChange =
     effectiveMarketState === 'PRE'  && (stock?.preMarketChange  ?? null) != null ? stock!.preMarketChange!  :
     effectiveMarketState === 'POST' && (stock?.postMarketChange ?? null) != null ? stock!.postMarketChange! :
-    dailyChange
+    stock?.change ?? 0
 
   const effectiveChangePercent =
     effectiveMarketState === 'PRE'  && (stock?.preMarketChangePercent  ?? null) != null ? stock!.preMarketChangePercent!  :
     effectiveMarketState === 'POST' && (stock?.postMarketChangePercent ?? null) != null ? stock!.postMarketChangePercent! :
-    dailyChangePercent
+    stock?.changePercent ?? 0
 
   if (isLoading) {
     return (
