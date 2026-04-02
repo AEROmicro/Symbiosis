@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { Gem, LayoutDashboard } from 'lucide-react'
+import { usePathname, useRouter } from 'next/navigation'
+import { Gem, LayoutDashboard, Coins } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface TerminalHeaderProps {}
@@ -12,6 +12,7 @@ export function TerminalHeader({}: TerminalHeaderProps) {
   const [time, setTime] = useState<string>('')
   const [date, setDate] = useState<string>('')
   const pathname = usePathname()
+  const router = useRouter()
 
   useEffect(() => {
     const updateTime = () => {
@@ -57,10 +58,10 @@ export function TerminalHeader({}: TerminalHeaderProps) {
             >
               Dashboard
             </Link>
-            <Link
-              href="/tourmaline"
+            <button
+              onClick={() => router.push('/tourmaline')}
               className={cn(
-                'px-2 py-0.5 text-xs font-mono rounded border transition-colors flex items-center gap-1',
+                'px-2 py-0.5 text-xs font-mono rounded border transition-colors flex items-center gap-1 cursor-pointer',
                 pathname?.startsWith('/tourmaline')
                   ? 'bg-primary/10 border-primary/30 text-primary'
                   : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
@@ -68,7 +69,19 @@ export function TerminalHeader({}: TerminalHeaderProps) {
             >
               <Gem className="w-3 h-3" />
               Tourmaline
-            </Link>
+            </button>
+            <button
+              onClick={() => router.push('/musgravite')}
+              className={cn(
+                'px-2 py-0.5 text-xs font-mono rounded border transition-colors flex items-center gap-1 cursor-pointer',
+                pathname?.startsWith('/musgravite')
+                  ? 'bg-primary/10 border-primary/30 text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+              )}
+            >
+              <Coins className="w-3 h-3" />
+              Musgravite
+            </button>
           </nav>
         </div>
 
