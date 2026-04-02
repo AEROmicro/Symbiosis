@@ -70,7 +70,7 @@ export async function GET(
       range,
       interval,
       data: chartData,
-      previousClose: result.meta.previousClose,
+      previousClose: result.meta.chartPreviousClose ?? result.meta.previousClose ?? 0,
       currentPrice: result.meta.regularMarketPrice
     }, {
       headers: {
