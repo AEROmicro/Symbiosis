@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { TrendingUp, TrendingDown, Wallet, Target, FileText, PiggyBank, DollarSign, BarChart2 } from 'lucide-react'
+import { TrendingUp, TrendingDown, Wallet, Target, FileText, PiggyBank, DollarSign, BarChart2, ArrowUpDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -39,6 +39,14 @@ interface Goal {
   target: number
 }
 
+interface Income {
+  id: string
+  amount: number
+  category: string
+  description: string
+  date: string
+}
+
 const EMPTY_NW: NetWorthData = {
   savings: 0, investments: 0, property: 0, otherAssets: 0,
   creditCards: 0, loans: 0, mortgage: 0, otherLiabilities: 0,
@@ -67,6 +75,7 @@ export function Overview() {
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState<NetWorthData>(EMPTY_NW)
   const [expenses, setExpenses] = useState<Expense[]>([])
+  const [income, setIncome] = useState<Income[]>([])
   const [bills, setBills] = useState<Bill[]>([])
   const [goals, setGoals] = useState<Goal[]>([])
   const [budgets, setBudgets] = useState<Record<string, number>>({})
@@ -77,6 +86,8 @@ export function Overview() {
       if (saved) { const d = JSON.parse(saved); setNw(d); setDraft(d) }
       const expSaved = localStorage.getItem('tourmaline-expenses')
       if (expSaved) setExpenses(JSON.parse(expSaved))
+      const incomeSaved = localStorage.getItem('tourmaline-income')
+      if (incomeSaved) setIncome(JSON.parse(incomeSaved))
       const billsSaved = localStorage.getItem('tourmaline-bills')
       if (billsSaved) setBills(JSON.parse(billsSaved))
       const goalsSaved = localStorage.getItem('tourmaline-goals')
