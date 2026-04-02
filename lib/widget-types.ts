@@ -89,6 +89,16 @@ export type WidgetType =
   | 'portfolio-stress-test'
   | 'mini-chart'
   | 'performance-overview'
+  | 'crypto-portfolio'
+  | 'crypto-converter'
+  | 'debt-payoff'
+  | 'compound-interest'
+  | 'options-profit'
+  | 'drip-calculator'
+  | 'earnings-countdown'
+  | 'market-regime'
+  | 'sector-performance'
+  | 'crypto-gas'
 
 export interface WidgetConfig {
   id: string
@@ -1130,6 +1140,98 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
     defaultW: 4, defaultH: 10, minW: 3, minH: 8,
     category: 'market',
     color: 'bg-sky-500/20',
+  },
+
+  // ── New v6 widgets ──────────────────────────────────────────────────────────
+  {
+    type: 'crypto-portfolio',
+    name: 'Crypto Portfolio',
+    description: 'Track personal crypto holdings with live P&L and total portfolio value',
+    iconName: 'Coins',
+    defaultW: 4, defaultH: 12, minW: 4, minH: 10,
+    category: 'tools',
+    color: 'bg-orange-500/20',
+  },
+  {
+    type: 'crypto-converter',
+    name: 'Crypto Converter',
+    description: 'Live cryptocurrency converter between BTC, ETH, SOL, BNB, XRP, ADA, DOGE and USD',
+    iconName: 'Coins',
+    defaultW: 4, defaultH: 10, minW: 3, minH: 9,
+    category: 'tools',
+    color: 'bg-yellow-500/20',
+  },
+  {
+    type: 'debt-payoff',
+    name: 'Debt Payoff Calculator',
+    description: 'Calculate debt payoff timeline, total interest, and compare avalanche vs snowball methods',
+    iconName: 'Calculator',
+    defaultW: 4, defaultH: 11, minW: 3, minH: 9,
+    category: 'tools',
+    color: 'bg-red-500/20',
+  },
+  {
+    type: 'compound-interest',
+    name: 'Compound Interest',
+    description: 'Compound interest calculator with multiple compounding frequencies and monthly contributions',
+    iconName: 'Calculator',
+    defaultW: 4, defaultH: 11, minW: 3, minH: 9,
+    category: 'tools',
+    color: 'bg-emerald-500/20',
+  },
+  {
+    type: 'options-profit',
+    name: 'Options P&L Calculator',
+    description: 'Calculate call/put option breakeven, max profit/loss and expiry P&L across price ranges',
+    iconName: 'Layers',
+    defaultW: 4, defaultH: 13, minW: 4, minH: 11,
+    category: 'tools',
+    color: 'bg-indigo-500/20',
+  },
+  {
+    type: 'drip-calculator',
+    name: 'DRIP Calculator',
+    description: 'Dividend reinvestment (DRIP) calculator — compare growth with and without reinvestment',
+    iconName: 'Target',
+    defaultW: 4, defaultH: 11, minW: 3, minH: 9,
+    category: 'tools',
+    color: 'bg-green-500/20',
+  },
+  {
+    type: 'earnings-countdown',
+    name: 'Earnings Countdown',
+    description: 'Days until next earnings for AAPL, MSFT, GOOGL, AMZN, META, NVDA, TSLA and NFLX',
+    iconName: 'CalendarDays',
+    defaultW: 4, defaultH: 10, minW: 3, minH: 8,
+    category: 'market',
+    color: 'bg-violet-500/20',
+  },
+  {
+    type: 'market-regime',
+    name: 'Market Regime',
+    description: 'Current market regime detector — Bull, Bear, Sideways, or Volatile with confidence score',
+    iconName: 'Activity',
+    defaultW: 4, defaultH: 9, minW: 3, minH: 8,
+    category: 'market',
+    color: 'bg-cyan-500/20',
+  },
+  {
+    type: 'sector-performance',
+    name: 'Sector Performance',
+    description: 'YTD performance bar chart for all 11 S&P 500 sectors — identify sector rotation trends',
+    iconName: 'LayoutGrid',
+    defaultW: 4, defaultH: 12, minW: 4, minH: 10,
+    category: 'market',
+    color: 'bg-sky-500/20',
+  },
+  {
+    type: 'crypto-gas',
+    name: 'ETH Gas Tracker',
+    description: 'Live Ethereum gas prices for Slow, Standard, Fast and Instant speeds with USD cost estimates',
+    iconName: 'Zap',
+    defaultW: 4, defaultH: 9, minW: 3, minH: 8,
+    category: 'market',
+    color: 'bg-amber-500/20',
   },
 ]
 
