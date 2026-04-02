@@ -55,11 +55,10 @@ export function TerminalHeader({}: TerminalHeaderProps) {
                   : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
               )}
             >
-              <TrendingUp className="w-3 h-3" />
               Dashboard
             </Link>
             <Link
-              href="/tourmaline"
+              href="/https://symbiosis-finance.pages.dev/tourmaline/"
               className={cn(
                 'px-2 py-0.5 text-xs font-mono rounded border transition-colors flex items-center gap-1',
                 pathname?.startsWith('/tourmaline')
@@ -71,7 +70,7 @@ export function TerminalHeader({}: TerminalHeaderProps) {
               Tourmaline
             </Link>
             <Link
-              href="/musgravite"
+              href="https://symbiosis-finance.pages.dev/musgravite/"
               className={cn(
                 'px-2 py-0.5 text-xs font-mono rounded border transition-colors flex items-center gap-1',
                 pathname?.startsWith('/musgravite')
