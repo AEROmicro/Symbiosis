@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { useThemeSync } from '@/hooks/use-theme-sync'
 import { CryptoOverview }   from '@/components/musgravite/crypto-overview'
 import { CryptoWatchlist }  from '@/components/musgravite/crypto-watchlist'
 import { CryptoCompare }    from '@/components/musgravite/crypto-compare'
@@ -43,6 +44,8 @@ function SectionContent({ section }: { section: Section }) {
 export default function MusgravitePage() {
   const [active, setActive] = useState<Section>('overview')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  useThemeSync()
 
   return (
     <div className="min-h-screen bg-background text-foreground font-mono flex flex-col">
