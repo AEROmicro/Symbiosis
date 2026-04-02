@@ -6,7 +6,7 @@
 
 ![Symbiosis Header](./screenshot.png)
 
-[![Version](https://img.shields.io/badge/Version-v5.2%20Magnetar%20Basalt-007ACC?style=for-the-badge)](https://github.com/AEROmicro/Symbiosis)
+[![Version](https://img.shields.io/badge/Version-v6%20v6Tachyonic%20Basalt-007ACC?style=for-the-badge)](https://github.com/AEROmicro/Symbiosis)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge)](https://www.gnu.org/licenses/gpl-3.0)
 [![Deployment](https://img.shields.io/badge/Cloudflare-Live-F48120?style=for-the-badge&logo=cloudflare&logoColor=white)]([https://symbiosis-xol.vercel.app/](https://symbiosis-finance.pages.dev/))
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg?style=for-the-badge)](https://github.com/aeroxol5000/symbiosis/graphs/commit-activity)
