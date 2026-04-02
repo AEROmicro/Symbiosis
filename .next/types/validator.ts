@@ -47,10 +47,28 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
 }
 
 
+// Validate ../../app/azurite/page.tsx
+{
+  type __IsExpected<Specific extends AppPageConfig<"/azurite">> = Specific
+  const handler = {} as typeof import("../../app/azurite/page.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../app/page.tsx
 {
   type __IsExpected<Specific extends AppPageConfig<"/">> = Specific
   const handler = {} as typeof import("../../app/page.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../app/tourmaline/page.tsx
+{
+  type __IsExpected<Specific extends AppPageConfig<"/tourmaline">> = Specific
+  const handler = {} as typeof import("../../app/tourmaline/page.js")
   type __Check = __IsExpected<typeof handler>
   // @ts-ignore
   type __Unused = __Check
