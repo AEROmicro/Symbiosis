@@ -58,7 +58,7 @@ export function TerminalHeader({}: TerminalHeaderProps) {
               Dashboard
             </Link>
             <Link
-              href="/https://symbiosis-finance.pages.dev/tourmaline/"
+              href="https://symbiosis-finance.pages.dev/tourmaline/"
               className={cn(
                 'px-2 py-0.5 text-xs font-mono rounded border transition-colors flex items-center gap-1',
                 pathname?.startsWith('/tourmaline')
