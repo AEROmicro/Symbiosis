@@ -100,11 +100,12 @@ export function PriceChart({ symbol, currency, onExpand, livePrice, liveChange, 
   const prevCloseY = 100 - ((previousClose - adjustedMin) / adjustedRange) * 100
 
   const lastPrice = chartData.length > 0 ? chartData[chartData.length - 1].close : previousClose
-  // For 1D view, use previousClose as reference so the chart % matches the watchlist card.
-  // For other ranges, use the first candle's open to show the full-period change.
-  const referencePrice = range === '1d' && previousClose > 0
-    ? previousClose
-    : chartData.length > 0 ? (chartData[0].open || chartData[0].close) : previousClose
+  // For all ranges, use the first candle's open as the reference price so that
+  // the chart colour and change figures reflect growth from the start of the period
+  // (for 1D this means intraday growth from the opening price).
+  const referencePrice = chartData.length > 0
+    ? (chartData[0].open || chartData[0].close)
+    : (previousClose > 0 ? previousClose : 0)
   const isPositive = (livePrice ?? lastPrice) >= referencePrice
 
   const getPath = () => {
@@ -132,9 +133,9 @@ export function PriceChart({ symbol, currency, onExpand, livePrice, liveChange, 
   }
 
   // For the 1D range, use the live values passed from parent so the chart header
-  // matches the watchlist card (pre/post/regular aware). For all other ranges,
-  // compute the change relative to the first candle so the header reflects the
-  // full period change (e.g. 5D shows the 5-day change, 1Y shows the 1-year change).
+  // stays pre/post/regular-market aware. For all ranges, hover calculations use
+  // the first candle's open as the reference so changes reflect period growth
+  // from the opening price (1D = intraday, 5D/1M/etc. = full-period).
   const displayPrice = hoveredPoint?.close ?? (livePrice ?? lastPrice)
   const displayChange = hoveredPoint
     ? (referencePrice > 0 ? hoveredPoint.close - referencePrice : 0)

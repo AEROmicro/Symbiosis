@@ -67,14 +67,13 @@ async function fetchYahooFinanceData(symbol: string) {
 
     const currentPrice = q.regularMarketPrice
     const prevClose    = q.regularMarketPreviousClose
+    const openPrice    = q.regularMarketOpen
 
-    const yahooChange     = q.regularMarketChange ?? null
-    const yahooChangePct  = normalizePct(q.regularMarketChangePercent)
-    const safePrevClose   = (prevClose != null && prevClose > 0) ? prevClose : null
-    const manualChange    = safePrevClose != null ? currentPrice - safePrevClose : null
-    const manualChangePct = safePrevClose != null && manualChange != null ? (manualChange / safePrevClose) * 100 : null
-    const dailyChange     = yahooChange    ?? manualChange    ?? 0
-    const dailyChangePct  = yahooChangePct ?? manualChangePct ?? 0
+    // Calculate daily change using today's open so it reflects intraday growth.
+    const safeOpen        = (openPrice != null && openPrice > 0) ? openPrice : null
+    const safePrice       = (currentPrice != null && !isNaN(currentPrice)) ? currentPrice : null
+    const dailyChange     = safeOpen != null && safePrice != null ? safePrice - safeOpen : 0
+    const dailyChangePct  = safeOpen != null && safePrice != null ? (dailyChange / safeOpen) * 100 : 0
 
     const marketCapRaw = q.marketCap ?? sd?.marketCap?.raw
     const marketCapStr = fmtMarketCap(marketCapRaw)
@@ -162,9 +161,10 @@ async function fetchChartData(symbol: string) {
 
     const price = meta.regularMarketPrice
     const prevClose = meta.chartPreviousClose
-    const safePrevClose = (prevClose != null && prevClose > 0) ? prevClose : null
-    const chartChange = safePrevClose != null ? price - safePrevClose : 0
-    const chartChangePct = safePrevClose != null ? (chartChange / safePrevClose) * 100 : 0
+    const openPrice = meta.regularMarketOpen
+    const safeOpen = (openPrice != null && openPrice > 0) ? openPrice : null
+    const chartChange = safeOpen != null ? price - safeOpen : 0
+    const chartChangePct = safeOpen != null ? (chartChange / safeOpen) * 100 : 0
 
     return {
       symbol: meta.symbol,
