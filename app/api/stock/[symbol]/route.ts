@@ -6,6 +6,16 @@ function n(v: number | null | undefined, decimals = 2): number {
   return Number(v.toFixed(decimals))
 }
 
+// Compute daily change (absolute and percent) from previous close.
+// Returns { change: 0, changePercent: 0 } when either input is invalid.
+function dailyChangeFromPrevClose(price: number | null | undefined, prevClose: number | null | undefined) {
+  const safePrice = (price != null && !isNaN(price)) ? price : null
+  const safePrev  = (prevClose != null && prevClose > 0) ? prevClose : null
+  if (safePrice == null || safePrev == null) return { change: 0, changePercent: 0 }
+  const change = safePrice - safePrev
+  return { change, changePercent: (change / safePrev) * 100 }
+}
+
 // Normalize percent fields that may arrive as fraction (0.0123) or percent points (1.23)
 function normalizePct(v: number | null | undefined): number | null {
   if (v == null || isNaN(v)) return null
@@ -69,11 +79,8 @@ async function fetchYahooFinanceData(symbol: string) {
     const prevClose    = q.regularMarketPreviousClose
     const openPrice    = q.regularMarketOpen
 
-    // Calculate daily change using today's open so it reflects intraday growth.
-    const safeOpen        = (openPrice != null && openPrice > 0) ? openPrice : null
-    const safePrice       = (currentPrice != null && !isNaN(currentPrice)) ? currentPrice : null
-    const dailyChange     = safeOpen != null && safePrice != null ? safePrice - safeOpen : 0
-    const dailyChangePct  = safeOpen != null && safePrice != null ? (dailyChange / safeOpen) * 100 : 0
+    // Calculate daily change from previous close to match the market ticker logic.
+    const { change: dailyChange, changePercent: dailyChangePct } = dailyChangeFromPrevClose(currentPrice, prevClose)
 
     const marketCapRaw = q.marketCap ?? sd?.marketCap?.raw
     const marketCapStr = fmtMarketCap(marketCapRaw)
@@ -161,10 +168,7 @@ async function fetchChartData(symbol: string) {
 
     const price = meta.regularMarketPrice
     const prevClose = meta.chartPreviousClose
-    const openPrice = meta.regularMarketOpen
-    const safeOpen = (openPrice != null && openPrice > 0) ? openPrice : null
-    const chartChange = safeOpen != null ? price - safeOpen : 0
-    const chartChangePct = safeOpen != null ? (chartChange / safeOpen) * 100 : 0
+    const { change: chartChange, changePercent: chartChangePct } = dailyChangeFromPrevClose(price, prevClose)
 
     return {
       symbol: meta.symbol,

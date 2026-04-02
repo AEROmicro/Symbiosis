@@ -12,78 +12,27 @@ const fetcher = async (url: string) => {
   return res.json()
 }
 
-// ---------------------------------------------------------------------------
-// Day-open cache
-// ---------------------------------------------------------------------------
-// Maps symbol → { date: string (YYYY-MM-DD), open: number }.
-// The open price is fixed for the entire trading day, so we cache it here to:
-//   1. Provide a stable change-calculation baseline across every poll cycle.
-//   2. Preserve the day's open after market close so the final intraday change
-//      is always computed correctly even if Yahoo returns open=0 later.
-//   3. Auto-expire on a new calendar date so yesterday's open is never
-//      accidentally used for the next trading day.
-// ---------------------------------------------------------------------------
-const dayOpenCache = new Map<string, { date: string; open: number }>()
-
-// Use Eastern Time to derive the trading date. This avoids the UTC-midnight
-// rollover at 7 PM ET (during after-hours trading), ensuring the cached open
-// stays valid for the entire trading session including pre- and after-hours.
-function getTradingDate(): string {
-  return new Intl.DateTimeFormat('en-US', {
-    timeZone: 'America/New_York',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(new Date()).split('/').reverse().join('-') // → YYYY-MM-DD
-}
-
 /**
- * Returns the best open price for a symbol for today:
- * - If Yahoo returned a valid open (> 0), cache and return it.
- * - Otherwise fall back to today's cached value (covers after-hours / pre-market
- *   polls where regularMarketOpen temporarily becomes 0).
- * - If nothing is cached for today, return the raw value from the API.
+ * Overrides `change` and `changePercent` on a StockData object to use
+ * `previousClose` as the baseline — the same formula used by the market
+ * ticker and market-overview widgets:
+ *
+ *   change        = price − previousClose
+ *   changePercent = (change / previousClose) × 100
+ *
+ * Using `previousClose` (rather than today's open) guarantees that all
+ * widgets show the same daily-change figures regardless of whether the
+ * market has opened yet or the API temporarily returns open = 0.
  */
-function getCachedOpen(symbol: string, freshOpen: number): number {
-  const today = getTradingDate()
-  const cached = dayOpenCache.get(symbol)
+function applyDayChange(data: StockData): StockData {
+  const baseline = data.previousClose
+  if (baseline <= 0 || data.price <= 0) return data
 
-  if (freshOpen > 0) {
-    // Always refresh the cache with a valid value from the API.
-    dayOpenCache.set(symbol, { date: today, open: freshOpen })
-    return freshOpen
-  }
-
-  // Fresh open is 0 / invalid — use today's cached value when available.
-  if (cached && cached.date === today && cached.open > 0) {
-    return cached.open
-  }
-
-  return freshOpen // nothing useful cached; surface the API value as-is
-}
-
-/**
- * Overrides `change` and `changePercent` on a StockData object to use the
- * cached daily open as the baseline, guaranteeing consistency:
- *   - During REGULAR hours: same open used on every poll → no drift.
- *   - At close: closing price – open = full intraday change.
- *   - `data.open` is also updated to the cached value so the "Open" stat in
- *     the UI always reflects the true day open, even if Yahoo briefly returns
- *     0 between sessions.
- *   - Pre/post market: `stock.change` falls back to 0 when open=0 but that
- *     field is unused by the UI (it displays preMarketChange / postMarketChange
- *     instead), so the fallback is harmless.
- */
-function applyDayOpen(data: StockData): StockData {
-  const cachedOpen = getCachedOpen(data.symbol, data.open)
-  if (cachedOpen <= 0 || data.price <= 0) return data
-
-  const change = data.price - cachedOpen
-  const changePercent = (change / cachedOpen) * 100
+  const change = data.price - baseline
+  const changePercent = (change / baseline) * 100
 
   return {
     ...data,
-    open: cachedOpen,
     change: Number(change.toFixed(2)),
     changePercent: Number(changePercent.toFixed(2)),
   }
@@ -137,8 +86,8 @@ export function useStockData(symbol: string | null, openInterval = 60_000) {
     }
   )
 
-  // Apply cached day-open so change/changePercent are stable across every poll.
-  const stock = useMemo(() => (data ? applyDayOpen(data) : undefined), [data])
+  // Apply previousClose-based calculation so change/changePercent match the market ticker.
+  const stock = useMemo(() => (data ? applyDayChange(data) : undefined), [data])
 
   return {
     stock,
@@ -184,7 +133,7 @@ export function useMultipleStocks(symbols: string[], openInterval = 60_000) {
   )
 
   return {
-    stocks: (data || []).map(applyDayOpen),
+    stocks: (data || []).map(applyDayChange),
     isLoading,
     isError: error,
     refresh: mutate
