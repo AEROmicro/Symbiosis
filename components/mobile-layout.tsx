@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import {
   BarChart2, LayoutGrid, Terminal as TerminalIcon,
   MoreHorizontal, Plus, Check, Gem, Coins,
@@ -68,7 +67,6 @@ export function MobileLayout({
   onModernThemeChange,
 }: MobileLayoutProps) {
   const [activeTab, setActiveTab] = useState<MobileTab>('market')
-  const router = useRouter()
 
   const {
     watchedStocks, selectedStock,
@@ -299,21 +297,21 @@ export function MobileLayout({
             </button>
           ))}
           {/* Tourmaline link */}
-          <button
-            onClick={() => router.push('/tourmaline')}
+          <Link
+            href="/tourmaline"
             className="flex flex-col items-center gap-1 py-3 text-muted-foreground hover:text-primary transition-colors"
           >
             <Gem className="w-5 h-5" />
             <span className="text-[10px] font-mono">Finance</span>
-          </button>
+          </Link>
           {/* Musgravite link */}
-          <button
-            onClick={() => router.push('/musgravite')}
+          <Link
+            href="/musgravite"
             className="flex flex-col items-center gap-1 py-3 text-muted-foreground hover:text-primary transition-colors"
           >
             <Coins className="w-5 h-5" />
             <span className="text-[10px] font-mono">Crypto</span>
-          </button>
+          </Link>
         </div>
       </nav>
     </div>
