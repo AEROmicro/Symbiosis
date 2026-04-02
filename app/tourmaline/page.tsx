@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import {
-  Gem, LayoutDashboard, Receipt, PiggyBank, FileText, Target,
+  Gem, Coins, LayoutDashboard, Receipt, PiggyBank, FileText, Target,
   CreditCard, Calculator, BookOpen, ArrowLeft, Menu, X,
   TrendingUp, Wallet, Landmark, Clock,
 } from 'lucide-react'
@@ -84,6 +84,23 @@ export default function TourmalinePage() {
                 Personal Finance
               </span>
             </div>
+            {/* Cross-navigation */}
+            <nav className="hidden md:flex items-center gap-1 ml-2">
+              <Link
+                href="/"
+                className="px-2 py-0.5 text-xs font-mono rounded border transition-colors border-transparent text-muted-foreground hover:text-foreground hover:border-border flex items-center gap-1"
+              >
+                <LayoutDashboard className="size-3" />
+                Dashboard
+              </Link>
+              <Link
+                href="/musgravite"
+                className="px-2 py-0.5 text-xs font-mono rounded border transition-colors border-transparent text-muted-foreground hover:text-foreground hover:border-border flex items-center gap-1"
+              >
+                <Coins className="size-3" />
+                Musgravite
+              </Link>
+            </nav>
           </div>
 
           {/* Mobile menu toggle */}

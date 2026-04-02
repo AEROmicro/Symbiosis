@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import {
-  Coins, ArrowLeft, LayoutDashboard, Star, BarChart2,
+  Coins, Gem, ArrowLeft, LayoutDashboard, Star, BarChart2,
   Search, TrendingUp, Newspaper, Menu, X,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -65,6 +65,23 @@ export default function MusgravitePage() {
                 Crypto Tracker
               </span>
             </div>
+            {/* Cross-navigation */}
+            <nav className="hidden md:flex items-center gap-1 ml-2">
+              <Link
+                href="/"
+                className="px-2 py-0.5 text-xs font-mono rounded border transition-colors border-transparent text-muted-foreground hover:text-foreground hover:border-border flex items-center gap-1"
+              >
+                <LayoutDashboard className="size-3" />
+                Dashboard
+              </Link>
+              <Link
+                href="/tourmaline"
+                className="px-2 py-0.5 text-xs font-mono rounded border transition-colors border-transparent text-muted-foreground hover:text-foreground hover:border-border flex items-center gap-1"
+              >
+                <Gem className="size-3" />
+                Tourmaline
+              </Link>
+            </nav>
           </div>
 
           {/* Mobile menu toggle */}
