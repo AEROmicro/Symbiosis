@@ -2,9 +2,10 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import {
   BarChart2, LayoutGrid, Terminal as TerminalIcon,
-  MoreHorizontal, Plus, Check, Gem,
+  MoreHorizontal, Plus, Check, Gem, Coins,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { TerminalCLI }      from '@/components/terminal-cli'
@@ -67,6 +68,7 @@ export function MobileLayout({
   onModernThemeChange,
 }: MobileLayoutProps) {
   const [activeTab, setActiveTab] = useState<MobileTab>('market')
+  const router = useRouter()
 
   const {
     watchedStocks, selectedStock,
@@ -275,7 +277,7 @@ export function MobileLayout({
 
       {/* ── Bottom navigation ─────────────────────────────────── */}
       <nav className="shrink-0 border-t border-border bg-card/90 backdrop-blur-sm safe-bottom">
-        <div className="grid grid-cols-5">
+        <div className="grid grid-cols-6">
           {([
             { tab: 'market',    Icon: BarChart2,      label: 'Market'    },
             { tab: 'watchlist', Icon: LayoutGrid,     label: 'Watchlist' },
@@ -297,13 +299,21 @@ export function MobileLayout({
             </button>
           ))}
           {/* Tourmaline link */}
-          <Link
-            href="/tourmaline"
+          <button
+            onClick={() => router.push('/tourmaline')}
             className="flex flex-col items-center gap-1 py-3 text-muted-foreground hover:text-primary transition-colors"
           >
             <Gem className="w-5 h-5" />
-            <span className="text-[10px] font-mono">Tourmaline</span>
-          </Link>
+            <span className="text-[10px] font-mono">Finance</span>
+          </button>
+          {/* Musgravite link */}
+          <button
+            onClick={() => router.push('/musgravite')}
+            className="flex flex-col items-center gap-1 py-3 text-muted-foreground hover:text-primary transition-colors"
+          >
+            <Coins className="w-5 h-5" />
+            <span className="text-[10px] font-mono">Crypto</span>
+          </button>
         </div>
       </nav>
     </div>
