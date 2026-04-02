@@ -5,7 +5,7 @@ import Link from 'next/link'
 import {
   Gem, LayoutDashboard, Receipt, PiggyBank, FileText, Target,
   CreditCard, Calculator, BookOpen, ArrowLeft, Menu, X,
-  TrendingUp, Wallet, Landmark, Clock,
+  TrendingUp, Wallet, Landmark, Clock, Shield,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -22,11 +22,12 @@ import { DebtManager }         from '@/components/tourmaline/debt-manager'
 import { InvestmentTracker }   from '@/components/tourmaline/investment-tracker'
 import { RetirementPlanner }   from '@/components/tourmaline/retirement-planner'
 import { SavingsPlanner }      from '@/components/tourmaline/savings-planner'
+import { InsuranceTracker }    from '@/components/tourmaline/insurance-tracker'
 
 type Section =
   | 'overview' | 'expenses' | 'budget' | 'bills' | 'goals'
   | 'credit' | 'tax' | 'learn'
-  | 'debt' | 'investments' | 'retirement' | 'savings'
+  | 'debt' | 'investments' | 'retirement' | 'savings' | 'insurance'
 
 const NAV_ITEMS: { id: Section; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { id: 'overview',     label: 'Overview',       icon: LayoutDashboard },
@@ -41,6 +42,7 @@ const NAV_ITEMS: { id: Section; label: string; icon: React.ComponentType<{ class
   { id: 'investments',  label: 'Investments',     icon: TrendingUp      },
   { id: 'retirement',   label: 'Retirement',      icon: Clock           },
   { id: 'savings',      label: 'Savings Plan',    icon: Landmark        },
+  { id: 'insurance',    label: 'Insurance',       icon: Shield          },
 ]
 
 function SectionContent({ section }: { section: Section }) {
@@ -57,6 +59,7 @@ function SectionContent({ section }: { section: Section }) {
     case 'investments': return <InvestmentTracker />
     case 'retirement':  return <RetirementPlanner />
     case 'savings':     return <SavingsPlanner />
+    case 'insurance':   return <InsuranceTracker />
   }
 }
 
