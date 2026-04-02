@@ -55,6 +55,7 @@ export function TerminalHeader({}: TerminalHeaderProps) {
                   : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
               )}
             >
+              <TrendingUp className="w-3 h-3" />
               Dashboard
             </Link>
             <Link
