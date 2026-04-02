@@ -69,7 +69,7 @@ async function fetchYahooFinanceData(symbol: string) {
     const prevClose    = q.regularMarketPreviousClose
     const openPrice    = q.regularMarketOpen
 
-    // Calculate daily change using today's open so it reflects intraday growth
+    // Calculate daily change using today's open so it reflects intraday growth.
     const safeOpen        = (openPrice != null && openPrice > 0) ? openPrice : null
     const safePrice       = (currentPrice != null && !isNaN(currentPrice)) ? currentPrice : null
     const dailyChange     = safeOpen != null && safePrice != null ? safePrice - safeOpen : 0
