@@ -6,14 +6,17 @@ function n(v: number | null | undefined, decimals = 2): number {
   return Number(v.toFixed(decimals))
 }
 
-// Compute daily change (absolute and percent) from previous close.
-// Returns { change: 0, changePercent: 0 } when either input is invalid.
-function dailyChangeFromPrevClose(price: number | null | undefined, prevClose: number | null | undefined) {
-  const safePrice = (price != null && !isNaN(price)) ? price : null
+// Compute daily change (absolute and percent) from today's open price.
+// Falls back to prevClose when open is unavailable/zero.
+// Returns { change: 0, changePercent: 0 } when neither baseline is valid.
+function dailyChangeFromOpen(price: number | null | undefined, open: number | null | undefined, prevClose?: number | null | undefined) {
+  const safePrice = (price != null && !isNaN(price) && price > 0) ? price : null
+  const safeOpen  = (open != null && open > 0) ? open : null
   const safePrev  = (prevClose != null && prevClose > 0) ? prevClose : null
-  if (safePrice == null || safePrev == null) return { change: 0, changePercent: 0 }
-  const change = safePrice - safePrev
-  return { change, changePercent: (change / safePrev) * 100 }
+  const baseline  = safeOpen ?? safePrev
+  if (safePrice == null || baseline == null) return { change: 0, changePercent: 0 }
+  const change = safePrice - baseline
+  return { change, changePercent: (change / baseline) * 100 }
 }
 
 // Normalize percent fields that may arrive as fraction (0.0123) or percent points (1.23)
@@ -101,8 +104,8 @@ async function fetchYahooFinanceData(symbol: string) {
     const prevClose    = chartPrevClose ?? q.regularMarketPreviousClose
     const openPrice    = q.regularMarketOpen
 
-    // Calculate daily change from previous close to match the market ticker logic.
-    const { change: dailyChange, changePercent: dailyChangePct } = dailyChangeFromPrevClose(currentPrice, prevClose)
+    // Calculate daily change from today's open price (falls back to prevClose when open is unavailable).
+    const { change: dailyChange, changePercent: dailyChangePct } = dailyChangeFromOpen(currentPrice, openPrice, prevClose)
 
     const marketCapRaw = q.marketCap ?? sd?.marketCap?.raw
     const marketCapStr = fmtMarketCap(marketCapRaw)
@@ -190,7 +193,8 @@ async function fetchChartData(symbol: string) {
 
     const price = meta.regularMarketPrice
     const prevClose = meta.chartPreviousClose
-    const { change: chartChange, changePercent: chartChangePct } = dailyChangeFromPrevClose(price, prevClose)
+    const openPrice = meta.regularMarketOpen
+    const { change: chartChange, changePercent: chartChangePct } = dailyChangeFromOpen(price, openPrice, prevClose)
 
     return {
       symbol: meta.symbol,

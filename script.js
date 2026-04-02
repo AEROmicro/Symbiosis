@@ -169,16 +169,17 @@ async function fetchStockData(symbol) {
       const meta = result.meta;
       const quote = result.indicators?.quote?.[0];
 
+      const openPrice = quote?.open?.[0] || meta.regularMarketOpen;
       return {
         symbol: meta.symbol,
         name: meta.shortName || meta.longName || meta.symbol,
         price: meta.regularMarketPrice,
         previousClose: meta.previousClose || meta.chartPreviousClose,
-        change: meta.regularMarketPrice - (meta.previousClose || meta.chartPreviousClose),
-        changePercent: ((meta.regularMarketPrice - (meta.previousClose || meta.chartPreviousClose)) / (meta.previousClose || meta.chartPreviousClose)) * 100,
+        change: openPrice ? meta.regularMarketPrice - openPrice : meta.regularMarketPrice - (meta.previousClose || meta.chartPreviousClose),
+        changePercent: openPrice ? ((meta.regularMarketPrice - openPrice) / openPrice) * 100 : ((meta.regularMarketPrice - (meta.previousClose || meta.chartPreviousClose)) / (meta.previousClose || meta.chartPreviousClose)) * 100,
         high: quote?.high?.[quote.high.length - 1] || meta.regularMarketDayHigh,
         low: quote?.low?.[quote.low.length - 1] || meta.regularMarketDayLow,
-        open: quote?.open?.[0] || meta.regularMarketOpen,
+        open: openPrice,
         volume: meta.regularMarketVolume,
         marketCap: meta.marketCap,
         exchange: meta.exchangeName || meta.exchange

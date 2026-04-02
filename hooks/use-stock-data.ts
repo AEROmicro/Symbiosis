@@ -14,19 +14,18 @@ const fetcher = async (url: string) => {
 
 /**
  * Overrides `change` and `changePercent` on a StockData object to use
- * `previousClose` as the baseline — the same formula used by the market
- * ticker and market-overview widgets:
+ * today's open price as the baseline:
  *
- *   change        = price − previousClose
- *   changePercent = (change / previousClose) × 100
+ *   change        = price − open
+ *   changePercent = (change / open) × 100
  *
- * Using `previousClose` (rather than today's open) guarantees that all
- * widgets show the same daily-change figures regardless of whether the
- * market has opened yet or the API temporarily returns open = 0.
+ * Falls back to `previousClose` when open is unavailable (e.g. pre-market).
  */
 function applyDayChange(data: StockData): StockData {
-  const baseline = data.previousClose
-  if (baseline <= 0 || data.price <= 0) return data
+  const openBaseline     = data.open > 0 ? data.open : null
+  const fallbackBaseline = data.previousClose > 0 ? data.previousClose : null
+  const baseline         = openBaseline ?? fallbackBaseline
+  if (baseline == null || data.price <= 0) return data
 
   const change = data.price - baseline
   const changePercent = (change / baseline) * 100
@@ -86,7 +85,7 @@ export function useStockData(symbol: string | null, openInterval = 60_000) {
     }
   )
 
-  // Apply previousClose-based calculation so change/changePercent match the market ticker.
+  // Apply open-based calculation so change/changePercent reflect intraday move from today's open.
   const stock = useMemo(() => (data ? applyDayChange(data) : undefined), [data])
 
   return {

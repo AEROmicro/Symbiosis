@@ -42,8 +42,8 @@ async function fetchMarketData(name: string, symbol: string) {
 
     const meta = result.meta
     const price = meta.regularMarketPrice ?? meta.previousClose
-    const previousClose = meta.previousClose ?? meta.chartPreviousClose
-    const change = ((price - previousClose) / previousClose) * 100
+    const open = meta.regularMarketOpen ?? meta.previousClose ?? meta.chartPreviousClose
+    const change = open > 0 ? ((price - open) / open) * 100 : 0
 
     return {
       symbol: name,
