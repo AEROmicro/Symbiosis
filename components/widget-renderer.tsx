@@ -95,6 +95,16 @@ import { PatternScannerWidget }    from '@/components/widgets/pattern-scanner-wi
 import { PortfolioStressTestWidget } from '@/components/widgets/portfolio-stress-test-widget'
 import { MiniChartWidget }          from '@/components/widgets/mini-chart-widget'
 import { PerformanceOverviewWidget } from '@/components/widgets/performance-overview-widget'
+import { CryptoPortfolioWidget }     from '@/components/widgets/crypto-portfolio-widget'
+import { CryptoConverterWidget }     from '@/components/widgets/crypto-converter-widget'
+import { DebtPayoffWidget }          from '@/components/widgets/debt-payoff-widget'
+import { CompoundInterestWidget }    from '@/components/widgets/compound-interest-widget'
+import { OptionsProfitWidget }       from '@/components/widgets/options-profit-widget'
+import { DripCalculatorWidget }      from '@/components/widgets/drip-calculator-widget'
+import { EarningsCountdownWidget }   from '@/components/widgets/earnings-countdown-widget'
+import { MarketRegimeWidget }        from '@/components/widgets/market-regime-widget'
+import { SectorPerformanceWidget }   from '@/components/widgets/sector-performance-widget'
+import { CryptoGasWidget }           from '@/components/widgets/crypto-gas-widget'
 
 // ── Props passed from the main app to stateful widgets ─────────────────────
 export interface WidgetAppProps {
@@ -662,6 +672,28 @@ export function WidgetRenderer({ config, appProps }: WidgetRendererProps) {
       return <WidgetFrame title={title} iconName={iconName}><MiniChartWidget symbol={selectedStock ?? 'AAPL'} /></WidgetFrame>
     case 'performance-overview':
       return <WidgetFrame title={title} iconName={iconName}><PerformanceOverviewWidget symbol={selectedStock ?? 'AAPL'} /></WidgetFrame>
+
+    // ── New v6 widgets ───────────────────────────────────────────────────────
+    case 'crypto-portfolio':
+      return <WidgetFrame title={title} iconName={iconName}><CryptoPortfolioWidget /></WidgetFrame>
+    case 'crypto-converter':
+      return <WidgetFrame title={title} iconName={iconName}><CryptoConverterWidget /></WidgetFrame>
+    case 'debt-payoff':
+      return <WidgetFrame title={title} iconName={iconName}><DebtPayoffWidget /></WidgetFrame>
+    case 'compound-interest':
+      return <WidgetFrame title={title} iconName={iconName}><CompoundInterestWidget /></WidgetFrame>
+    case 'options-profit':
+      return <WidgetFrame title={title} iconName={iconName}><OptionsProfitWidget /></WidgetFrame>
+    case 'drip-calculator':
+      return <WidgetFrame title={title} iconName={iconName}><DripCalculatorWidget /></WidgetFrame>
+    case 'earnings-countdown':
+      return <WidgetFrame title={title} iconName={iconName}><EarningsCountdownWidget /></WidgetFrame>
+    case 'market-regime':
+      return <WidgetFrame title={title} iconName={iconName}><MarketRegimeWidget /></WidgetFrame>
+    case 'sector-performance':
+      return <WidgetFrame title={title} iconName={iconName}><SectorPerformanceWidget /></WidgetFrame>
+    case 'crypto-gas':
+      return <WidgetFrame title={title} iconName={iconName}><CryptoGasWidget /></WidgetFrame>
 
     default:
       return (

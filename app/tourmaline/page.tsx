@@ -2,47 +2,69 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Gem, LayoutDashboard, Receipt, PiggyBank, FileText, Target, CreditCard, Calculator, BookOpen, ArrowLeft, Menu, X } from 'lucide-react'
+import {
+  Gem, LayoutDashboard, Receipt, PiggyBank, FileText, Target,
+  CreditCard, Calculator, BookOpen, ArrowLeft, Menu, X,
+  TrendingUp, Wallet, Landmark, Clock,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { Overview } from '@/components/tourmaline/overview'
-import { ExpenseTracker } from '@/components/tourmaline/expense-tracker'
-import { BudgetPlanner } from '@/components/tourmaline/budget-planner'
-import { BillsTracker } from '@/components/tourmaline/bills-tracker'
-import { GoalsTracker } from '@/components/tourmaline/goals-tracker'
-import { CreditScore } from '@/components/tourmaline/credit-score'
-import { TaxEstimator } from '@/components/tourmaline/tax-estimator'
-import { LearnHub } from '@/components/tourmaline/learn-hub'
+import { useThemeSync } from '@/hooks/use-theme-sync'
+import { Overview }            from '@/components/tourmaline/overview'
+import { ExpenseTracker }      from '@/components/tourmaline/expense-tracker'
+import { BudgetPlanner }       from '@/components/tourmaline/budget-planner'
+import { BillsTracker }        from '@/components/tourmaline/bills-tracker'
+import { GoalsTracker }        from '@/components/tourmaline/goals-tracker'
+import { CreditScore }         from '@/components/tourmaline/credit-score'
+import { TaxEstimator }        from '@/components/tourmaline/tax-estimator'
+import { LearnHub }            from '@/components/tourmaline/learn-hub'
+import { DebtManager }         from '@/components/tourmaline/debt-manager'
+import { InvestmentTracker }   from '@/components/tourmaline/investment-tracker'
+import { RetirementPlanner }   from '@/components/tourmaline/retirement-planner'
+import { SavingsPlanner }      from '@/components/tourmaline/savings-planner'
 
-type Section = 'overview' | 'expenses' | 'budget' | 'bills' | 'goals' | 'credit' | 'tax' | 'learn'
+type Section =
+  | 'overview' | 'expenses' | 'budget' | 'bills' | 'goals'
+  | 'credit' | 'tax' | 'learn'
+  | 'debt' | 'investments' | 'retirement' | 'savings'
 
 const NAV_ITEMS: { id: Section; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-  { id: 'overview',  label: 'Overview',      icon: LayoutDashboard },
-  { id: 'expenses',  label: 'Expenses',       icon: Receipt },
-  { id: 'budget',    label: 'Budget',         icon: PiggyBank },
-  { id: 'bills',     label: 'Bills',          icon: FileText },
-  { id: 'goals',     label: 'Goals',          icon: Target },
-  { id: 'credit',    label: 'Credit Score',   icon: CreditCard },
-  { id: 'tax',       label: 'Tax Estimator',  icon: Calculator },
-  { id: 'learn',     label: 'Learn',          icon: BookOpen },
+  { id: 'overview',     label: 'Overview',       icon: LayoutDashboard },
+  { id: 'expenses',     label: 'Expenses',        icon: Receipt         },
+  { id: 'budget',       label: 'Budget',          icon: PiggyBank       },
+  { id: 'bills',        label: 'Bills',           icon: FileText        },
+  { id: 'goals',        label: 'Goals',           icon: Target          },
+  { id: 'credit',       label: 'Credit Score',    icon: CreditCard      },
+  { id: 'tax',          label: 'Tax Estimator',   icon: Calculator      },
+  { id: 'learn',        label: 'Learn',           icon: BookOpen        },
+  { id: 'debt',         label: 'Debt Manager',    icon: Wallet          },
+  { id: 'investments',  label: 'Investments',     icon: TrendingUp      },
+  { id: 'retirement',   label: 'Retirement',      icon: Clock           },
+  { id: 'savings',      label: 'Savings Plan',    icon: Landmark        },
 ]
 
 function SectionContent({ section }: { section: Section }) {
   switch (section) {
-    case 'overview':  return <Overview />
-    case 'expenses':  return <ExpenseTracker />
-    case 'budget':    return <BudgetPlanner />
-    case 'bills':     return <BillsTracker />
-    case 'goals':     return <GoalsTracker />
-    case 'credit':    return <CreditScore />
-    case 'tax':       return <TaxEstimator />
-    case 'learn':     return <LearnHub />
+    case 'overview':    return <Overview />
+    case 'expenses':    return <ExpenseTracker />
+    case 'budget':      return <BudgetPlanner />
+    case 'bills':       return <BillsTracker />
+    case 'goals':       return <GoalsTracker />
+    case 'credit':      return <CreditScore />
+    case 'tax':         return <TaxEstimator />
+    case 'learn':       return <LearnHub />
+    case 'debt':        return <DebtManager />
+    case 'investments': return <InvestmentTracker />
+    case 'retirement':  return <RetirementPlanner />
+    case 'savings':     return <SavingsPlanner />
   }
 }
 
 export default function TourmalinePage() {
   const [active, setActive] = useState<Section>('overview')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  useThemeSync()
 
   return (
     <div className="min-h-screen bg-background text-foreground font-mono flex flex-col">
