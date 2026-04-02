@@ -1,12 +1,13 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import Link from 'next/link'
 import GridLayout, { type Layout, type LayoutItem, useContainerWidth } from 'react-grid-layout'
 import {
   Terminal, LayoutGrid, TrendingUp, Zap, Server, Newspaper,
   Briefcase, Clock, Globe, Activity, Map, Bitcoin, DollarSign,
   CalendarDays, HelpCircle, X, Plus, Search, RotateCcw, Save,
-  LayoutDashboard, Landmark, Gem, Target, Coins,
+  LayoutDashboard, Landmark, Gem, Target, Coins, ArrowLeft,
 } from 'lucide-react'
 import {
   Dialog,
@@ -116,6 +117,7 @@ interface BlueprintEditorProps {
   onClose: () => void
   layout: WidgetConfig[]
   onLayoutChange: (layout: WidgetConfig[]) => void
+  pageMode?: boolean
   pages?: Array<{ id: string; name: string; layout: WidgetConfig[] }>
   currentPageId?: string
   onPageChange?: (id: string) => void
@@ -124,7 +126,7 @@ interface BlueprintEditorProps {
   onRenamePage?: (id: string, name: string) => void
 }
 
-export function BlueprintEditor({ open, onClose, layout, onLayoutChange, pages, currentPageId, onPageChange, onCreatePage, onDeletePage, onRenamePage }: BlueprintEditorProps) {
+export function BlueprintEditor({ open, onClose, layout, onLayoutChange, pageMode, pages, currentPageId, onPageChange, onCreatePage, onDeletePage, onRenamePage }: BlueprintEditorProps) {
   const [draft, setDraft] = useState<WidgetConfig[]>(layout)
   const [search, setSearch] = useState('')
 
@@ -189,6 +191,260 @@ export function BlueprintEditor({ open, onClose, layout, onLayoutChange, pages, 
 
   const rglLayout = configsToLayout(draft)
 
+  // ── Shared inner sections ────────────────────────────────────────────────────
+  const pagesBar = pages && pages.length > 0 && (
+    <div className="flex items-center gap-1 px-4 py-2 border-b border-border bg-card/50 shrink-0 overflow-x-auto">
+      <span className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider mr-2 shrink-0">Pages:</span>
+      {pages.map(page => (
+        <div key={page.id} className="flex items-center shrink-0">
+          <button
+            onClick={() => onPageChange?.(page.id)}
+            className={cn(
+              'px-2 py-1 text-[11px] font-mono border transition-colors',
+              pages.length > 1 ? 'rounded-l' : 'rounded',
+              page.id === currentPageId
+                ? 'bg-primary border-primary text-primary-foreground'
+                : 'border-border text-muted-foreground hover:text-foreground hover:bg-primary/10'
+            )}
+          >
+            {page.name}
+          </button>
+          {pages.length > 1 && (
+            <button
+              onClick={() => onDeletePage?.(page.id)}
+              className="px-1 py-1 text-[11px] font-mono border border-l-0 rounded-r hover:bg-destructive/20 hover:text-destructive transition-colors border-border"
+            >
+              <X className="w-2.5 h-2.5" />
+            </button>
+          )}
+        </div>
+      ))}
+      <button
+        onClick={() => {
+          const name = prompt('New page name:')
+          if (name?.trim()) onCreatePage?.(name.trim())
+        }}
+        className="px-2 py-1 text-[11px] font-mono border border-dashed border-border rounded text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors ml-1 shrink-0"
+      >
+        <Plus className="w-2.5 h-2.5" />
+      </button>
+    </div>
+  )
+
+  const body = (
+    <div className="flex flex-1 min-h-0">
+      {/* ── Grid area ────────────────────────────────────────────────── */}
+      <div className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden bg-background/50">
+        <div
+          ref={containerRef}
+          className="relative w-full p-3"             
+          style={{
+            backgroundImage: `
+              linear-gradient(var(--border) 1px, transparent 1px),
+              linear-gradient(90deg, var(--border) 1px, transparent 1px)
+            `,
+            backgroundSize: '40px 40px',
+          }}
+        >
+          <GridLayout
+            width={containerWidth}
+            layout={rglLayout}
+            gridConfig={{
+              cols: 12,
+              rowHeight: 40,
+              margin: [4, 4],
+              containerPadding: [0, 0],
+            }}
+            dragConfig={{ enabled: true }}
+            // Resizing disabled — widgets use exact fixed heights to eliminate internal scrolling
+            resizeConfig={{ enabled: false }}
+            onLayoutChange={handleLayoutChange}
+            className="min-h-0"
+          >
+            {draft.map(config => {
+              const meta  = WIDGET_CATALOG.find(m => m.type === config.type)
+              const Icon  = ICON_MAP[meta?.iconName ?? 'Terminal'] ?? Terminal
+              const color = meta?.color ?? 'bg-primary/20'
+
+              return (
+                <div
+                  key={config.id}
+                  className={cn(
+                    'rounded border border-border/60 flex flex-col overflow-hidden select-none',
+                    color,
+                  )}
+                >
+                  {config.type === 'spacer-sm' || config.type === 'spacer-md' || config.type === 'spacer-lg' ? (
+                    /* Spacer: minimal dashed bar with delete */
+                    <div className="flex items-center justify-between px-2 h-full bg-muted/20 border-dashed cursor-move">
+                      <span className="text-[10px] text-muted-foreground font-mono opacity-60">{meta?.name}</span>
+                      <button
+                        className="w-4 h-4 rounded flex items-center justify-center hover:bg-destructive/20 hover:text-destructive transition-colors shrink-0"
+                        onClick={(e) => { e.stopPropagation(); handleDelete(config.id) }}
+                        title="Remove widget"
+                      >
+                        <X className="w-2.5 h-2.5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Title bar */}
+                      <div className="flex items-center justify-between px-2 py-1.5 bg-black/10 border-b border-border/40 cursor-move shrink-0">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <Icon className="w-3 h-3 text-foreground/70 shrink-0" />
+                          <span className="text-xs font-semibold text-foreground/80 truncate">
+                            {meta?.name ?? config.type}
+                          </span>
+                        </div>
+                        <button
+                          className="w-5 h-5 rounded flex items-center justify-center hover:bg-destructive/20 hover:text-destructive transition-colors shrink-0 ml-1"
+                          onClick={(e) => { e.stopPropagation(); handleDelete(config.id) }}
+                          title="Remove widget"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+
+                      {/* Body placeholder */}
+                      <div className="flex-1 flex items-center justify-center p-2 min-h-0">
+                        <div className="text-center opacity-50 pointer-events-none">
+                          <Icon className="w-6 h-6 mx-auto mb-1 text-foreground/50" />
+                          <div className="text-[10px] text-foreground/50 font-mono">{meta?.name}</div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )
+            })}
+          </GridLayout>
+        </div>
+      </div>
+
+      {/* ── Right sidebar ─────────────────────────────────────────────── */}
+      <div className="w-96 shrink-0 border-l border-border flex flex-col overflow-hidden">
+        <div className="px-3 py-2 border-b border-border shrink-0">
+          <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Add Widgets</div>
+          <div className="relative">
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground pointer-events-none" />
+            <Input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search widgets…"
+              className="h-7 text-xs font-mono pl-6"
+            />
+          </div>
+        </div>
+        
+        <div className="flex-1 min-h-0 overflow-y-auto px-2 py-1 space-y-0.5">
+          {recommended.length > 0 && (
+            <>
+              <CategoryLabel label="Recommended" />
+              {recommended.map(m => (
+                <CatalogItem key={m.type} meta={m} alreadyAdded={typesInDraft.has(m.type)} onAdd={() => handleAdd(m)} />
+              ))}
+            </>
+          )}
+          {market.length > 0 && (
+            <>
+              <CategoryLabel label="Market" />
+              {market.map(m => (
+                <CatalogItem key={m.type} meta={m} alreadyAdded={typesInDraft.has(m.type)} onAdd={() => handleAdd(m)} />
+              ))}
+            </>
+          )}
+          {tools.length > 0 && (
+            <>
+              <CategoryLabel label="Tools" />
+              {tools.map(m => (
+                <CatalogItem key={m.type} meta={m} alreadyAdded={typesInDraft.has(m.type)} onAdd={() => handleAdd(m)} />
+              ))}
+            </>
+          )}
+          {info.length > 0 && (
+            <>
+              <CategoryLabel label="Info" />
+              {info.map(m => (
+                <CatalogItem key={m.type} meta={m} alreadyAdded={typesInDraft.has(m.type)} onAdd={() => handleAdd(m)} />
+              ))}
+            </>
+          )}
+          {layoutWidgets.length > 0 && (
+            <>
+              <CategoryLabel label="Layout" />
+              {layoutWidgets.map(m => (
+                <CatalogItem key={m.type} meta={m} alreadyAdded={false} onAdd={() => handleAdd(m)} />
+              ))}
+            </>
+          )}
+          {filteredCatalog.length === 0 && (
+            <p className="text-xs text-muted-foreground text-center py-6">No widgets match &ldquo;{search}&rdquo;</p>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+
+  const footer = (
+    <div className="flex items-center justify-between px-4 py-3 border-t border-border shrink-0 bg-card">
+      <Button
+        variant="outline"
+        size="sm"
+        className="text-xs font-mono gap-1.5"
+        onClick={handleReset}
+      >
+        <RotateCcw className="w-3 h-3" />
+        Reset to Default
+      </Button>
+      <div className="flex gap-2">
+        <Button variant="ghost" size="sm" className="text-xs font-mono" onClick={onClose}>
+          Cancel
+        </Button>
+        <Button size="sm" className="text-xs font-mono gap-1.5" onClick={handleSave}>
+          <Save className="w-3 h-3" />
+          Save Layout
+        </Button>
+      </div>
+    </div>
+  )
+
+  // ── Page mode — full standalone page like Tourmaline ─────────────────────────
+  if (pageMode) {
+    return (
+      <div className="h-screen flex flex-col font-mono bg-background text-foreground overflow-hidden">
+        {/* Header */}
+        <header className="border-b border-border bg-card/50 backdrop-blur-sm shrink-0">
+          <div className="flex items-center gap-3 px-4 py-3">
+            <Link
+              href="/"
+              className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors text-sm"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Back</span>
+            </Link>
+            <div className="w-px h-5 bg-border" />
+            <div className="flex items-center gap-2">
+              <LayoutDashboard className="w-4 h-4 text-primary" />
+              <span className="font-bold text-base tracking-tight text-foreground">Azurite</span>
+              <span className="hidden sm:inline text-xs text-muted-foreground px-2 py-0.5 bg-primary/10 border border-primary/20 rounded">
+                Blueprint Editor
+              </span>
+              <span className="hidden md:inline text-xs text-muted-foreground ml-1">
+                — drag to reposition · X to remove
+              </span>
+            </div>
+          </div>
+          <div className="h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+        </header>
+
+        {pagesBar}
+        {body}
+        {footer}
+      </div>
+    )
+  }
+
+  // ── Dialog mode (default) ────────────────────────────────────────────────────
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
       <DialogContent className="!top-0 !left-0 !translate-x-0 !translate-y-0 !max-w-none !rounded-none w-screen h-screen flex flex-col font-mono p-0 gap-0 overflow-hidden">
@@ -205,220 +461,9 @@ export function BlueprintEditor({ open, onClose, layout, onLayoutChange, pages, 
           </DialogTitle>
         </DialogHeader>
 
-        {/* Pages bar */}
-        {pages && pages.length > 0 && (
-          <div className="flex items-center gap-1 px-4 py-2 border-b border-border bg-card/50 shrink-0 overflow-x-auto">
-            <span className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider mr-2 shrink-0">Pages:</span>
-            {pages.map(page => (
-              <div key={page.id} className="flex items-center shrink-0">
-                <button
-                  onClick={() => onPageChange?.(page.id)}
-                  className={cn(
-                    'px-2 py-1 text-[11px] font-mono border transition-colors',
-                    pages.length > 1 ? 'rounded-l' : 'rounded',
-                    page.id === currentPageId
-                      ? 'bg-primary border-primary text-primary-foreground'
-                      : 'border-border text-muted-foreground hover:text-foreground hover:bg-primary/10'
-                  )}
-                >
-                  {page.name}
-                </button>
-                {pages.length > 1 && (
-                  <button
-                    onClick={() => onDeletePage?.(page.id)}
-                    className="px-1 py-1 text-[11px] font-mono border border-l-0 rounded-r hover:bg-destructive/20 hover:text-destructive transition-colors border-border"
-                  >
-                    <X className="w-2.5 h-2.5" />
-                  </button>
-                )}
-              </div>
-            ))}
-            <button
-              onClick={() => {
-                const name = prompt('New page name:')
-                if (name?.trim()) onCreatePage?.(name.trim())
-              }}
-              className="px-2 py-1 text-[11px] font-mono border border-dashed border-border rounded text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors ml-1 shrink-0"
-            >
-              <Plus className="w-2.5 h-2.5" />
-            </button>
-          </div>
-        )}
-
-        {/* Body */}
-        <div className="flex flex-1 min-h-0">
-          {/* ── Grid area ────────────────────────────────────────────────── */}
-          <div className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden bg-background/50">
-            <div
-              ref={containerRef}
-              className="relative w-full p-3"             
-              style={{
-                backgroundImage: `
-                  linear-gradient(var(--border) 1px, transparent 1px),
-                  linear-gradient(90deg, var(--border) 1px, transparent 1px)
-                `,
-                backgroundSize: '40px 40px',
-              }}
-            >
-              <GridLayout
-                width={containerWidth}
-                layout={rglLayout}
-                gridConfig={{
-                  cols: 12,
-                  rowHeight: 40,
-                  margin: [4, 4],
-                  containerPadding: [0, 0],
-                }}
-                dragConfig={{ enabled: true }}
-                // Resizing disabled — widgets use exact fixed heights to eliminate internal scrolling
-                resizeConfig={{ enabled: false }}
-                onLayoutChange={handleLayoutChange}
-                className="min-h-0"
-              >
-                {draft.map(config => {
-                  const meta  = WIDGET_CATALOG.find(m => m.type === config.type)
-                  const Icon  = ICON_MAP[meta?.iconName ?? 'Terminal'] ?? Terminal
-                  const color = meta?.color ?? 'bg-primary/20'
-
-                  return (
-                    <div
-                      key={config.id}
-                      className={cn(
-                        'rounded border border-border/60 flex flex-col overflow-hidden select-none',
-                        color,
-                      )}
-                    >
-                      {config.type === 'spacer-sm' || config.type === 'spacer-md' || config.type === 'spacer-lg' ? (
-                        /* Spacer: minimal dashed bar with delete */
-                        <div className="flex items-center justify-between px-2 h-full bg-muted/20 border-dashed cursor-move">
-                          <span className="text-[10px] text-muted-foreground font-mono opacity-60">{meta?.name}</span>
-                          <button
-                            className="w-4 h-4 rounded flex items-center justify-center hover:bg-destructive/20 hover:text-destructive transition-colors shrink-0"
-                            onClick={(e) => { e.stopPropagation(); handleDelete(config.id) }}
-                            title="Remove widget"
-                          >
-                            <X className="w-2.5 h-2.5" />
-                          </button>
-                        </div>
-                      ) : (
-                        <>
-                          {/* Title bar */}
-                          <div className="flex items-center justify-between px-2 py-1.5 bg-black/10 border-b border-border/40 cursor-move shrink-0">
-                            <div className="flex items-center gap-1.5 min-w-0">
-                              <Icon className="w-3 h-3 text-foreground/70 shrink-0" />
-                              <span className="text-xs font-semibold text-foreground/80 truncate">
-                                {meta?.name ?? config.type}
-                              </span>
-                            </div>
-                            <button
-                              className="w-5 h-5 rounded flex items-center justify-center hover:bg-destructive/20 hover:text-destructive transition-colors shrink-0 ml-1"
-                              onClick={(e) => { e.stopPropagation(); handleDelete(config.id) }}
-                              title="Remove widget"
-                            >
-                              <X className="w-3 h-3" />
-                            </button>
-                          </div>
-
-                          {/* Body placeholder */}
-                          <div className="flex-1 flex items-center justify-center p-2 min-h-0">
-                            <div className="text-center opacity-50 pointer-events-none">
-                              <Icon className="w-6 h-6 mx-auto mb-1 text-foreground/50" />
-                              <div className="text-[10px] text-foreground/50 font-mono">{meta?.name}</div>
-                            </div>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  )
-                })}
-              </GridLayout>
-            </div>
-          </div>
-
-          {/* ── Right sidebar ─────────────────────────────────────────────── */}
-          <div className="w-96 shrink-0 border-l border-border flex flex-col overflow-hidden">
-            <div className="px-3 py-2 border-b border-border shrink-0">
-              <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Add Widgets</div>
-              <div className="relative">
-                <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground pointer-events-none" />
-                <Input
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  placeholder="Search widgets…"
-                  className="h-7 text-xs font-mono pl-6"
-                />
-              </div>
-            </div>
-            
-            <div className="flex-1 min-h-0 overflow-y-auto px-2 py-1 space-y-0.5">
-              {recommended.length > 0 && (
-                <>
-                  <CategoryLabel label="Recommended" />
-                  {recommended.map(m => (
-                    <CatalogItem key={m.type} meta={m} alreadyAdded={typesInDraft.has(m.type)} onAdd={() => handleAdd(m)} />
-                  ))}
-                </>
-              )}
-              {market.length > 0 && (
-                <>
-                  <CategoryLabel label="Market" />
-                  {market.map(m => (
-                    <CatalogItem key={m.type} meta={m} alreadyAdded={typesInDraft.has(m.type)} onAdd={() => handleAdd(m)} />
-                  ))}
-                </>
-              )}
-              {tools.length > 0 && (
-                <>
-                  <CategoryLabel label="Tools" />
-                  {tools.map(m => (
-                    <CatalogItem key={m.type} meta={m} alreadyAdded={typesInDraft.has(m.type)} onAdd={() => handleAdd(m)} />
-                  ))}
-                </>
-              )}
-              {info.length > 0 && (
-                <>
-                  <CategoryLabel label="Info" />
-                  {info.map(m => (
-                    <CatalogItem key={m.type} meta={m} alreadyAdded={typesInDraft.has(m.type)} onAdd={() => handleAdd(m)} />
-                  ))}
-                </>
-              )}
-              {layoutWidgets.length > 0 && (
-                <>
-                  <CategoryLabel label="Layout" />
-                  {layoutWidgets.map(m => (
-                    <CatalogItem key={m.type} meta={m} alreadyAdded={false} onAdd={() => handleAdd(m)} />
-                  ))}
-                </>
-              )}
-              {filteredCatalog.length === 0 && (
-                <p className="text-xs text-muted-foreground text-center py-6">No widgets match &ldquo;{search}&rdquo;</p>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* ── Footer actions ─────────────────────────────────────────────── */}
-        <div className="flex items-center justify-between px-4 py-3 border-t border-border shrink-0 bg-card">
-          <Button
-            variant="outline"
-            size="sm"
-            className="text-xs font-mono gap-1.5"
-            onClick={handleReset}
-          >
-            <RotateCcw className="w-3 h-3" />
-            Reset to Default
-          </Button>
-          <div className="flex gap-2">
-            <Button variant="ghost" size="sm" className="text-xs font-mono" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button size="sm" className="text-xs font-mono gap-1.5" onClick={handleSave}>
-              <Save className="w-3 h-3" />
-              Save Layout
-            </Button>
-          </div>
-        </div>
+        {pagesBar}
+        {body}
+        {footer}
       </DialogContent>
     </Dialog>
   )

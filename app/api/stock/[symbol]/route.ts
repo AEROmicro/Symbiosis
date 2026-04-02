@@ -62,11 +62,31 @@ async function fetchV10Summary(symbol: string) {
   return result
 }
 
+// Fetch just the chartPreviousClose from the v8 chart API.
+// This value is more reliable than v7's regularMarketPreviousClose, which
+// can sometimes equal regularMarketOpen due to a Yahoo Finance data quirk.
+async function fetchChartMeta(symbol: string): Promise<number | null> {
+  try {
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=2d`
+    const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, next: { revalidate: 60 } })
+    if (!res.ok) return null
+    const data = await res.json()
+    const meta = data.chart?.result?.[0]?.meta
+    if (!meta) return null
+    const prev = meta.chartPreviousClose ?? meta.previousClose
+    return typeof prev === 'number' && prev > 0 ? prev : null
+  } catch {
+    return null
+  }
+}
+
 async function fetchYahooFinanceData(symbol: string) {
   try {
-    const [v7, v10] = await Promise.allSettled([fetchV7Quote(symbol), fetchV10Summary(symbol)])
+    const [v7, v10, v8] = await Promise.allSettled([fetchV7Quote(symbol), fetchV10Summary(symbol), fetchChartMeta(symbol)])
     const q = v7.status === 'fulfilled' ? v7.value : null
     const s = v10.status === 'fulfilled' ? v10.value : null
+    // chartPrevClose from v8 is the authoritative previous-session close price.
+    const chartPrevClose = v8.status === 'fulfilled' ? v8.value : null
 
     if (!q) return fetchChartData(symbol)
 
@@ -76,7 +96,9 @@ async function fetchYahooFinanceData(symbol: string) {
     const cal = s?.calendarEvents
 
     const currentPrice = q.regularMarketPrice
-    const prevClose    = q.regularMarketPreviousClose
+    // Prefer chartPreviousClose from v8 — v7's regularMarketPreviousClose can
+    // return an incorrect value that matches regularMarketOpen (Yahoo data quirk).
+    const prevClose    = chartPrevClose ?? q.regularMarketPreviousClose
     const openPrice    = q.regularMarketOpen
 
     // Calculate daily change from previous close to match the market ticker logic.
