@@ -166,8 +166,12 @@ async function fetchYahooFinanceData(symbol: string) {
       preMarketChange:         q.preMarketChange         != null ? n(q.preMarketChange) : null,
       preMarketChangePercent:  q.preMarketChangePercent  != null ? n(normalizePct(q.preMarketChangePercent) ?? 0) : null,
       postMarketPrice:         q.postMarketPrice         != null ? n(q.postMarketPrice) : null,
-      postMarketChange:        q.postMarketChange        != null ? n(q.postMarketChange) : null,
-      postMarketChangePercent: q.postMarketChangePercent != null ? n(normalizePct(q.postMarketChangePercent) ?? 0) : null,
+      // Yahoo's postMarketChange is relative to today's regular session close, not to
+      // previousClose. Recalculate here so after-hours change values use the same
+      // previousClose baseline as every other change figure in the system, preventing
+      // the jarring sign/magnitude flip users see when the market transitions to POST.
+      postMarketChange:        q.postMarketPrice != null && prevClose > 0 ? n(q.postMarketPrice - prevClose) : null,
+      postMarketChangePercent: q.postMarketPrice != null && prevClose > 0 ? n(((q.postMarketPrice - prevClose) / prevClose) * 100) : null,
       lastUpdated: new Date(),
     }
   } catch {
