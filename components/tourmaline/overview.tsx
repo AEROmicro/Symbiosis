@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { TrendingUp, TrendingDown, Wallet, Target, FileText, PiggyBank, DollarSign, BarChart2 } from 'lucide-react'
+import { TrendingUp, TrendingDown, Wallet, Target, FileText, PiggyBank, DollarSign, BarChart2, Banknote, PieChart } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -39,6 +39,28 @@ interface Goal {
   target: number
 }
 
+interface Investment {
+  id: string
+  currentValue: number
+  purchasePrice: number
+  shares: number
+}
+
+interface Debt {
+  id: string
+  name: string
+  balance: number
+  interestRate: number
+  type: string
+}
+
+interface SavingsGoal {
+  id: string
+  name: string
+  current: number
+  target: number
+}
+
 const EMPTY_NW: NetWorthData = {
   savings: 0, investments: 0, property: 0, otherAssets: 0,
   creditCards: 0, loans: 0, mortgage: 0, otherLiabilities: 0,
@@ -70,6 +92,9 @@ export function Overview() {
   const [bills, setBills] = useState<Bill[]>([])
   const [goals, setGoals] = useState<Goal[]>([])
   const [budgets, setBudgets] = useState<Record<string, number>>({})
+  const [investments, setInvestments] = useState<Investment[]>([])
+  const [debts, setDebts] = useState<Debt[]>([])
+  const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>([])
 
   useEffect(() => {
     try {
@@ -88,6 +113,12 @@ export function Overview() {
         const currentKey = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`
         setBudgets(allBudgets[currentKey] || {})
       }
+      const invSaved = localStorage.getItem('tourmaline-investments')
+      if (invSaved) setInvestments(JSON.parse(invSaved))
+      const debtsSaved = localStorage.getItem('tourmaline-debts')
+      if (debtsSaved) setDebts(JSON.parse(debtsSaved))
+      const savingsSaved = localStorage.getItem('tourmaline-savings-goals-v2')
+      if (savingsSaved) setSavingsGoals(JSON.parse(savingsSaved))
     } catch {}
   }, [])
 
