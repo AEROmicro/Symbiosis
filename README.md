@@ -1,6 +1,6 @@
 <div align="center">
 
-![Symbiosis Header](./logo.png)
+![Symbiosis Header](./header.png)
 
 ## **Redefine the Limits**
 
