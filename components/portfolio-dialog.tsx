@@ -32,7 +32,7 @@ export function PortfolioDialog() {
     if (open) {
       fetchPortfolio()
     }
-  }, [open, portfolio]) // re-fetch whenever portfolio data changes
+  }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchPortfolio = async () => {
     setLoading(true)

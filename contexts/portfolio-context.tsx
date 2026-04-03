@@ -59,7 +59,10 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     setInitialized(true)
   }, [])
 
-  // When user logs in, merge cloud portfolio with local
+  // When user logs in, merge cloud portfolio with local.
+  // `setPortfolioState` is stable (from useState) and `saveToCloud` is a module-level
+  // function, so the only meaningful reactive deps are `user` and `initialized`.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!initialized || !user) return
 

@@ -17,13 +17,8 @@ import { cn } from '@/lib/utils'
 import { usePortfolio } from '@/contexts/portfolio-context'
 import type { PortfolioEntry } from '@/lib/stock-types'
 
-const ALPACA_KEYS_STORAGE = 'symbiosis-alpaca-keys'
-
-interface AlpacaKeys {
-  apiKey: string
-  apiSecret: string
-  environment: 'paper' | 'live'
-}
+// Only the chosen environment preference (paper/live) is persisted — never credentials.
+const ALPACA_ENV_STORAGE = 'symbiosis-alpaca-env'
 
 interface AlpacaConnectProps {
   open: boolean
@@ -42,17 +37,15 @@ export function AlpacaConnect({ open, onOpenChange }: AlpacaConnectProps) {
   const [imported, setImported] = useState<Array<PortfolioEntry & { source: string }> | null>(null)
   const [addedCount, setAddedCount] = useState<number | null>(null)
 
-  // Load saved keys on open
+  // Reset form and restore non-sensitive preference on open
   useEffect(() => {
     if (!open) return
+    setApiKey('')
+    setApiSecret('')
     try {
-      const saved = localStorage.getItem(ALPACA_KEYS_STORAGE)
-      if (saved) {
-        const parsed: AlpacaKeys = JSON.parse(saved)
-        setApiKey(parsed.apiKey ?? '')
-        setApiSecret(parsed.apiSecret ?? '')
-        setIsLive(parsed.environment === 'live')
-      }
+      const savedEnv = localStorage.getItem(ALPACA_ENV_STORAGE)
+      if (savedEnv === 'live') setIsLive(true)
+      else setIsLive(false)
     } catch { /* ignore */ }
     setError(null)
     setImported(null)
@@ -67,9 +60,8 @@ export function AlpacaConnect({ open, onOpenChange }: AlpacaConnectProps) {
     setLoading(true)
 
     try {
-      // Persist keys locally for convenience (user explicitly entered them)
-      const keysToSave: AlpacaKeys = { apiKey, apiSecret, environment: isLive ? 'live' : 'paper' }
-      try { localStorage.setItem(ALPACA_KEYS_STORAGE, JSON.stringify(keysToSave)) } catch { /* ignore */ }
+      // Only persist the non-sensitive environment preference
+      try { localStorage.setItem(ALPACA_ENV_STORAGE, isLive ? 'live' : 'paper') } catch { /* ignore */ }
 
       const res = await fetch('/api/brokerage/alpaca', {
         method: 'POST',
@@ -247,8 +239,8 @@ export function AlpacaConnect({ open, onOpenChange }: AlpacaConnectProps) {
           )}
 
           <p className="text-[10px] text-muted-foreground">
-            Your API keys are stored locally in your browser and are only sent directly to Alpaca
-            via our secure server proxy. They are never stored on our servers.
+            Your API keys are held in memory only for this session and are never stored on disk
+            or on our servers. They are sent directly to Alpaca via our secure server proxy.
           </p>
         </div>
       </DialogContent>
