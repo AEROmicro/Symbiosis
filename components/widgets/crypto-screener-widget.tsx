@@ -1,79 +1,106 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { TrendingUp, TrendingDown } from 'lucide-react'
+import { useEffect, useState, useCallback } from 'react'
+import { TrendingUp, TrendingDown, RefreshCw } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface CryptoEntry {
   rank: number
   symbol: string
-  price: number
-  change24h: number
+  price: number | null
+  change24h: number | null
   volume: string
   volumeRaw: number
+  loading: boolean
 }
 
 type SortKey = 'VOLUME' | 'CHANGE' | 'PRICE'
 type Filter = 'ALL' | 'GAINERS' | 'LOSERS'
 
-const BASE_DATA: Omit<CryptoEntry, 'price'>[] = [
-  { rank: 1,  symbol: 'BTC',   change24h:  2.3, volume: '$38.2B', volumeRaw: 38.2 },
-  { rank: 2,  symbol: 'ETH',   change24h:  1.8, volume: '$18.5B', volumeRaw: 18.5 },
-  { rank: 3,  symbol: 'BNB',   change24h: -0.5, volume: '$2.1B',  volumeRaw: 2.1  },
-  { rank: 4,  symbol: 'SOL',   change24h:  5.2, volume: '$6.8B',  volumeRaw: 6.8  },
-  { rank: 5,  symbol: 'XRP',   change24h:  0.8, volume: '$3.4B',  volumeRaw: 3.4  },
-  { rank: 6,  symbol: 'ADA',   change24h: -1.2, volume: '$1.2B',  volumeRaw: 1.2  },
-  { rank: 7,  symbol: 'DOGE',  change24h:  3.4, volume: '$2.9B',  volumeRaw: 2.9  },
-  { rank: 8,  symbol: 'AVAX',  change24h: -2.1, volume: '$890M',  volumeRaw: 0.89 },
-  { rank: 9,  symbol: 'DOT',   change24h:  0.9, volume: '$620M',  volumeRaw: 0.62 },
-  { rank: 10, symbol: 'MATIC', change24h: -0.7, volume: '$540M',  volumeRaw: 0.54 },
+// Top 20 by market cap — fetched from the real API
+const SCREENER_COINS = [
+  { rank: 1,  symbol: 'BTC',   yahooSymbol: 'BTC-USD'  },
+  { rank: 2,  symbol: 'ETH',   yahooSymbol: 'ETH-USD'  },
+  { rank: 3,  symbol: 'BNB',   yahooSymbol: 'BNB-USD'  },
+  { rank: 4,  symbol: 'SOL',   yahooSymbol: 'SOL-USD'  },
+  { rank: 5,  symbol: 'XRP',   yahooSymbol: 'XRP-USD'  },
+  { rank: 6,  symbol: 'ADA',   yahooSymbol: 'ADA-USD'  },
+  { rank: 7,  symbol: 'DOGE',  yahooSymbol: 'DOGE-USD' },
+  { rank: 8,  symbol: 'TRX',   yahooSymbol: 'TRX-USD'  },
+  { rank: 9,  symbol: 'AVAX',  yahooSymbol: 'AVAX-USD' },
+  { rank: 10, symbol: 'LINK',  yahooSymbol: 'LINK-USD' },
+  { rank: 11, symbol: 'DOT',   yahooSymbol: 'DOT-USD'  },
+  { rank: 12, symbol: 'MATIC', yahooSymbol: 'MATIC-USD'},
+  { rank: 13, symbol: 'LTC',   yahooSymbol: 'LTC-USD'  },
+  { rank: 14, symbol: 'ATOM',  yahooSymbol: 'ATOM-USD' },
+  { rank: 15, symbol: 'NEAR',  yahooSymbol: 'NEAR-USD' },
+  { rank: 16, symbol: 'INJ',   yahooSymbol: 'INJ-USD'  },
+  { rank: 17, symbol: 'ARB',   yahooSymbol: 'ARB-USD'  },
+  { rank: 18, symbol: 'OP',    yahooSymbol: 'OP-USD'   },
+  { rank: 19, symbol: 'SHIB',  yahooSymbol: 'SHIB-USD' },
+  { rank: 20, symbol: 'UNI',   yahooSymbol: 'UNI-USD'  },
 ]
 
-const BASE_PRICES: Record<string, number> = {
-  BTC:   67450,
-  ETH:   3520,
-  BNB:   590,
-  SOL:   178,
-  XRP:   0.62,
-  ADA:   0.48,
-  DOGE:  0.165,
-  AVAX:  38.5,
-  DOT:   8.2,
-  MATIC: 0.89,
-}
-
-function jitter(base: number): number {
-  const pct = (Math.random() - 0.5) * 0.004
-  return parseFloat((base * (1 + pct)).toFixed(base < 1 ? 4 : base < 10 ? 3 : 2))
-}
-
-function buildData(): CryptoEntry[] {
-  return BASE_DATA.map(d => ({
-    ...d,
-    price: jitter(BASE_PRICES[d.symbol]),
-  }))
+function fmtVol(usd: number): string {
+  if (usd >= 1e9) return `$${(usd / 1e9).toFixed(1)}B`
+  if (usd >= 1e6) return `$${(usd / 1e6).toFixed(0)}M`
+  return `$${usd.toLocaleString()}`
 }
 
 export function CryptoScreenerWidget() {
-  const [entries, setEntries] = useState<CryptoEntry[]>(buildData)
-  const [sortKey, setSortKey] = useState<SortKey>('VOLUME')
+  const [entries, setEntries] = useState<CryptoEntry[]>(() =>
+    SCREENER_COINS.map(c => ({ ...c, price: null, change24h: null, volume: '–', volumeRaw: 0, loading: true }))
+  )
+  const [sortKey, setSortKey] = useState<SortKey>('PRICE')
   const [filter, setFilter] = useState<Filter>('ALL')
+  const [fetching, setFetching] = useState(false)
 
-  useEffect(() => {
-    const id = setInterval(() => setEntries(buildData()), 15_000)
-    return () => clearInterval(id)
+  const fetchAll = useCallback(async () => {
+    setFetching(true)
+    const results = await Promise.allSettled(
+      SCREENER_COINS.map(async (c) => {
+        try {
+          const res = await fetch(`/api/stock/${c.yahooSymbol}`)
+          if (res.ok) {
+            const d = await res.json()
+            const volumeRaw = d.volume ? d.price * d.volume : 0
+            return {
+              rank: c.rank,
+              symbol: c.symbol,
+              price: d.price ?? null,
+              change24h: d.changePercent ?? null,
+              volumeRaw,
+              volume: volumeRaw > 0 ? fmtVol(volumeRaw) : '–',
+              loading: false,
+            }
+          }
+        } catch { /* silent */ }
+        return { rank: c.rank, symbol: c.symbol, price: null, change24h: null, volume: '–', volumeRaw: 0, loading: false }
+      }),
+    )
+    const updated = results.map((r, i) =>
+      r.status === 'fulfilled' ? r.value : { ...SCREENER_COINS[i], price: null, change24h: null, volume: '–', volumeRaw: 0, loading: false }
+    )
+    setEntries(updated)
+    setFetching(false)
   }, [])
 
+  useEffect(() => {
+    fetchAll()
+    const id = setInterval(fetchAll, 120_000)
+    return () => clearInterval(id)
+  }, [fetchAll])
+
   const filtered = entries.filter(e => {
-    if (filter === 'GAINERS') return e.change24h > 0
-    if (filter === 'LOSERS')  return e.change24h < 0
+    if (filter === 'GAINERS') return (e.change24h ?? 0) > 0
+    if (filter === 'LOSERS')  return (e.change24h ?? 0) < 0
     return true
   })
 
   const sorted = [...filtered].sort((a, b) => {
     if (sortKey === 'VOLUME') return b.volumeRaw - a.volumeRaw
-    if (sortKey === 'CHANGE') return Math.abs(b.change24h) - Math.abs(a.change24h)
-    return b.price - a.price
+    if (sortKey === 'CHANGE') return Math.abs(b.change24h ?? 0) - Math.abs(a.change24h ?? 0)
+    return (b.price ?? 0) - (a.price ?? 0)
   })
 
   return (
@@ -84,10 +111,14 @@ export function CryptoScreenerWidget() {
           <TrendingUp className="w-3.5 h-3.5 text-primary" />
           <span className="font-mono text-xs font-semibold text-foreground">CRYPTO SCREENER</span>
         </div>
-        <span className="font-mono text-[10px] text-muted-foreground flex items-center gap-1">
-          <span className="inline-block w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-          Live · 15s
-        </span>
+        <button
+          onClick={fetchAll}
+          disabled={fetching}
+          className="flex items-center gap-1 font-mono text-[10px] text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+        >
+          <RefreshCw className={cn('w-3 h-3', fetching && 'animate-spin')} />
+          {fetching ? 'Updating…' : 'Live · 2m'}
+        </button>
       </div>
 
       {/* Filter */}
@@ -133,24 +164,36 @@ export function CryptoScreenerWidget() {
 
       {/* Rows */}
       <div className="flex flex-col gap-0 flex-1">
-        {sorted.map(e => (
-          <div
-            key={e.symbol}
-            className="grid grid-cols-[1.5rem_3.5rem_6rem_5rem_5rem] gap-x-2 font-mono text-xs border-b border-border/30 py-1.5 px-2 hover:bg-muted/10 transition-colors"
-          >
-            <span className="text-muted-foreground text-[10px] tabular-nums">{e.rank}</span>
-            <span className="text-primary font-semibold text-[10px]">{e.symbol}</span>
-            <span className="text-foreground tabular-nums text-[10px]">
-              ${e.price.toLocaleString('en-US', { minimumFractionDigits: e.price < 1 ? 4 : e.price < 10 ? 3 : 2 })}
-            </span>
-            <span className={cn('tabular-nums text-[10px] flex items-center gap-0.5', e.change24h >= 0 ? 'text-price-up' : 'text-price-down')}>
-              {e.change24h >= 0 ? <TrendingUp className="w-2.5 h-2.5" /> : <TrendingDown className="w-2.5 h-2.5" />}
-              {e.change24h >= 0 ? '+' : ''}{e.change24h.toFixed(1)}%
-            </span>
-            <span className="text-muted-foreground tabular-nums text-[10px]">{e.volume}</span>
-          </div>
-        ))}
+        {sorted.map(e => {
+          const pos = (e.change24h ?? 0) >= 0
+          return (
+            <div
+              key={e.symbol}
+              className="grid grid-cols-[1.5rem_3.5rem_6rem_5rem_5rem] gap-x-2 font-mono text-xs border-b border-border/30 py-1.5 px-2 hover:bg-muted/10 transition-colors"
+            >
+              <span className="text-muted-foreground text-[10px] tabular-nums">{e.rank}</span>
+              <span className="text-primary font-semibold text-[10px]">{e.symbol}</span>
+              <span className="text-foreground tabular-nums text-[10px]">
+                {e.price !== null
+                  ? `$${e.price.toLocaleString('en-US', { minimumFractionDigits: e.price < 1 ? 4 : e.price < 10 ? 3 : 2 })}`
+                  : e.loading ? '…' : '–'}
+              </span>
+              <span className={cn('tabular-nums text-[10px] flex items-center gap-0.5', pos ? 'text-price-up' : 'text-price-down')}>
+                {e.change24h !== null ? (
+                  <>
+                    {pos ? <TrendingUp className="w-2.5 h-2.5" /> : <TrendingDown className="w-2.5 h-2.5" />}
+                    {pos ? '+' : ''}{e.change24h.toFixed(1)}%
+                  </>
+                ) : (
+                  <span className="text-muted-foreground">{e.loading ? '…' : '–'}</span>
+                )}
+              </span>
+              <span className="text-muted-foreground tabular-nums text-[10px]">{e.volume}</span>
+            </div>
+          )
+        })}
       </div>
     </div>
   )
 }
+
