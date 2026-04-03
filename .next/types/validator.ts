@@ -56,6 +56,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../app/musgravite/page.tsx
+{
+  type __IsExpected<Specific extends AppPageConfig<"/musgravite">> = Specific
+  const handler = {} as typeof import("../../app/musgravite/page.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../app/page.tsx
 {
   type __IsExpected<Specific extends AppPageConfig<"/">> = Specific
@@ -69,6 +78,24 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
 {
   type __IsExpected<Specific extends AppPageConfig<"/tourmaline">> = Specific
   const handler = {} as typeof import("../../app/tourmaline/page.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../app/api/auth/callback/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/auth/callback">> = Specific
+  const handler = {} as typeof import("../../app/api/auth/callback/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../app/api/brokerage/alpaca/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/brokerage/alpaca">> = Specific
+  const handler = {} as typeof import("../../app/api/brokerage/alpaca/route.js")
   type __Check = __IsExpected<typeof handler>
   // @ts-ignore
   type __Unused = __Check
@@ -123,6 +150,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
 {
   type __IsExpected<Specific extends RouteHandlerConfig<"/api/stock/[symbol]">> = Specific
   const handler = {} as typeof import("../../app/api/stock/[symbol]/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../app/api/user/portfolio/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/user/portfolio">> = Specific
+  const handler = {} as typeof import("../../app/api/user/portfolio/route.js")
   type __Check = __IsExpected<typeof handler>
   // @ts-ignore
   type __Unused = __Check

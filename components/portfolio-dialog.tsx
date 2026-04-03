@@ -13,8 +13,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import type { PortfolioEntry } from '@/lib/stock-types'
-
-const PORTFOLIO_STORAGE_KEY = 'symbiosis-portfolio'
+import { usePortfolio } from '@/contexts/portfolio-context'
 
 interface PositionData extends PortfolioEntry {
   currentPrice: number | null
@@ -24,6 +23,7 @@ interface PositionData extends PortfolioEntry {
 }
 
 export function PortfolioDialog() {
+  const { portfolio } = usePortfolio()
   const [open, setOpen] = useState(false)
   const [positions, setPositions] = useState<PositionData[]>([])
   const [loading, setLoading] = useState(false)
@@ -32,13 +32,12 @@ export function PortfolioDialog() {
     if (open) {
       fetchPortfolio()
     }
-  }, [open])
+  }, [open, portfolio]) // re-fetch whenever portfolio data changes
 
   const fetchPortfolio = async () => {
     setLoading(true)
     try {
-      const stored = localStorage.getItem(PORTFOLIO_STORAGE_KEY)
-      const entries: PortfolioEntry[] = stored ? JSON.parse(stored) : []
+      const entries: PortfolioEntry[] = portfolio
 
       const posData = await Promise.all(
         entries.map(async (entry) => {

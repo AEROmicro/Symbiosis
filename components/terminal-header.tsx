@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Gem, LayoutDashboard, Coins } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { UserMenu } from '@/components/auth/user-menu'
 
 interface TerminalHeaderProps {}
 
@@ -85,10 +86,13 @@ export function TerminalHeader({}: TerminalHeaderProps) {
         </div>
 
         {/* Status Indicators */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <div className="hidden md:flex items-center gap-2 text-xs">
             <span className="text-muted-foreground">REDEFINE THE LIMITS</span>
           </div>
+
+          {/* User account menu */}
+          <UserMenu />
           
           {/* Time Display */}
           <div className="text-right font-mono">

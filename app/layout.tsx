@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { JetBrains_Mono, Fira_Code } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { Providers } from './providers'
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
 import './globals.css'
@@ -35,7 +36,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${jetbrainsMono.variable} ${firaCode.variable} font-mono antialiased`}>
-        {children}
+        <Providers>
+          {children}
+        </Providers>
         <Analytics />
         <script
           dangerouslySetInnerHTML={{

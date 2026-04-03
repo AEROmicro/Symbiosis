@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useRef, useEffect, KeyboardEvent } from 'react'
-import type { TerminalLog, PortfolioEntry } from '@/lib/stock-types'
+import type { TerminalLog } from '@/lib/stock-types'
 import { cn } from '@/lib/utils'
+import { usePortfolio } from '@/contexts/portfolio-context'
 
 interface TerminalCLIProps {
   onAddStock: (symbol: string) => void
@@ -27,9 +28,8 @@ interface ChartPoint {
 // Popular stocks for reference - but any valid ticker will work
 const POPULAR_STOCKS = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'META', 'NVDA', 'AMD']
 
-const PORTFOLIO_STORAGE_KEY = 'symbiosis-portfolio'
-
 export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, onSelectStock, watchedStocks, watchlistNames, activeListName, onAddStockToList }: TerminalCLIProps) {
+  const { portfolio, setPortfolio } = usePortfolio()
   const [input, setInput] = useState('')
   const [logs, setLogs] = useState<TerminalLog[]>([
     {
@@ -44,14 +44,6 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, onSelectSto
   const [validatingSymbol, setValidatingSymbol] = useState<string | null>(null)
   const [sessionStart] = useState(() => Date.now())
   const [sessionId] = useState(() => crypto.randomUUID().slice(0, 8).toUpperCase())
-  const [portfolio, setPortfolio] = useState<PortfolioEntry[]>(() => {
-    try {
-      const stored = localStorage.getItem(PORTFOLIO_STORAGE_KEY)
-      return stored ? JSON.parse(stored) : []
-    } catch {
-      return []
-    }
-  })
   const inputRef = useRef<HTMLInputElement>(null)
   const logsEndRef = useRef<HTMLDivElement>(null)
   const logsContainerRef = useRef<HTMLDivElement>(null)
@@ -61,14 +53,6 @@ export function TerminalCLI({ onAddStock, onRemoveStock, onClearAll, onSelectSto
       logsContainerRef.current.scrollTop = logsContainerRef.current.scrollHeight
     }
   }, [logs])
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(PORTFOLIO_STORAGE_KEY, JSON.stringify(portfolio))
-    } catch {
-      // localStorage unavailable — silently ignore
-    }
-  }, [portfolio])
 
   const addLog = (type: TerminalLog['type'], message: string, showTimestamp = false) => {
     setLogs(prev => [...prev, {
