@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
 
 // ── Dictionary data ───────────────────────────────────────────────────────────
 
-type Category = 'trading' | 'technical' | 'accounting' | 'finance' | 'acronym' | 'slang' | 'crypto'
+type Category = 'trading' | 'technical' | 'accounting' | 'finance' | 'acronym' | 'slang' | 'crypto' | 'defi' | 'nft' | 'macro'
 
 interface Term {
   term: string
@@ -14,7 +14,7 @@ interface Term {
   category: Category
 }
 
-const TERMS: Term[] = [
+const _BASE: Term[] = [
   // ── TRADING ─────────────────────────────────────────────────────────────────
   { term: 'Ask', category: 'trading', definition: 'The lowest price a seller is willing to accept for a security.' },
   { term: 'Bid', category: 'trading', definition: 'The highest price a buyer is willing to pay for a security.' },
@@ -972,6 +972,169 @@ const TERMS: Term[] = [
   { term: 'TARA (There Are Reasonable Alternatives)', category: 'slang', definition: 'The updated version of TINA — coined when rates rose, making bonds a viable alternative to equities again.' },
 ]
 
+// Additional terms – new categories. Split to avoid TS2590 union complexity limit.
+const EXTRA_TERMS: Term[] = [
+  // ── DEFI ─────────────────────────────────────────────────────────────────────
+  { term: 'DeFi', category: 'defi', definition: 'Decentralised Finance — financial applications built on public blockchains that operate without centralised intermediaries such as banks or brokers.' },
+  { term: 'Liquidity Pool', category: 'defi', definition: 'A smart contract holding reserves of two or more tokens that enables decentralised trading, lending, or yield farming without a traditional order book.' },
+  { term: 'AMM (Automated Market Maker)', category: 'defi', definition: 'A DEX type that uses a mathematical formula (e.g., x*y=k) to price assets and provide liquidity instead of relying on buyers and sellers placing orders.' },
+  { term: 'Yield Farming', category: 'defi', definition: 'Depositing crypto assets into DeFi protocols to earn rewards, typically in the form of additional tokens or a share of protocol fees.' },
+  { term: 'Liquidity Mining', category: 'defi', definition: 'Providing liquidity to a protocol in exchange for governance or reward tokens, incentivising early participation.' },
+  { term: 'Impermanent Loss', category: 'defi', definition: 'The temporary loss experienced by liquidity providers when the price ratio of pooled assets diverges from the ratio at deposit time.' },
+  { term: 'TVL (Total Value Locked)', category: 'defi', definition: 'The total value of crypto assets deposited into a DeFi protocol; a primary measure of adoption and protocol health.' },
+  { term: 'APY', category: 'defi', definition: 'Annual Percentage Yield — the effective annual return including compounding, widely used in DeFi to express farming and staking rewards.' },
+  { term: 'APR', category: 'defi', definition: 'Annual Percentage Rate — simple annual return without compounding, used for base lending and borrowing rates in DeFi.' },
+  { term: 'Flash Loan', category: 'defi', definition: 'An uncollateralised loan borrowed and repaid within a single blockchain transaction. Used for arbitrage, collateral swaps, and liquidations.' },
+  { term: 'Overcollateralisation', category: 'defi', definition: 'Requiring borrowers to post collateral worth more than the loan amount (e.g., 150%) to protect lenders against price volatility.' },
+  { term: 'Liquidation (DeFi)', category: 'defi', definition: 'When borrower collateral falls below the required ratio, the protocol automatically sells it to repay the debt, often at a penalty.' },
+  { term: 'Lending Protocol', category: 'defi', definition: 'A smart contract platform (e.g., Aave, Compound) where users supply assets to earn interest or borrow by posting collateral.' },
+  { term: 'Governance Token', category: 'defi', definition: 'A token granting holders voting rights on protocol changes, fee structures, and treasury allocations in a DAO or protocol.' },
+  { term: 'DAO (Decentralised Autonomous Organisation)', category: 'defi', definition: 'An organisation governed by smart contracts and token-holder votes rather than a centralised management team; decisions made on-chain.' },
+  { term: 'Stablecoin', category: 'defi', definition: 'A cryptocurrency designed to maintain a stable value, typically pegged 1:1 to a fiat currency, backed by collateral or algorithms.' },
+  { term: 'Algorithmic Stablecoin', category: 'defi', definition: 'A stablecoin using supply-and-demand algorithms rather than direct collateral to maintain its peg; historically high-risk (e.g., UST/Luna collapse).' },
+  { term: 'Wrapped Token', category: 'defi', definition: 'A tokenised representation of a cryptocurrency on a different blockchain; e.g., WBTC is Bitcoin wrapped as an ERC-20 token for Ethereum DeFi.' },
+  { term: 'Slippage (DeFi)', category: 'defi', definition: 'The difference between a trade\'s expected price on an AMM and the actual executed price, caused by price impact on the liquidity pool.' },
+  { term: 'Price Impact', category: 'defi', definition: 'The effect a trade has on the pool price — larger trades in low-liquidity pools create more price movement, increasing cost to the trader.' },
+  { term: 'Concentrated Liquidity', category: 'defi', definition: 'A Uniswap v3 feature allowing LPs to provide liquidity within a custom price range, dramatically improving capital efficiency.' },
+  { term: 'DEX (Decentralised Exchange)', category: 'defi', definition: 'A peer-to-peer marketplace for trading crypto assets on-chain without depositing funds to a centralised custodian.' },
+  { term: 'CEX (Centralised Exchange)', category: 'defi', definition: 'A traditional crypto exchange operated by a company that holds user funds and matches orders centrally (e.g., Coinbase, Binance).' },
+  { term: 'Bridge', category: 'defi', definition: 'A protocol enabling transfer of assets between different blockchain networks, locking tokens on source chain and minting equivalents on destination.' },
+  { term: 'Cross-Chain', category: 'defi', definition: 'Interactions spanning multiple blockchain networks, enabled by bridges, relayers, or native interoperability protocols.' },
+  { term: 'Layer 2 (L2)', category: 'defi', definition: 'A secondary framework built on a base blockchain to increase throughput and reduce fees; examples: Optimism, Arbitrum, zkSync.' },
+  { term: 'Rollup', category: 'defi', definition: 'An L2 scaling solution that batches transactions off-chain and posts compressed proofs back to the base layer for security.' },
+  { term: 'Optimistic Rollup', category: 'defi', definition: 'A rollup assuming transactions are valid unless challenged within a fraud-proof window (typically 7 days).' },
+  { term: 'ZK Rollup', category: 'defi', definition: 'A rollup using zero-knowledge proofs to verify off-chain transactions cryptographically, enabling faster finality than optimistic rollups.' },
+  { term: 'MEV (Maximal Extractable Value)', category: 'defi', definition: 'Profit extracted by block producers by reordering, inserting, or censoring transactions within a block, often at user expense.' },
+  { term: 'Sandwich Attack', category: 'defi', definition: 'MEV attack where a bot spots a pending DEX trade, inserts a buy before it and a sell after it to profit from the price impact.' },
+  { term: 'Front-Running', category: 'defi', definition: 'Placing a transaction ahead of a known pending transaction in the mempool to profit from the subsequent price move it causes.' },
+  { term: 'Gas (Ethereum)', category: 'defi', definition: 'The unit measuring computational effort to execute a transaction or smart contract on Ethereum; paid in ETH (in gwei).' },
+  { term: 'Gwei', category: 'defi', definition: 'One billionth of an Ether (10⁻⁹ ETH), the standard unit used to denominate Ethereum gas prices.' },
+  { term: 'Base Fee', category: 'defi', definition: 'The minimum gas price for transaction inclusion, dynamically adjusted by the network based on block utilisation since EIP-1559.' },
+  { term: 'Priority Fee (Tip)', category: 'defi', definition: 'An optional extra fee paid directly to the validator on top of the base fee to incentivise faster transaction inclusion.' },
+  { term: 'Smart Contract', category: 'defi', definition: 'Self-executing code deployed on a blockchain that automatically enforces rules when conditions are met, without a trusted third party.' },
+  { term: 'ERC-20', category: 'defi', definition: 'The dominant token standard on Ethereum defining a common interface for fungible tokens; adopted by virtually all DeFi tokens.' },
+  { term: 'ERC-721', category: 'defi', definition: 'The Ethereum token standard for non-fungible tokens, where each token has a unique identifier and cannot be exchanged 1:1 for another.' },
+  { term: 'ERC-1155', category: 'defi', definition: 'A multi-token Ethereum standard supporting both fungible and non-fungible tokens in a single contract, reducing batch transfer gas costs.' },
+  { term: 'Staking', category: 'defi', definition: 'Locking cryptocurrency in a protocol or validator to support network operations and earn rewards or governance rights.' },
+  { term: 'Liquid Staking', category: 'defi', definition: 'Staking via a protocol that issues a liquid derivative token (e.g., stETH), allowing stakers to remain liquid while earning staking rewards.' },
+  { term: 'Validator', category: 'defi', definition: 'A node participating in a proof-of-stake blockchain\'s consensus, proposing and attesting to blocks in exchange for rewards.' },
+  { term: 'Slashing', category: 'defi', definition: 'A penalty in proof-of-stake networks where a validator\'s staked tokens are destroyed for malicious or negligent behaviour.' },
+  { term: 'Tokenomics', category: 'defi', definition: 'The economic design of a token: supply schedule, distribution, utility, inflation rate, and incentive structures.' },
+  { term: 'Vesting', category: 'defi', definition: 'A time-lock that releases tokens to founders, investors, or team members gradually over a defined schedule to align long-term incentives.' },
+  { term: 'Token Unlock', category: 'defi', definition: 'A scheduled release of previously locked tokens into circulating supply, which can create sell pressure on the token price.' },
+  { term: 'Emission Rate', category: 'defi', definition: 'The speed at which new tokens are distributed as rewards; affects inflation and dilution of existing holders.' },
+  { term: 'Token Burn', category: 'defi', definition: 'Permanently removing tokens from circulation by sending them to an unspendable address, reducing supply and potentially increasing scarcity.' },
+  { term: 'Buyback and Burn', category: 'defi', definition: 'A protocol using revenue to repurchase its own token and burn it, combining demand increase with supply reduction.' },
+  { term: 'Airdrop', category: 'defi', definition: 'Free distribution of tokens to wallet addresses as a marketing tool, early-user reward, or governance launch strategy.' },
+  { term: 'IDO (Initial DEX Offering)', category: 'defi', definition: 'A token launch on a decentralised exchange, offering participants immediate liquidity compared to centralised ICO models.' },
+  { term: 'IEO (Initial Exchange Offering)', category: 'defi', definition: 'A token sale hosted on a centralised exchange that vets the project and facilitates investor participation.' },
+  { term: 'ICO (Initial Coin Offering)', category: 'defi', definition: 'An early fundraising mechanism selling tokens directly to investors; largely replaced by IDOs and IEOs.' },
+  { term: 'Oracle', category: 'defi', definition: 'A system providing external real-world data (prices, weather, etc.) to smart contracts, which cannot access off-chain information natively.' },
+  { term: 'Price Feed', category: 'defi', definition: 'An oracle service providing current asset prices to DeFi protocols; Chainlink is the dominant decentralised provider.' },
+  { term: 'Multisig', category: 'defi', definition: 'A wallet requiring multiple private key signatures to authorise a transaction, enhancing security for protocol treasuries.' },
+  { term: 'Timelock', category: 'defi', definition: 'A smart contract enforcing a mandatory delay between a governance decision and its execution, giving users time to react.' },
+  { term: 'Audit', category: 'defi', definition: 'A formal security review of a smart contract\'s code by an independent firm to identify vulnerabilities and logic errors.' },
+  { term: 'Rug Pull', category: 'defi', definition: 'A scam where developers drain the liquidity pool or treasury and abandon the project after attracting investor funds.' },
+  { term: 'Honeypot', category: 'defi', definition: 'A malicious token whose smart contract allows buying but not selling, permanently trapping investor funds.' },
+  { term: 'Revoke', category: 'defi', definition: 'Removing a token spending approval previously granted to a smart contract, reducing attack surface if the protocol is compromised.' },
+  { term: 'Composability', category: 'defi', definition: 'The ability for DeFi protocols to interact and build upon each other like financial Lego blocks, creating complex products from simple components.' },
+  { term: 'Real Yield', category: 'defi', definition: 'Protocol revenue distributed to token holders in established assets (ETH, USDC) rather than the protocol\'s own inflationary token.' },
+  { term: 've-Tokenomics', category: 'defi', definition: 'Vote-escrow model (pioneered by Curve) where users lock tokens for a period to receive non-transferable voting power and boosted rewards.' },
+  { term: 'Gauge', category: 'defi', definition: 'A mechanism in Curve-like AMMs where veToken holders vote on allocation of liquidity mining rewards across different pools.' },
+  { term: 'Perpetuals (Perps)', category: 'defi', definition: 'Derivative contracts with no expiry that track asset prices; traders pay or receive a funding rate to keep the contract near spot.' },
+  { term: 'Funding Rate', category: 'defi', definition: 'A periodic payment between long and short perpetual contract holders that keeps the contract price aligned with the underlying spot price.' },
+  { term: 'Delta Neutral', category: 'defi', definition: 'A portfolio or strategy with zero overall delta — profits from volatility and yield rather than directional price movement.' },
+  { term: 'On-Chain Analytics', category: 'defi', definition: 'Analysis of blockchain transaction data to derive insights about market participants, exchange flows, and protocol health.' },
+  { term: 'Exchange Flow', category: 'defi', definition: 'Net movement of crypto into or out of centralised exchanges; inflows may signal sell pressure, outflows may indicate accumulation to cold storage.' },
+  { term: 'Rehypothecation', category: 'defi', definition: 'Using deposited collateral as collateral in another protocol, creating layered leverage that can amplify returns and liquidation risk.' },
+  { term: 'Carry Trade (Crypto)', category: 'defi', definition: 'Borrowing a low-yield asset to invest in a higher-yield one; in crypto often means earning funding rate by shorting perps against a spot position.' },
+  { term: 'Basis Trade', category: 'defi', definition: 'Simultaneously buying spot and shorting a futures or perpetual contract to earn the funding rate and basis spread with minimal price risk.' },
+  { term: 'dApp (Decentralised App)', category: 'defi', definition: 'An application whose backend runs on a decentralised network, making it censorship-resistant and typically open-source.' },
+  { term: 'Open Interest', category: 'defi', definition: 'The total outstanding derivative contracts not yet settled; indicates overall market participation and leverage levels.' },
+  { term: 'Sidechain', category: 'defi', definition: 'A separate blockchain running in parallel to a main chain with a two-way peg, allowing assets to move between them.' },
+  { term: 'Sharding', category: 'defi', definition: 'Splitting a blockchain network into smaller parallel segments (shards) to process transactions simultaneously and increase throughput.' },
+  { term: 'State Channel', category: 'defi', definition: 'An off-chain communication channel between participants that only broadcasts the final state to the blockchain, reducing fees.' },
+  { term: 'Lightning Network', category: 'defi', definition: 'A layer-2 payment protocol on Bitcoin enabling near-instant, low-fee micropayments through a network of bidirectional payment channels.' },
+  { term: 'Web3', category: 'defi', definition: 'A vision of the internet where applications are built on decentralised protocols, users own their data and digital assets, and intermediaries are minimised.' },
+
+  // ── NFT ────────────────────────────────────────────────────────────────────
+  { term: 'NFT (Non-Fungible Token)', category: 'nft', definition: 'A unique digital asset on a blockchain proving ownership of a specific item — art, music, video, or in-game item — with no two tokens identical.' },
+  { term: 'Mint', category: 'nft', definition: 'The process of creating an NFT on the blockchain, recording ownership and metadata on-chain for the first time.' },
+  { term: 'Floor Price', category: 'nft', definition: 'The lowest asking price of any NFT in a collection currently listed for sale; the cheapest entry point into a given collection.' },
+  { term: 'Royalty (NFT)', category: 'nft', definition: 'A percentage of secondary sale proceeds automatically paid to the original creator each time the NFT is resold, enforced by smart contract.' },
+  { term: 'Rarity (NFT)', category: 'nft', definition: 'A measure of how uncommon specific traits are within a collection; rarer NFTs typically command higher prices.' },
+  { term: 'PFP (Profile Picture)', category: 'nft', definition: 'NFT collections designed for use as social media avatars; Bored Ape Yacht Club and CryptoPunks are the most famous examples.' },
+  { term: 'Generative Art', category: 'nft', definition: 'NFT artwork algorithmically created by combining randomised trait layers (background, eyes, accessories) to produce thousands of unique pieces.' },
+  { term: 'Trait', category: 'nft', definition: 'An attribute of a generative NFT (e.g., hat, fur colour, background) that determines its rarity and visual appearance.' },
+  { term: 'Reveal', category: 'nft', definition: 'The moment after a mint when artwork and traits are unveiled; some collections sell blindly and reveal later to build suspense.' },
+  { term: 'Allowlist (AL)', category: 'nft', definition: 'A pre-approved list of wallet addresses permitted to mint an NFT at a guaranteed price before public mint opens.' },
+  { term: 'Secondary Market', category: 'nft', definition: 'Platforms (e.g., OpenSea, Blur) where NFTs are bought and sold after the initial mint, with prices set by supply and demand.' },
+  { term: 'Wash Trading (NFT)', category: 'nft', definition: 'Artificially inflating NFT trading volume by selling an NFT between wallets controlled by the same person.' },
+  { term: 'Blue Chip (NFT)', category: 'nft', definition: 'A high-value, established NFT collection with proven staying power and strong community, analogous to blue chip stocks.' },
+  { term: 'Metadata', category: 'nft', definition: 'Descriptive data attached to an NFT (name, image URL, traits) typically stored on IPFS or Arweave for permanent decentralised access.' },
+  { term: 'IPFS', category: 'nft', definition: 'InterPlanetary File System — a distributed storage protocol frequently used to host NFT media and metadata in a content-addressed way.' },
+  { term: 'Arweave', category: 'nft', definition: 'A protocol designed for permanent, one-time-fee data storage, popular for NFT metadata that must persist indefinitely.' },
+  { term: 'Dynamic NFT', category: 'nft', definition: 'An NFT whose metadata can change over time based on on-chain conditions or oracle data, enabling interactive or evolving digital assets.' },
+  { term: 'SBT (Soulbound Token)', category: 'nft', definition: 'A non-transferable NFT permanently bound to a wallet, representing credentials, reputation, memberships, or achievements.' },
+  { term: 'Fractionalisation', category: 'nft', definition: 'Splitting a high-value NFT into multiple ERC-20 tokens each representing fractional ownership, increasing liquidity and accessibility.' },
+  { term: 'Ordinals', category: 'nft', definition: 'A protocol for inscribing arbitrary data (images, text) onto individual satoshis on the Bitcoin blockchain, enabling Bitcoin-native NFTs.' },
+  { term: 'BRC-20', category: 'nft', definition: 'An experimental token standard on Bitcoin using Ordinals inscriptions to create fungible tokens directly on the Bitcoin network.' },
+  { term: 'Runes', category: 'nft', definition: 'A fungible token protocol on Bitcoin by the Ordinals creator, designed to be more efficient than BRC-20 for Bitcoin-native tokens.' },
+
+  // ── MACRO ────────────────────────────────────────────────────────────────────
+  { term: 'Quantitative Easing (QE)', category: 'macro', definition: 'A central bank policy of buying financial assets to inject liquidity, lower long-term interest rates, and stimulate the economy.' },
+  { term: 'Quantitative Tightening (QT)', category: 'macro', definition: 'The reverse of QE: a central bank shrinks its balance sheet by letting bonds mature or actively selling assets, reducing liquidity.' },
+  { term: 'Federal Funds Rate', category: 'macro', definition: 'The target rate at which U.S. banks lend overnight reserves to each other; the primary monetary policy lever of the Federal Reserve.' },
+  { term: 'FOMC', category: 'macro', definition: 'Federal Open Market Committee — the Fed body that sets monetary policy, meeting eight times per year to decide on interest rates.' },
+  { term: 'Dot Plot', category: 'macro', definition: 'The FOMC\'s chart showing each member\'s projection for future interest rates, updated quarterly; a key forward guidance tool watched by markets.' },
+  { term: 'Terminal Rate', category: 'macro', definition: 'The expected peak interest rate in a tightening cycle; markets debate the terminal rate as a proxy for how restrictive policy will become.' },
+  { term: 'Neutral Rate (r*)', category: 'macro', definition: 'The theoretical interest rate that neither stimulates nor restricts the economy; the long-run destination for central bank policy.' },
+  { term: 'CPI (Consumer Price Index)', category: 'macro', definition: 'A measure of average change in prices paid by consumers for a basket of goods and services; the most widely watched U.S. inflation gauge.' },
+  { term: 'Core CPI', category: 'macro', definition: 'CPI excluding volatile food and energy components; viewed as a better indicator of underlying persistent inflation trends.' },
+  { term: 'PCE (Personal Consumption Expenditures)', category: 'macro', definition: 'The Fed\'s preferred inflation gauge measuring price changes in goods and services purchased by U.S. consumers.' },
+  { term: 'Core PCE', category: 'macro', definition: 'PCE inflation excluding food and energy; the Federal Reserve\'s primary target metric for its 2% inflation mandate.' },
+  { term: 'ISM Manufacturing PMI', category: 'macro', definition: 'Monthly survey of manufacturing purchasing managers; above 50 signals expansion, below 50 signals contraction.' },
+  { term: 'ISM Services PMI', category: 'macro', definition: 'Monthly sentiment survey for the services sector; closely watched given services\' dominant share of GDP.' },
+  { term: 'Non-Farm Payrolls (NFP)', category: 'macro', definition: 'Monthly U.S. employment report showing net change in jobs excluding agriculture; a tier-1 macro event that moves markets significantly.' },
+  { term: 'JOLTS', category: 'macro', definition: 'Job Openings and Labor Turnover Survey — measures vacancies, hires, and separations; indicator of labour market tightness.' },
+  { term: 'Initial Jobless Claims', category: 'macro', definition: 'Weekly data on new unemployment insurance claims; a high-frequency leading indicator of labour market health.' },
+  { term: 'GDP (Gross Domestic Product)', category: 'macro', definition: 'The total monetary value of all goods and services produced within a country in a given period; the broadest measure of economic output.' },
+  { term: 'Recession', category: 'macro', definition: 'Traditionally defined as two consecutive quarters of negative GDP growth; more broadly, widespread economic contraction across indicators.' },
+  { term: 'Stagflation', category: 'macro', definition: 'A combination of stagnant growth, high unemployment, and persistent inflation — the worst-case scenario for central bankers.' },
+  { term: 'Disinflation', category: 'macro', definition: 'A slowdown in the rate of inflation — prices are still rising but more slowly; distinct from deflation where prices are falling.' },
+  { term: 'Deflation', category: 'macro', definition: 'A sustained decline in the general price level, often associated with weak demand, falling wages, and debt deflation spirals.' },
+  { term: 'Fiscal Policy', category: 'macro', definition: 'Government spending and tax decisions made by elected officials to influence economic activity; distinct from central bank monetary policy.' },
+  { term: 'Monetary Policy', category: 'macro', definition: 'Central bank actions to manage money supply and interest rates to achieve price stability, full employment, and growth.' },
+  { term: 'Debt Ceiling', category: 'macro', definition: 'A legislative cap on U.S. government borrowing; political standoffs over raising it can rattle markets and risk a technical default.' },
+  { term: 'Treasury Yield', category: 'macro', definition: 'The return on U.S. government bonds; 2-year and 10-year yields are benchmarks for monetary policy expectations and economic growth.' },
+  { term: 'Yield Curve Inversion', category: 'macro', definition: 'When short-term Treasury yields exceed long-term yields — historically one of the most reliable leading indicators of recession.' },
+  { term: 'Real Interest Rate', category: 'macro', definition: 'The nominal interest rate adjusted for inflation (real = nominal − inflation); positive rates are contractionary, negative are stimulative.' },
+  { term: 'Dollar Index (DXY)', category: 'macro', definition: 'A measure of U.S. dollar value relative to a basket of six major currencies; inversely correlated with commodities and risk assets.' },
+  { term: 'Jackson Hole', category: 'macro', definition: 'An annual economic symposium hosted by the Kansas City Fed; often used by central bankers to signal major upcoming policy shifts.' },
+  { term: 'Forward Guidance', category: 'macro', definition: 'Central bank communication about future policy intentions to manage market expectations before taking action.' },
+  { term: 'Risk Premium', category: 'macro', definition: 'The excess return demanded for taking on additional risk relative to a risk-free asset; widens during periods of market stress.' },
+  { term: 'Equity Risk Premium (ERP)', category: 'macro', definition: 'The excess return of the stock market over the risk-free rate; used to assess whether equities are fairly valued versus bonds.' },
+  { term: 'Global Macro', category: 'macro', definition: 'An investment strategy based on top-down macroeconomic and political analysis to trade currencies, rates, commodities, and equities.' },
+  { term: 'EM (Emerging Markets)', category: 'macro', definition: 'Economies at an intermediate development stage (e.g., Brazil, India, Mexico) with higher growth potential but greater political and currency risk.' },
+  { term: 'DM (Developed Markets)', category: 'macro', definition: 'Mature economies with stable institutions and deep capital markets (e.g., U.S., UK, Germany, Japan); lower growth but more predictable risk profiles.' },
+  { term: 'Safe Haven', category: 'macro', definition: 'Assets investors seek during stress — U.S. Treasuries, Japanese yen, Swiss franc, and gold — due to perceived stability and deep liquidity.' },
+  { term: 'Commodity Supercycle', category: 'macro', definition: 'A prolonged 10-20 year period of above-trend commodity prices driven by structural demand growth, often tied to industrialisation in major economies.' },
+  { term: 'Petrodollar', category: 'macro', definition: 'USD earned from oil exports, recycled into U.S. Treasuries by oil producers, underpinning global dollar demand and reserve currency status.' },
+  { term: 'Twin Deficits', category: 'macro', definition: 'When a country runs both a fiscal deficit and a current account deficit simultaneously; considered a long-term headwind for its currency.' },
+  { term: 'Carry (FX)', category: 'macro', definition: 'Profiting from interest rate differentials by borrowing in a low-rate currency and investing in a high-rate one; rapidly unwound during risk-off episodes.' },
+  { term: 'Petrodollar Recycling', category: 'macro', definition: 'The process by which oil-exporting nations invest their surplus USD earnings into U.S. and global financial markets, supporting dollar strength.' },
+  { term: 'Credit Cycle', category: 'macro', definition: 'The expansion and contraction of credit availability over economic cycles; loose credit fuels booms while tight credit accelerates busts.' },
+  { term: 'Financial Conditions Index (FCI)', category: 'macro', definition: 'A composite measure of rates, spreads, equity valuations, and dollar strength that summarises how easy or tight financial conditions are for the economy.' },
+  { term: 'Velocity of Money', category: 'macro', definition: 'The rate at which money circulates through the economy; falling velocity can offset monetary expansion, muting inflationary effects.' },
+  { term: 'M2 Money Supply', category: 'macro', definition: 'A broad measure of the money supply including cash, savings, money market accounts, and small time deposits; closely watched for inflation signals.' },
+  { term: 'Helicopter Money', category: 'macro', definition: 'Direct monetary transfers from the central bank to citizens or government accounts, designed to stimulate demand without creating debt.' },
+  { term: 'Yield Curve Control (YCC)', category: 'macro', definition: 'A central bank policy targeting a specific long-term yield by unlimited bond purchases; used by the Bank of Japan to cap 10-year JGB yields.' },
+  { term: 'Current Account', category: 'macro', definition: 'The broadest measure of a country\'s external trade balance, including goods, services, income, and transfers; a surplus means a net lender to the world.' },
+  { term: 'Purchasing Power Parity (PPP)', category: 'macro', definition: 'An exchange rate theory stating currencies should adjust so identical goods cost the same in each country; used to compare real living standards across nations.' },
+]
+
+const TERMS: Term[] = [..._BASE, ...EXTRA_TERMS]
+
 const CATEGORY_LABELS: Record<Category, string> = {
   trading: 'Trading',
   technical: 'Technical',
@@ -980,6 +1143,9 @@ const CATEGORY_LABELS: Record<Category, string> = {
   acronym: 'Acronyms',
   slang: 'Slang',
   crypto: 'Crypto',
+  defi: 'DeFi',
+  nft: 'NFT',
+  macro: 'Macro',
 }
 
 const CATEGORY_COLORS: Record<Category, string> = {
@@ -990,9 +1156,12 @@ const CATEGORY_COLORS: Record<Category, string> = {
   acronym: 'text-cyan-400 border-cyan-400/30 bg-cyan-400/10',
   slang: 'text-pink-400 border-pink-400/30 bg-pink-400/10',
   crypto: 'text-amber-400 border-amber-400/30 bg-amber-400/10',
+  defi: 'text-violet-400 border-violet-400/30 bg-violet-400/10',
+  nft: 'text-rose-400 border-rose-400/30 bg-rose-400/10',
+  macro: 'text-teal-400 border-teal-400/30 bg-teal-400/10',
 }
 
-const ALL_CATEGORIES: Array<Category | 'all'> = ['all', 'trading', 'technical', 'accounting', 'finance', 'acronym', 'slang', 'crypto']
+const ALL_CATEGORIES: Array<Category | 'all'> = ['all', 'trading', 'technical', 'accounting', 'finance', 'acronym', 'slang', 'crypto', 'defi', 'nft', 'macro']
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
@@ -1000,6 +1169,9 @@ export function DictionaryWidget() {
   const [query, setQuery] = useState('')
   const [activeCategory, setActiveCategory] = useState<Category | 'all'>('all')
   const [expanded, setExpanded] = useState<string | null>(null)
+  const [visibleCount, setVisibleCount] = useState(50)
+
+  const PAGE_SIZE = 50
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -1011,10 +1183,19 @@ export function DictionaryWidget() {
     })
   }, [query, activeCategory])
 
-  // Reset expanded entry whenever the category filter changes so a term from
-  // one category cannot appear "open" when browsing a different category.
+  // Slice to the current visible window to avoid mounting thousands of DOM nodes
+  const visible = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount])
+
+  // Reset pagination + expanded entry whenever filter/search changes
   const handleCategory = (cat: Category | 'all') => {
     setActiveCategory(cat)
+    setExpanded(null)
+    setVisibleCount(PAGE_SIZE)
+  }
+
+  const handleSearch = (val: string) => {
+    setQuery(val)
+    setVisibleCount(PAGE_SIZE)
     setExpanded(null)
   }
 
@@ -1027,13 +1208,13 @@ export function DictionaryWidget() {
           <input
             type="text"
             value={query}
-            onChange={e => setQuery(e.target.value)}
+            onChange={e => handleSearch(e.target.value)}
             placeholder={`Search ${TERMS.length}+ terms…`}
             className="w-full pl-7 pr-7 py-1.5 bg-muted/30 border border-border rounded text-xs font-mono placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/50"
           />
           {query && (
             <button
-              onClick={() => setQuery('')}
+              onClick={() => handleSearch('')}
               className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
             >
               <X className="w-3 h-3" />
@@ -1069,48 +1250,58 @@ export function DictionaryWidget() {
             No terms match &quot;{query}&quot;
           </div>
         ) : (
-          filtered.map(t => {
-            // Use category+term as the unique key so duplicate term names across
-            // categories don't collide in React's reconciler or in expanded state.
-            const uid = `${t.category}:${t.term}`
-            const isOpen = expanded === uid
-            return (
-              <div
-                key={uid}
-                className="border border-border/60 rounded bg-card/30 overflow-hidden"
-              >
-                <button
-                  onClick={() => setExpanded(isOpen ? null : uid)}
-                  className="w-full flex items-center justify-between px-2.5 py-1.5 hover:bg-muted/20 transition-colors text-left gap-2"
+          <>
+            {visible.map(t => {
+              // Use category+term as the unique key so duplicate term names across
+              // categories don't collide in React's reconciler or in expanded state.
+              const uid = `${t.category}:${t.term}`
+              const isOpen = expanded === uid
+              return (
+                <div
+                  key={uid}
+                  className="border border-border/60 rounded bg-card/30 overflow-hidden"
                 >
-                  <div className="flex items-center gap-2 min-w-0">
+                  <button
+                    onClick={() => setExpanded(isOpen ? null : uid)}
+                    className="w-full flex items-center justify-between px-2.5 py-1.5 hover:bg-muted/20 transition-colors text-left gap-2"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className={cn(
+                        'flex-none px-1.5 py-px rounded border text-[8px] uppercase tracking-wider hidden sm:inline-block',
+                        CATEGORY_COLORS[t.category],
+                      )}>
+                        {CATEGORY_LABELS[t.category]}
+                      </span>
+                      <span className="font-semibold text-foreground truncate">{t.term}</span>
+                    </div>
                     <span className={cn(
-                      'flex-none px-1.5 py-px rounded border text-[8px] uppercase tracking-wider hidden sm:inline-block',
-                      CATEGORY_COLORS[t.category],
-                    )}>
-                      {CATEGORY_LABELS[t.category]}
-                    </span>
-                    <span className="font-semibold text-foreground truncate">{t.term}</span>
-                  </div>
-                  <span className={cn(
-                    'flex-none text-muted-foreground text-[10px] transition-transform duration-150',
-                    isOpen && 'rotate-180',
-                  )}>▾</span>
-                </button>
-                {isOpen && (
-                  <div className="px-2.5 pb-2 pt-0.5 text-muted-foreground leading-relaxed border-t border-border/40 bg-muted/10">
-                    {t.definition}
-                  </div>
-                )}
-              </div>
-            )
-          })
+                      'flex-none text-muted-foreground text-[10px] transition-transform duration-150',
+                      isOpen && 'rotate-180',
+                    )}>▾</span>
+                  </button>
+                  {isOpen && (
+                    <div className="px-2.5 pb-2 pt-0.5 text-muted-foreground leading-relaxed border-t border-border/40 bg-muted/10">
+                      {t.definition}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+            {visibleCount < filtered.length && (
+              <button
+                onClick={() => setVisibleCount(c => c + PAGE_SIZE)}
+                className="w-full py-1.5 rounded border border-border/60 text-[10px] text-muted-foreground hover:text-foreground hover:bg-muted/20 transition-colors font-mono"
+              >
+                Show more ({filtered.length - visibleCount} remaining)
+              </button>
+            )}
+          </>
         )}
       </div>
 
       {/* Footer count */}
       <div className="flex-none px-3 py-1.5 border-t border-border text-[9px] text-muted-foreground flex justify-between">
-        <span>Showing {filtered.length} of {TERMS.length} terms</span>
+        <span>Showing {Math.min(visibleCount, filtered.length)} of {filtered.length} terms ({TERMS.length} total)</span>
         <span className="text-primary/50">SYMBIOSIS // DICT</span>
       </div>
     </div>
