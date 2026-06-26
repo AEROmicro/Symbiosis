@@ -1,22 +1,9 @@
 import type { Metadata } from 'next'
-import localFont from 'next/font/local'
 import { Analytics } from '@vercel/analytics/next'
 
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
-import './globals.css'
-
-// 1. Local Fira Code configuration
-const firaCode = localFont({
-  src: './fonts/FiraCode-VariableFont_wght.woff2',
-  variable: '--font-sans'
-})
-
-// 2. New Local JetBrains Mono configuration (Offline Safe)
-const jetbrainsMono = localFont({
-  src: './fonts/JetBrainsMono-VariableFont_wght.woff2',
-  variable: '--font-mono'
-})
+import './globals.css' // We will declare the fonts inside here instead!
 
 export const metadata: Metadata = {
   title: 'Symbiosis | Terminal Stock Tracker',
@@ -36,7 +23,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${jetbrainsMono.variable} ${firaCode.variable} font-mono antialiased`}>
+      {/* We apply the CSS variables manually matching your font utilities */}
+      <body className="--font-mono --font-sans font-mono antialiased">
         {children}
         <Analytics />
         <script
