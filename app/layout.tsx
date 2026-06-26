@@ -1,25 +1,22 @@
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
-import { JetBrains_Mono } from 'next/font/google' // Fixed: Added missing google import
 import { Analytics } from '@vercel/analytics/next'
 
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
 import './globals.css'
 
-// 1. Your clean Local Font configuration
+// 1. Local Fira Code configuration
 const firaCode = localFont({
   src: './fonts/FiraCode-VariableFont_wght.woff2',
-  variable: '--font-sans' // Added variable here so it works in your body class
+  variable: '--font-sans'
 })
 
-// 2. Your clean Google Font configuration
-const jetbrainsMono = JetBrains_Mono({ 
-  subsets: ["latin"],
+// 2. New Local JetBrains Mono configuration (Offline Safe)
+const jetbrainsMono = localFont({
+  src: './fonts/JetBrainsMono-VariableFont_wght.woff2',
   variable: '--font-mono'
 })
-
-// Removed the duplicate Fira_Code declaration that was crashing the app
 
 export const metadata: Metadata = {
   title: 'Symbiosis | Terminal Stock Tracker',
