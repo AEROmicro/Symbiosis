@@ -1,0 +1,43 @@
+id: com.aeromicro.Symbiosis
+runtime: org.freedesktop.Platform
+runtime-version: '24.08'
+sdk: org.freedesktop.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.node22
+command: symbiosis-app
+finish-args:
+  - --share=ipc
+  - --socket=x11
+  - --socket=wayland
+  - --socket=pulseaudio
+  - --share=network
+  - --device=dri
+
+modules:
+  - name: symbiosis
+    buildsystem: simple
+    build-options:
+      append-path: /usr/lib/sdk/node22/bin
+      env:
+        ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+    sources:
+      - type: git
+        url: https://github.com/AEROmicro/Symbiosis.git
+        branch: main
+      - generated-sources.json
+      - type: file
+        url: https://github.com/electron/electron/releases/download/v31.0.0/electron-v31.0.0-linux-x64.zip
+        sha256: f4ace4139d039bc7928cfc807d6e07d708dfd1f93fb7bab55ae5c9cecfa6c521
+        dest: electron-cache/
+        dest-filename: electron-v31.0.0-linux-x64.zip
+
+    build-commands:
+      - export electron_config_cache=electron-cache
+      - npm ci --offline --cache=flatpak-node/npm-cache
+      - npm run build
+      - mkdir -p /app/share/symbiosis
+      - cp -r . /app/share/symbiosis/
+      - mkdir -p /app/bin
+      - echo '#!/bin/sh' > /app/bin/symbiosis-app
+      - echo 'exec node /app/share/symbiosis/node_modules/.bin/next start /app/share/symbiosis' >> /app/bin/symbiosis-app
+      - chmod +x /app/bin/symbiosis-app
