@@ -3,6 +3,27 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@font-face {
+  font-family: 'Fira Code';
+  src: url('./fonts/FiraCode-VariableFont_wght.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('./fonts/JetBrainsMono-VariableFont_wght.woff2') format('woff2');
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-sans: 'Fira Code', monospace;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
 /* Matrix Terminal Theme - Always Dark */
 :root {
   --background: oklch(0.08 0.01 150);
