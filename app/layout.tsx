@@ -1,5 +1,10 @@
 import type { Metadata } from 'next'
-import { JetBrains_Mono, Fira_Code } from 'next/font/google'
+
+import localFont from 'next/font/local';
+const firaCode = localFont({
+  src: './fonts/FiraCode-VariableFont_wght.woff2',
+});
+
 import { Analytics } from '@vercel/analytics/next'
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
